@@ -1,0 +1,750 @@
+<?
+/* FICHIER DE FONCTIONS */
+// PARTAGE PAR TOUTES LES APPLIS
+// quelques variables globales
+$nbcarmxlist=50; // nbre de caractères max affichés par cellules dans les tableaux liste
+$nbligpp_def=15; // nbre de lignes affichées par page par défaut
+// servant ds les progs d'édition
+$nbrtxa=5; // nbre de lignes des textarea
+$nbctxa=40; // nbre de colonnes des textarea
+$nValRadLd=4; // nbre de valeurs passage liste déroulante/boutons radio case à cocher
+$SzLDM=6; // parmetre size pour les listes déroulantes multiples
+$VSLD="#SEL#"; // caractères inséré en début de valeur de listes indiquant la sélection
+$carsepldef="-"; // caractère par défaut séparant les valeur dans les listes déroulantes
+$CSpIC=""; // caractère pour "isoler" les noms de champs merdiques
+// ne fonctionne qu'avec des versions récentes de MySql
+$MaxFSizeDef="100000"; // taille max des fichiers joints par défaut!!
+
+// Nom de la table de description des autres
+$TBDname="DESC_TABLES";
+// nom du champ contenant les caractéristiques globales à la table
+$NmChDT="TABLE0COMM";
+
+$ListTest="linux xsir-intralinux 126.0.26.2";
+$ListDev="linuxk6 192.168.0.20 192.168.0.30";
+
+// NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
+require_once ("funct_sso.inc");
+// et tt ce qui concerne l'objet PYA
+require_once("PYAObj_def.inc");
+require_once("debug_tools.inc"); // fonctions servant au debogage
+
+
+// fonction qui retourne une ext fonction de l'adresse de l'Hôte
+function RetEFAH($UC=false) {
+global $ListTest,$ListDev,$HTTP_HOST;
+$HostName=($HTTP_HOST=="" ? $_SERVER["HTTP_HOST"] : $HTTP_HOST);
+if (stristr($ListTest,$HostName)) {
+   return ($UC ? "!TEST_" : "_test"); }
+else if (stristr($ListDev,$HostName)) {
+   return ($UC ? "!LOC_" : "_loc"); }
+else return ("");
+}
+
+// test si une chaine correspond à un fichier image
+// ie si son nom contient l'extension .gif, .jpeg, etc ...
+function TestNFImg($Nmf){
+return(strstr(strtolower($Nmf),".gif") or
+     strstr(strtolower($Nmf),".jpg") or
+     strstr(strtolower($Nmf),".png") or
+     strstr(strtolower($Nmf),".jpeg"));
+}
+
+// conversion d'une date en français jj/mm/aa vers anglais aa-mm-jj
+function DateA($DateOr){
+$tab=explode("/",$DateOr);
+$tab[0]=$tab[0]+0;
+$tab[1]=$tab[1]+0;
+$DateOr=$tab[2]."-".$tab[1]."-".$tab[0];
+return($DateOr);
+}
+// fonction inverse (anglais vers français)
+function DateF($DateOr){
+$tab=explode("-",$DateOr);
+$tab[0]=$tab[0]+0;
+$tab[1]=$tab[1]+0;
+$DateOr=$tab[2]."/".$tab[1]."/".$tab[0];
+return($DateOr);
+}
+// fonction qui vire les x derniers car d'une chaine
+function vdc($strap,$nbcar) {
+return (substr($strap,0,strlen($strap)-$nbcar));
+}
+
+// fonction qui renvoie x espaces insécables
+function nbsp($i=1){
+return(str_repeat("&nbsp;",$i));
+}
+
+// connection et sélection éventuelle d'une base
+function msq_conn_sel($Host,$User,$Pwd,$DB="") {
+     mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur $Host avec le user $User, passwd: ***** ");
+if ($DB!="") mysql_select_db($DB) or die ("Impossible d'ouvrir la base de données $DB.");}
+
+// fonction qui effectue une requete mysql, et affiche une erreur avec la requete si necessaire
+function msq($req,$lnkid="",$mserridrq="") {
+  $messret="<BR><BR><a href=\"javascript:history.back()\">RETOUR</A> à la page précédente";
+  if ($lnkid=="") { // connection par la connexion courante
+    $ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  else
+    $ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
+return $ret;}
+
+// fonction qui echoise un texte dans un style
+function echspan($style,$text) {
+         echo "<span class=\"$style\">$text</span>";
+}
+
+// fonction qui echoise un champ n
+function echochphid($NmC,$ValC) {
+         echo "<input type=\"hidden\" name=\"$NmC\" value=\"$ValC\">\n";
+}
+
+// finction qui vérifie qu'une adresse mail est valide
+// ie un @, pas d'espaces et pas de retour chariots
+function VerifAdMail($admail) {
+         if (strstr($admail,"@") && !strstr($admail," ")  && !strstr($admail,"\n"))
+                  { return (true) ;}
+         else return(false);
+}
+
+// fonction qui affiche du HTML customisé fonction d'une chaine de car
+function DispCustHT($Val2Af) {
+   // si dans la chaine il y a un @, pas d'espaces ni de retour chariot, alors c'est une adressemail 
+   if (VerifAdMail($Val2Af))
+      {
+      $Val2Af="<A HREF=\"mailto:".$Val2Af."\">".$Val2Af."</a>";
+      }
+  else if (strstr($Val2Af,"http://")  && !strstr($Val2Af,"\n"))
+      {
+      $Val2Af="<A HREF=\"".$Val2Af."\" target=\"_blank\">".$Val2Af."</a>";
+      }
+  else if (strstr($Val2Af,"www.")  && !strstr($Val2Af," ") && !strstr($Val2Af,"\n"))
+      {
+      $Val2Af="<A HREF=\"http://".$Val2Af."\" target=\"_blank\">".$Val2Af."</a>";
+      }
+  else {  // sinon traitement divers
+      $Val2Af=ereg_replace("\n","<br>", $Val2Af);
+      $Val2Af=ereg_replace("<","&lt;", $Val2Af);
+      $Val2Af=ereg_replace(">","&gt;", $Val2Af);
+      $Val2Af=($Val2Af=="" ? "&nbsp;" : $Val2Af);
+      }
+return ($Val2Af);
+}
+
+// fonction d'effacement d'un fichier s'il existe
+function delfich($ChemFich) {
+  // echo "Chemin complet du fichier a effacer :$ChemFich<BR>";
+  if (file_exists($ChemFich)) unlink ($ChemFich);
+  }
+
+// fonction qui récupère un libellé dans une table fonction de la clé
+// sert aussi à tester si un enregistrement existe (renvoie faux sinon)
+function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {
+$wheresup=($wheresup!="" ? " AND ".$wheresup : "");
+$req="SELECT $ChpCle, $ChpLib FROM $CSpIC$Table$CSpIC WHERE $ChpCle='$ValCle' $wheresup";
+$reqRL=msq($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? ""
+:$lnkid));if (mysql_num_rows($reqRL)>0) {
+  $resRL=mysql_fetch_row($reqRL);
+  return($resRL[1]);
+  }
+else return (false);
+}
+
+// fonction qui récupère les champ libellé (0) ou commentaire(1) d'une table
+function RecLibTable($NM_TABLE,$offs) {
+global $TBDname,$NmChDT;
+$req="SELECT LIBELLE,COMMENT FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";$reqRL=mysql_query($req) or die("Requete mysql de RecLibTable invalide : <I>$req</I>");$resRL=mysql_fetch_row($reqRL);
+return($resRL[$offs]);
+}
+
+/* fonction de traitement des champs liés
+ arg1: chaine brute de liaison, arg2: valeur cherchée (optionnelle)
+ la chaine de liaison comporte 2 parties:
+ Nom_base,nom_serveur,nom_user,passwd;0: table, 1: champ lié (clé); 2: ET SUIVANTS champs affichés
+
+retourne un tableau associatif si valc="", une valeur sinon
+A priori, $reqsup avait été implémenté pour la gestion de projet, mais n'est plus utilisé*/
+
+function ttChpLink($valb0,$reqsup="",$valc=""){
+global $DBHost,$DBUser,$DBName,$carsepldef,$TBDname;
+//$valb0=str_replace (' ','',$valb0); // enlève espaces indésirables
+$valbrut=explode(';',$valb0);
+if (count($valbrut)>1) { // connection à une base différente
+  $lntable=$valbrut[1];
+  $defdb=explode(',',$valbrut[0]);
+  $newbase=true;
+ // si user et/ou hote d'accès à mysql est différent, on etablit une nvlle connexion Mysql
+   if (($defdb[1]!="" && $defdb[1]!=$DBHost)||($defdb[2]!="" && $defdb[2]!=$DBUser)) {
+     $lnc=mysql_connect($defdb[1],$defdb[2],$defdb[3]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: ***** ");
+	 $newconnect=true;
+     }
+   mysql_select_db($defdb[0]) or die ("Impossible d'ouvrir la base de données $defdb[0].");
+  }
+else { //commme avant
+   $lntable=$valbrut[0];
+   $newbase=false;
+   $newconnect=false;
+   }
+// 0: table, 1: champ lié (clé); 2: ET SUIVANTS champs affichés
+$defl=explode(',',$lntable);
+$nbca=0; // on regarde les suivants pour construire la requete
+$rcaf="";
+/* si le 1er à afficher champ comporte un & au début, il faut aller cherche les valeurs dans une 
+table; les paramètres sont  indiqués dans les caractéristiques d'édition de CE champ dans la table  de définition*/
+if (strstr($defl[2],"&")) { // si chainage
+    $nmchp=substr ($defl[2],1); // enlève le &
+       if (strstr($nmchp,"@")) { // si classement sur ce champ
+         $nmchp=substr ($nmchp,1); // enlève le @
+         $orderby=" order by $nmchp ";
+         }
+     $rcaf=$nmchp;
+     $rqvc=msq("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
+     $resvc=mysql_fetch_row($rqvc);
+     $valbchain=$resvc[0];
+    }
+else {
+     while ($defl[$nbca+2]!="") {
+       $nmchp=$defl[$nbca+2];
+       if (strstr($nmchp,"!")) { // caractère spérateur défini
+         $nmchp=explode("!",$nmchp);
+       $tbcs[$nbca+1]=$nmchp[0]; // séparateur avant le "!"
+       $nmchp=$nmchp[1];
+         }
+       if (strstr($nmchp,"@")) { // si classement sur ce champ
+         $nmchp=substr ($nmchp,1); // enlève le @
+       $orderby=" order by $nmchp "; 
+         }
+       $rcaf=$rcaf.",".$nmchp;
+       $nbca++;
+       }
+}
+ // soit on cherche 1 et 1 seule valeur
+if  ($valc!="") {
+    $whsl=" where $defl[1]='$valc'";
+    }
+// soit la liste est limitée par une clause where supplémentaire
+else {
+     $whsl=$reqsup;
+     }
+$rql=msq("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby");
+// constitution du tableau associatif à 2 dim de corresp code ->lib
+//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <BR>-->";
+$tabCorlb=array();
+while ($resl=mysql_fetch_row($rql)) {
+  //$cle=strtoupper($resl[0]);
+	$cle=$resl[0];
+	//echo "<!--debug2: $cle\n-->";
+  if (isset($valbchain)) { // champ lié à nouveau
+     $resaf=ttChpLink($valbchain,"",$cle); // on réentre dans la fonction et on va chercher dans le champ 
+     }
+  else { // pas de liaison, on construit
+    $resaf=$resl[1];
+    for ($k=2;$k<=$nbca;$k++) {
+      $cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
+      $resaf=$resaf.$cs.$resl[$k];
+      }
+  }
+  $tabCorlb[$cle]=$resaf; // tableau associatif de correspondance code -> libellé
+  //echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
+  } 
+  // fin boucle sur les résultats
+// retablit les paramètres normaux si nécéssaire
+if ($newconnect) {
+	mysql_close($lnc);
+	DBconnect(); // réouvre la session normale
+	}
+if ($newbase) mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
+if ($valc!="") {
+  if ($resaf=="") $resaf="N.C.";
+  return ($resaf);
+  }
+else {
+	return($tabCorlb); // retourne le tableau associatif
+	}
+}
+
+// info serveur
+function pinfserv() {
+//  echo gethostbyaddr ("127.0.0.1");
+  echo gethostbyname ("localhost");
+  /*getmxrr("localhost",$mxhosts) ;
+  effectue une recherche DNS pour obtenir les MX de l`hôte hostname. Retourne TRUE si des 
+enregistrements sont trouvés, et FALSE si une erreur est rencontrée, ou si la recherche échoue.
+La liste des enregistrements MX est placée dans le tableau mxhosts.
+	foreach ($mxhosts as $nameh)
+     	{ echo $nameh." " ;} */   
+}
+
+
+// fonction qui retourne le type d'un champ
+// Utiliser plutot la fonction ShowField qui retourne un tableau avec beaucoup plus d'infos
+function mysqft ($NOMC,$NM_TABLE)
+{
+$resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
+return (mysql_field_type($resf,0));
+}
+// fonction qui retourne les flags d'un champ
+// Utiliser plutot la fonction ShowField qui retourne un tableau avec beaucoup plus d'infos
+function mysqff ($NOMC,$NM_TABLE)
+{
+$resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
+return (mysql_field_flags($resf,0)); 
+}
+// fonction qui retourne un tableau de hachage des caract d'un champ
+function ShowField($NOMC,$NM_TABLE) {
+$table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
+return (mysql_fetch_array($table_def));
+}
+
+
+// fonction qui affiche une liste déroulante, ou des boutons radio ou cases à cocher
+// ceci fonction du nombre de valeurs spécifiées dans la variable globale $nValRadLd
+// les valeurs selectionnées sont précédées de la chaine $VSLD
+// arguments :
+// - un tableau associatif clé=>valeur
+// - le nom du controle
+// - s'il est multiple ou non (non par défaut)
+// - 4ème argument (optionel) force  les cases à cocher ou boutons radio qqsoit le nbre de valeur
+function DispLD($tbval,$nmC,$Mult="no",$Fccr="") {
+global $nValRadLd,$VSLD,$SzLDM;
+if (count($tbval)==0) {
+   echo "Aucune liste de valeurs disponible <BR>";
+   echo "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
+   }
+elseif (count($tbval)>$nValRadLd && $Fccr=="") { 
+// liste déroulante: nbre val suffisantes et pas de forcage 
+  echo "<SELECT ondblclick=\"document.theform.submit();\" NAME=\"".$nmC;
+  $SizeLDM=min($SzLDM,count($tbval));
+  echo ($Mult!="no" ? "[]\" MULTIPLE SIZE=\"$SizeLDM\">" : "\">");
+  foreach ($tbval as $key =>$val) {
+    echo "<OPTION VALUE=\"$key\" ";
+    if (strstr($val,$VSLD)) {
+      $sel="SELECTED";
+      $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
+      }
+    else $sel="";
+    echo $sel.">$val</OPTION>";
+    } // fin boucle sur les valeurs
+  echo "</SELECT>";
+  echo ($Mult!="no" ? "<br><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
+else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases à cocher si multiple ou pas de forçage en radio
+  { 
+  foreach ($tbval as $key =>$val) {
+    if ($key!="") {
+      echo "<INPUT TYPE=\"CHECKBOX\" NAME=\"".$nmC."[]\" VALUE=\"$key\" ";
+      if (strstr($val,$VSLD)) {
+        $sel="checked";
+        $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
+        }
+      else $sel="";
+      echo $sel.">".$val;
+      echo (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
+      } // fin si valeur non nulle    
+    } // fin boucle sur les valeurs
+  } // fin cases à cocher
+else {// boutons radio
+  foreach ($tbval as $key =>$val) {
+    echo "<INPUT TYPE=\"RADIO\" NAME=\"$nmC\"".($Mult!="no" ? "[]" :"" )." VALUE=\"$key\" ";
+    if (strstr($val,$VSLD)) {
+      $sel="checked";
+      $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
+      }
+    else $sel="";
+    echo $sel.">".$val;
+    echo (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
+    } // fin boucle sur les valeurs
+  }// fin boutons radio
+} // fin fonction
+
+ 
+// fonction qui efface une variable de session si elle existe
+// et la détruit par défaut
+function unregvar($var,$annvar=true)
+{
+if (isset($var)) {
+  session_unregister($var);
+  if ($annvar) unset($$var); // détruit par défaut ensuite
+  }
+}
+
+
+// fonction qui permet de rentrer de protéger un lien par une boite JS ou il faut rentrer un mot de passe
+// le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'état
+function JSprotectlnk() {
+?>
+<SCRIPT>
+function protectlnk(url,passwd,message) {
+	if (passwd==prompt(message,'')) {
+	   location=url;}
+}
+</SCRIPT>
+<?
+}
+// colle le code javascript d'ouverture d'une popup
+function JSpopup($wdth=500,$hght=400,$nmtarget="Intlpopup") {
+global $HTTP_HOST;
+$HostName=($HTTP_HOST=="" ? $_SERVER["HTTP_HOST"] : $HTTP_HOST); // because différentes versions
+// on change le nom de target des popups internet (externes) pour ne pas foutre la merde dans les popups ouvertes sur l'intranet
+$nmtarget=(strstr($HostName,"haras-nationaux.fr")!=false ? "Ext".$nmtarget : $nmtarget);
+?>
+<SCRIPT>
+// ouverture d'une Popup
+var oPopupWin; // stockage du handle de la popup
+function popup(page, width, height) {
+    NavVer=navigator.appVersion;
+	HostName='<?=$HostName?>' // sert au debogage;
+    if (NavVer.indexOf("MSIE 5.5",0) == -1 && NavVer.indexOf("MSIE 6.",0) == -1) {
+        var undefined;
+        undefined='';
+        }
+
+    var tmp;
+    if (oPopupWin) {
+        // Make sure oPopupWin is empty before
+        // calling .close() or we could throw an
+        // exception and never set it to null.
+        tmp = oPopupWin;
+        oPopupWin = null;
+        // Only works in IE...  Netscape crashes
+        // if you have previously closed it by hand
+        if (navigator.appName != "Netscape") tmp.close();
+      }
+  if (width==undefined)
+  width=<?=$wdth?>;
+  if (height==undefined)
+  height=<?=$hght?>;
+    oPopupWin = window.open(page, "<?=$nmtarget?>", "alwaysRaised=1,dependent=1,height=" + height + ",location=0,menubar=0,personalbar=0,scrollbars=1,status=0,toolbar=0,width=" + width + ",resizable=1");
+	oPopupWin.focus();
+	// valeur de retour différente suivant navigateur (merdique a souhait) !!!
+	var bAgent = window.navigator.userAgent;
+	var bAppName = window.navigator.appName;
+	if ((bAppName.indexOf("Explorer") >= 0) && (bAgent.indexOf("Mozilla/3") >= 0) && (bAgent.indexOf("Mac") >= 0))
+		return true; // dont follow link
+	else return false; // dont follow link
+	//return !oPopupWin;
+
+}
+</SCRIPT>
+<?
+}
+/* colle le code javascript d'ouverture d'une popup Loupe de photo qui se redimensionne automatiquement
+Utilisation: appel de cette fonction en php au début du fichier dans l'entete <HEAD> pas ex
+<? JSPopLoup();?>
+ensuite: lien du type <a href="#" onclick="poploup(image_avec_chemin_relatif,titre,commentaire)">
+A noter que le chemin relatif de l'image est donné par rapport au fichier appelant (comme pour une image normale)
+*/
+function JSPopLoup($nmtarget="Intlpopup") {
+// pour assurer compat. avec vieilles versions de php
+$doc_root_vm=($_SERVER["DOCUMENT_ROOT"]=="" ? "/home/httpd/html" : $_SERVER["DOCUMENT_ROOT"]);
+// on calcule le chemin du fichier appeleant pour pouvoir utiliser des liens relatifs
+// i.e. on enlève du chemin absolu (getcwd) la racine du serveur
+$chemcour=str_replace ( $doc_root_vm,"" , getcwd());
+//echo "test chemin:".getcwd()."<br>";
+?>
+<SCRIPT>
+// ouverture d'une Popup Loupe auto redimensionnante
+var oPopupWin; // stockage du handle de la popup
+function poploup(image,titre,commentaire) {
+    NavVer=navigator.appVersion;
+    if (NavVer.indexOf("MSIE 5.5",0) == -1 && NavVer.indexOf("MSIE 6.",0) == -1) {
+        var undefined;
+        undefined='';
+        }
+
+    var tmp; // issu d'un copier/coller antediluvien
+    if (oPopupWin) {
+        // Make sure oPopupWin is empty before
+        // calling .close() or we could throw an
+        // exception and never set it to null.
+        tmp = oPopupWin;
+        oPopupWin = null;
+        // Only works in IE...  Netscape crashes
+        // if you have previously closed it by hand
+        if (navigator.appName != "Netscape") tmp.close();
+      }
+  
+    oPopupWin = window.open("", "<?=$nmtarget?>", "alwaysRaised=1,dependent=1,height=200,location=0,menubar=0,personalbar=0,scrollbars=no,status=0,toolbar=0,width=200,resizable=1");    
+	oPopupWin.document.open();
+	if (titre=="") {titre="Loupe";}
+	oPopupWin.document.write("<HTML><HEAD><TITLE>"+titre+"</TITLE></HEAD>\n<BODY>\n");
+	oPopupWin.document.write("<CENTER>\n");
+	oPopupWin.document.write("<IMG SRC=\"<?=$chemcour?>/" + image+"\"><br>\n");
+	if (commentaire!="") {oPopupWin.document.write("<small><I>"+commentaire+"</I></small><br>\n");}
+	oPopupWin.document.write("<br><a href=\"javascript:self.close()\" ><IMG SRC=\"/hn0700/partage/IMAGES/fermer.gif\" border=\"0\"></a>\n");
+	oPopupWin.document.write("</CENTER>\n"); 
+	oPopupWin.document.write("<script language=\"JavaScript\">\n");
+	// la fonction d'ajustement n'est pas appelée directement, mais toutes les 5 sec pour laisser
+	// le temps aux images de se charger ;-)
+	oPopupWin.document.write("function ajuste() {\n");
+	//oPopupWin.document.write("alert('coucou');"); DEBUG
+   oPopupWin.document.write("var H = document.body.scrollHeight+50;\n");
+	oPopupWin.document.write("var W = document.body.scrollWidth+30;\n");
+	oPopupWin.document.write("var SH = screen.height;\n");
+	oPopupWin.document.write("var SW = screen.width;\n");
+	oPopupWin.document.write("window.moveTo((SW-W)/2,(SH-H)/2);\n");
+	oPopupWin.document.write("window.resizeTo(W,H);\n");
+	oPopupWin.document.write("} \najuste();"); // appel au premier coup
+	oPopupWin.document.write(" \nsetTimeout(\"ajuste()\",2000);");
+		oPopupWin.document.write("</sc"+"r"+"ipt>\n"); // astuce sinon ça arrete le script courant 
+	oPopupWin.document.write("</bo"+"d"+"y></HT"+"M"+"L>\n"); // idem
+	oPopupWin.document.close();
+	oPopupWin.focus();    
+	return !oPopupWin;
+}
+</SCRIPT>
+<?
+}
+//
+// fonction d'affichage de valeur(s) d'une variable, eventuellement tableau, eventuellement associatif
+// la détection du format est automatique
+function echovar($nom_var,$ass="no",$echov=true) {
+global $$nom_var;
+$strres="<PRE><em> Variable $".$nom_var."</em>\n";
+$strres.=var_export($$nom_var,true)."</PRE>";
+if ($echov) 
+	{echo $strres;}
+	else return($strres);
+} 
+
+function retvar($var2ret,$ass="no",$echov=true) {
+if (is_array($var2ret)) {
+  $strres="Tableau".($ass!="no" ? " associatif":"")." \$var2ret: ";
+  if ($ass!="no") { //tableau associatif 
+    foreach ($var2ret as $key=>$val) {
+      $strres.= $key."=>".retvar($val,$ass,$echov)."<br>";
+      }
+    } // fin si associatif
+  else {
+    $i=0;
+    foreach ($var2ret as $val) {
+      $strres.=$i."=>".$val.";";
+      $i++; }
+     }
+  }
+else { // pas tableau
+  $strres="Variable \$var2ret:".$var2ret." (".gettype($var2ret).")";
+}
+if ($echov) 
+	{echo $strres."<BR>\n";}
+	else return($strres);
+} 
+
+
+// Fonction de definition de condition
+// appelée pour les def de liste
+ function SetCond ($TypF,$ValF,$NegF,$NomChp) {
+ if ($ValF!=NULL && $Vaf!="%") {
+    switch ($TypF) { // switch sur type de filtrage
+      case "INPLIKE" : // boite d'entrée
+        $ValF=trim($ValF);
+        if (substr($ValF,-1,1)!="%") $ValF.="%";
+        $cond="$NomChp LIKE '".$ValF."'";
+        break;
+
+      case "LDM" : // liste à choix multiples de valeurs ds ce cas la valeur est un tableau
+                 // la condition résultante est omChp LIKE '%Val1%' or NomChp LIKE '%Val2%' etc ...
+        if (is_array($ValF)) {  // teste Valf est un tabelau
+           foreach ($ValF as $valf) {
+             if ($valf=="%" || $valf=="000") {
+                $cond="";
+                break; // pas de condition s'il y a %
+                }
+             else
+                $cond.="$NomChp LIKE '".$valf."' OR "; // avant on entourait de % la valeur
+             }
+           if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
+                                                          // et rajoute () !!
+           } // si ValF pas tableau
+        else $cond="";
+        break;
+        
+      case "LDMEG" : // liste à choix multiples de valeurs ds ce cas la valeur est un tableau
+       // la condition résultante est un NomChp ='Val1' or NomChp ='Val2' etc ...
+        if (is_array($ValF)) {  // teste Valf est un tabelau
+           foreach ($ValF as $valf) {
+             if ($valf=="%" || $valf=="000") {
+                $cond="";
+                break; // pas de condition s'il y a %
+                }
+             else
+                $cond.="$NomChp='".$valf."' OR ";
+             }
+           if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR  
+	   // et rajoute () !!          
+	   } // si ValF pas tableau
+        else $cond="";
+
+        break;
+        
+      case "DANT" : // date antérieure à
+      case "DPOST" : // date antérieure à
+        if ($ValF=="%" || $ValF=="") break; // pas de condition
+        $oprq=($TypF=="DANT" ? "<=" : ">="); // calcul de l'opérateur
+        $cond="$NomChp $oprq '".DateA($ValF)."'";
+        break;
+
+      case "DATAP" : // date inf et sup
+        if ($ValF[0]!="%" && $ValF[0]!="") $cond="$NomChp >= '".DateA($ValF[0])."'";
+
+        if ($ValF[1]!="%" && $ValF[1]!="") {
+           $cond=($cond=="" ? "" : $cond." AND ");
+           $cond.="$NomChp <= '".DateA($ValF[1])."'";
+           }
+        break;
+         
+      default :
+        $cond="";
+        break;
+      } // fin switch
+  } // fin CalF a une valeur cohérente
+  else $cond="";
+
+
+  if ($cond!="" && $NegF!="") $cond="NOT(".$cond.")"; // negationne éventuellement
+  return($cond);
+} // fin fonction SteCond
+
+// fonction renvoyant un tableau d'objets PYA initialisés en fonction d'une simple requêt SQL
+// les objets sont initialisés à partir des noms de champs et des noms de base du resultat
+function InitPOReq($req,$Base="") {
+global $debug, $DBName;
+  if ($Base=="") $Base=$DBName;
+  $resreq=msq($req." limit 1");
+  $tbValChp=mysql_fetch_row($resreq); // tableau des valeurs de l'enregistrement
+  for ($i=0;$i<mysql_num_fields($resreq);$i++) {
+      $NmChamp=mysql_field_name($resreq,$i);
+      $NTBL=mysql_field_table($resreq,$i);
+      $CIL[$NmChamp]=new PYAobj(); // nouvel objet
+      $CIL[$NmChamp]->NmBase=$DBName;
+      $CIL[$NmChamp]->NmTable=$NTBL;
+      $CIL[$NmChamp]->NmChamp=$NmChamp;
+      $CIL[$NmChamp]->InitPO();
+			$strdbgIPOR.=$NmChamp.", ";
+    } // fin boucle sur les champs du résultat
+  if ($debug) echo("Champs traités par la fct InitPOReq :".$strdbgIPOR."<br>\n");
+  return($CIL);
+}
+
+// fonction envoi de mail text+HTML, pompé sur nexen et bricolé ...
+function mail_html($destinataire, $sujet , $messhtml,  $from)
+{
+$limite = "_parties_".md5 (uniqid (rand()));
+
+$entete = "Reply-to: $from\n";
+$entete .= "From:$from\n";
+$entete .= "Date: ".date("l j F Y, G:i")."\n";
+$entete .= "MIME-Version: 1.0\n";
+$entete .= "Content-Type: multipart/alternative;\n";
+$entete .= " boundary=\"----=$limite\"\n\n";
+
+//Le message en texte simple pour les navigateurs qui
+//n'acceptent pas le HTML
+$texte_simple = "This is a multi-part message in MIME format.\n";
+$texte_simple .= "Ceci est un message est au format MIME.\n";
+$texte_simple .= "------=$limite\n";
+$texte_simple .= "Content-Type: text/plain; charset=\"iso-8859-1\"\r\n";
+$texte_simple .= "Content-Transfer-Encoding: 8bit\n\n";
+//$texte_simple .=  "Procurez-vous un client de messagerie qui sait afficher le HTML !!";
+$texte_simple .=  strip_tags(eregi_replace("<br>", "\n", $messhtml)) ;
+$texte_simple .= "\n\n";
+
+//le message en html original
+$texte_html = "------=$limite\n";
+$texte_html .= "Content-Type: text/html; charset=\"iso-8859-1\"\r\n";
+$texte_html .= "Content-Transfer-Encoding: 8bit\n\n";
+$texte_html .= $messhtml;
+$texte_html .= "\n\n\n------=$limite--\n";
+
+return mail($destinataire, $sujet, $texte_simple.$texte_html, $entete);
+}
+
+// envoi de mail avec pièce jointe
+// pour l'instant utilisé seulement pour les messages anti-spam
+function mail_fj($destinataire,$sujet,$message,$from,$file) {
+//----------------------------------
+// Construction de l'entête
+//----------------------------------
+// On choisi généralement de construire une frontière générée aleatoirement
+// comme suit. (REM: je n'en connais pas la raison profonde)
+$boundary = "-----=".md5(uniqid(rand()));
+
+// Ici, on construit un entête contenant les informations
+// minimales requises.
+// Version du format MIME utilisé
+$header = "MIME-Version: 1.0\r\n";
+// Type de contenu. Ici plusieurs parties de type different "multipart/mixed"
+// Avec un frontière définie par $boundary
+$header .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
+$header .= "\r\n";
+
+//--------------------------------------------------
+// Construction du message proprement dit
+//--------------------------------------------------
+
+// Pour le cas, où le logiciel de mail du destinataire
+// n'est pas capable de lire le format MIME de cette version
+// Il est de bon ton de l'en informer
+// REM: Ce message n'apparaît pas pour les logiciels sachant lire ce format
+$msg = "Je vous informe que ceci est un message au format MIME 1.0 multipart/mixed.\r\n";
+
+//---------------------------------
+// 1ère partie du message
+// Le texte
+//---------------------------------
+// Chaque partie du message est séparé par une frontière
+$msg .= "--$boundary\r\n";
+
+// Et pour chaque partie on en indique le type
+$msg .= "Content-Type: text/plain; charset=\"iso-8859-1\"\r\n";
+// Et comment il sera codé
+$msg .= "Content-Transfer-Encoding:8bit\r\n";
+// Il est indispensable d'introduire une ligne vide entre l'entête et le texte
+$msg .= "\r\n";
+// Enfin, on peut écrire le texte de la 1ère partie
+
+$msg .= $message."\r\n";
+$msg .= "\r\n";
+
+//---------------------------------
+// 2nde partie du message
+// Le fichier
+//---------------------------------
+// Tout d'abord lire le contenu du fichier
+// le chenmin du fichier est relatif au script appelant cette fonction
+if ($file!="" && file_exists($file)) { // si fichier est spécifié et existe ....
+	$fp = fopen($file, "rb");   // b c'est pour les windowsiens
+	$attachment = fread($fp, filesize($file));
+	fclose($fp);
+	
+	// puis convertir le contenu du fichier en une chaîne de caractère
+	// certe totalement illisible mais sans caractères exotiques
+	// et avec des retours à la ligne tout les 76 caractères
+	// pour être conforme au format RFC 2045
+	$attachment = chunk_split(base64_encode($attachment));
+	
+	// Ne pas oublier que chaque partie du message est séparé par une frontière
+	$msg .= "--$boundary\r\n";
+	// Et pour chaque partie on en indique le type
+	$msg .= "Content-Type: text/html; name=\"$file\"\r\n";
+	// Et comment il sera codé
+	$msg .= "Content-Transfer-Encoding: base64\r\n";
+	// Petit plus pour les fichiers joints
+	// Il est possible de demander à ce que le fichier
+	// soit si possible affiché dans le corps du mail
+	$msg .= "Content-Disposition: inline; filename=\"$file\"\r\n";
+	// Il est indispensable d'introduire une ligne vide entre l'entête et le texte
+	$msg .= "\r\n";
+	// C'est ici que l'on insère le code du fichier lu
+	$msg .= $attachment . "\r\n";
+	$msg .= "\r\n\r\n";
+	
+	// voilà, on indique la fin par une nouvelle frontière
+	$msg .= "--$boundary--\r\n";
+} 
+else { // le fichier attaché n'a pas été trouvé
+	$msg.="Le fichier $file qui devait etre attaché à ce ce message n\'a pas  été trouvé";
+}
+
+return mail($destinataire, $sujet, $msg,"Reply-to: $from\r\nFrom: $from\r\n".$header);
+}
+?>

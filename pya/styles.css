@@ -1,0 +1,167 @@
+/* Définition de règle */
+@charset "iso-8859-1";
+
+A, A:visited {font-weight: bold;text-decoration: none;
+    color: #505050}
+
+a:hover { color: #c03000; text-decoration: none }
+
+body,table {
+    background-color: #ffffff;
+    color: #000000;
+    font-family:  Arial, Helvetica, Geneva, Swiss, SunSans-Regular;
+    font-size: 11px;
+    font-weight: normal;
+    line-height: 13px
+		}
+
+img {border-style:none}
+
+table {
+    border-width: thin;
+    border-color: #FFF3F3;
+  }
+	
+TD {
+    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 2px
+   }
+
+BIG {
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 13px;
+    color : #990033}
+
+TH {
+    background-color: #990000;
+		color:white; 
+    font-weight: bold;
+		font-size:12px;
+    line-height: 13px;
+    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 2px}
+
+.backredc {
+    background-color: #FADF88;
+	}
+
+.backwhiten {
+    background-color: #ffffff;
+	}
+/* case a cocher négation requete 	*/
+.FdR {
+	font-weight: bold;
+  padding-right: 2px;
+	padding-left: 1px;
+	padding-top: 5px;
+	padding-bottom: 1px;
+	border-style: groove;
+	border-width: thin;
+	}
+
+/* H1,H2,H3,H4,H5,H6 {
+		color : #990033} */
+		
+H2,H3,H4,H5,H6 {
+    font-style: normal;
+		color : #c03000} 
+    
+
+H1 {
+    color : #900000;
+		font-weight: bold;
+    font-size: 20px;
+    line-height: 22px;
+	  }    
+
+H2 {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 18px;
+    }
+
+H3 {
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
+	}
+H4 {
+    font-size: 12px;
+    line-height: 14px;
+	}
+H5 {
+    font-size: 11px;
+    line-height: 13px;
+	}
+
+H6 {
+    font-weight: bold;
+    font-size: 9px;
+    line-height: 10px;
+    margin-top:0;
+    margin-bottom:0;
+    }
+
+small {
+    font-size: 9px;
+    line-height: 10px;
+    margin-top:0;
+    margin-bottom:0;
+    }
+		
+LI {
+    font-size: 13px;
+    line-height: 18px;
+		color: #605030;
+    }
+
+
+.fxbutton, .fxsmallbutton, .FdR, .LRcoledit {	
+	background-color: #cc6600; 
+	color:white; 
+}
+
+.fxbutton, .fxsmallbutton, .FdR  { 
+	font-size: 11px; 
+	border-style: ridge;
+	border-top-color: #ffcc00; 
+	border-left-color: #ffcc00; 
+	border-bottom-color: #cc3300; 
+	border-right-color: #cc3300; 
+	}
+
+.fxsmallbutton  { 
+	font-weight: bold;
+  padding-right: 2px;
+	padding-left: 2px;
+	padding-top: 1px;
+	padding-bottom: 0px;
+	border-width: thin;
+	}
+
+.fxbutton { 
+	padding-right: 5px;
+	padding-left: 5px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	border-width: medium;
+	}
+	
+A.fxbutton, A.fxsmallbutton {color:white; }
+A.fxbutton:visited, A.fxsmallbutton:visited {color:white; }
+A.fxbutton:hover, A.fxsmallbutton:hover {color:#FADF88;
+			border-style: groove;	}
+
+
+DIV.PYA .infoserv {font-style: normal;
+    font-weight: bold;
+    font-size: 9px;
+    line-height: 10px;
+	}
+
+
