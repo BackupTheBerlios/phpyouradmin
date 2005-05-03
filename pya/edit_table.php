@@ -55,9 +55,6 @@ if ($modif==1 || $modif==2) { // recup des valeurs de l'enregistrement
     $req=msq("$reqcust $where");
     $tbValChp=mysql_fetch_array($req);
   }
-?>
-<TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
-<? 
 
 
 if ($NM_TABLE!="__reqcust") {
@@ -71,11 +68,16 @@ if ($NM_TABLE!="__reqcust") {
      $ECT[$NM_CHAMP]->NmChamp=$NM_CHAMP;
      $ECT[$NM_CHAMP]->TypEdit=$modif;
      $ECT[$NM_CHAMP]->InitPO();
+	 if ($ECT[$NM_CHAMP]->TypeAff=="POPL") $poplex=true; // s'il existe au moins une edition en popup liée
      }
    } // fin si pas req custom
 else { // requete custom
      $ECT=InitPOReq($reqcust." ".$where,$DBName);
 }
+if ($poplex) JSpopup(); // s'il existe au moins une edition en popup liée colle le code d'ouverture d'une popup
+?>
+<TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
+<?
 
 foreach ($ECT as $PYAObj) {
   if ($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq spéciale
@@ -86,22 +88,22 @@ foreach ($ECT as $PYAObj) {
   if ($modif==2) { // en cas de COPIE on annule la valeur auto incrémentée
     if (stristr($PYAObj->FieldExtra,"auto_increment")) $PYAObj->ValChp="";
     }
-  
+
   // traitement valeurs avant MAJ
   $PYAObj->InitAvMaj($$VarNomUserMAJ);
-  
+
   if ($PYAObj->TypeAff!="HID") {
       echo "<TR><TD>".$PYAObj->Libelle;
-  
+
     if ($PYAObj->Comment!="") echo "<BR><span class=\"legendes9px\">".$PYAObj->Comment."</span>";
-     echo "</TD>\n<TD>";  
-    
+     echo "</TD>\n<TD>";
+
     $PYAObj->EchoEditAll(false); // !!!!!!!!!!!!!!!! //
 
      echo "</TD>\n</TR>"; //finit la ligne du tableau
    } else
         $PYAObj->EchoEditAll(true); // !!!!!!!!!!!!!!!! /
-   
+
   } // fin while
 ?>
 </table>

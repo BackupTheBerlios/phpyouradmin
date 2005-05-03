@@ -4,7 +4,7 @@ $dbgn2=false;
 include ("infos_conn_MySql.inc");
 $infosparsed=true; // pour savoir si ce fichier a été parsé
 //include("fonctions.php"); ceci est appelé en bas ...
-$VerNum="0.892"; // popup
+$VerNum="0.891";
 $MaxFSize=1000000; //taille max des fichiers téléchargés
 $jsppwd="toto"; // mot de passe pour accéder aux pages protégées
 // ceci est spécifié dans le fichier fonctions.php

@@ -19,6 +19,7 @@ class PYAobj {
                 // si contient RAD force boutons radios
   var $Valeurs;
   var $Val2=""; // valeurs en plus, évaluées en fonction de l'enregistrement
+	var $adpopl="popl.php"; // url par défaut de la popup d'édition
   var $TypFilt;
   var $TypCSA;
   var $Tt_AvMaj;
@@ -321,6 +322,7 @@ function EchoEdit($DH=true) {
         case "LDM": // liste déroulante non liée MULTIPLE
         case "LDL":
         case "LDLM":
+				case "POPL":
         // on est en consultation forcée.
         // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur à afficher
         // est certainement à piocher dans une liste clé-valeurs et non à afficher telle quelle
@@ -462,9 +464,15 @@ function EchoEdit($DH=true) {
           echo "<H6>Erreur : valeur(s) $err contenue(s) dans le champ non présente(s) dans la liste ! </h6>";
           }
         }        
-      DispLD($tbval,$this->NmChamp,"yes",$this->Fccr);
+      DispLD($tbval,$this->NmChamp,"yes",$this->Fccr); // liste déroulante, multiple
       break;
-      
+    
+		case "POPL": // popup de sélection
+			echo "Valeur du lien : ".$this->Valeurs.", valeur du champ : ".$this->ValChp;
+			echo '<a href="#" onclick="popup(\''.$this->adpopl.'?Valeurs='.urlencode($this->Valeurs).'&ValChp='.urlencode($this->Valeurs).'\',500,500)">Test Popup</a>';
+			
+		break;
+    		
     case "FICFOT":
       if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
       echo "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\"><B>";

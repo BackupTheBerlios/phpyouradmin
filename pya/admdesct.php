@@ -54,7 +54,7 @@ if (valc=="FICFOT"){
      document.theform.elements[indval].value='#Dossier de stockage par défaut: '+namec;
   }    
 
-else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM') 
+else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL') 
   {
   if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas lié
     document.theform.elements[indtafl].selectedIndex=3; } // auto
@@ -131,28 +131,28 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
 <input type="hidden" name="NM_TABLE" value="<?= $NM_TABLE?>">
     <!--On affiche les colonnes qui correspondent aux champs selectionnés-->
     <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
-    <TR class="backredF_boldwhite" valign="top">
-    <TD><u>Nom du champ</u><br>
+    <THEAD valign="top">
+    <TH><u>Nom du champ</u><br>
     Libellé à afficher<br><? DHelp("admlib") ?>
     <span style="font: 9px">Propriétés:<br>Type&nbsp;; Val. déf.&nbsp;; Null OK&nbsp;; Clé/index&nbsp;; Extra</span>
-    </td>
-    <TD><u>Affichage liste :</u><br>
+    </TH>
+    <TH><u>Affichage liste :</u><br>
     - Ordre<? DHelp("admafl") ?>
-    <BR>- Type<? DHelp("admafl") ?></td>
-    <TD><u>Edition :</u><br>
+    <BR>- Type<? DHelp("admafl") ?></TH>
+    <TH><u>Edition :</u><br>
     - Ordre dans formulaire<br>
-    - Type contrôle saisie<? DHelp("admtyped") ?></td>
-    <TD>Valeurs ou lien<? DHelp("admval") ?><br>
-    <span style="font: 9px">* séparés par des ","</span></td>
-    <TD><u>Ecran de requête :</u><br>
+    - Type contrôle saisie<? DHelp("admtyped") ?></TH>
+    <TH>Valeurs ou lien<? DHelp("admval") ?><br>
+    <span style="font: 9px">* séparés par des ","</span></TH>
+    <TH><u>Ecran de requête :</u><br>
     - Type filtre<? DHelp("admtypfilt") ?>
-    <BR>- Affichage sélectionnable<? DHelp("admafsel") ?></td>
-    <TD><u>Traitements automatiques :</u><br>
+    <BR>- Affichage sélectionnable<? DHelp("admafsel") ?></TH>
+    <TH><u>Traitements automatiques :</u><br>
     - avant MAJ <? DHelp("admttavmaj") ?><br>
     - pendant MAJ  <? DHelp("admttpdtmaj") ?><br>
-    - après MAJ</td>
-    <TD>Commentaires sur ce champ....</td>
-  </TR>
+    - après MAJ</TH>
+    <TH>Commentaires sur ce champ....</TH>
+  </THEAD>
   <? $i=1;
   while ($row=mysql_fetch_array($result)) {
     echo "<TR>";
@@ -203,6 +203,7 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
       <option value=<? es("LDL"); ?>> Liste Deroul. Liée</option>
       <option value=<? es("LDM"); ?>> Liste Deroul. choix mult.</option>
       <option value=<? es("LDLM"); ?>> Liste Der. Liée choix mult.</option>
+	  <option value=<? es("POPL"); ?>> Popup de délection</option>
       <option value=<? es("STA"); ?>> Statique</option>
       <option value=<? es("STAL"); ?>> Statique Liée </option>
       <option value=<? es("FICFOT"); ?>> Fichier-Photo </option>

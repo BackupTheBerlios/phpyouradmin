@@ -90,7 +90,7 @@ Merci<br><br>",
 "com_vers_enbas_bulle"=>"vers le bas de cette page",
 "com_vers_enhaut"=>" haut",
 "com_vers_enhaut_bulle"=>"vers le haut de cette page",
-"com_enter_password"=>"Entrez un mot de passe pour accéder à la partie admin de l'adms",
+"com_enter_password"=>"Entrez un mot de passe pour accéder à la partie admin",
 );
 return ($loc_message[$mess]!="" ?  utf8_decode($loc_message[$mess]) : $mess);
 }

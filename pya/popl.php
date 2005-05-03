@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Selection</title>
+Title="popup de selection"
 </head>
 <body>
 

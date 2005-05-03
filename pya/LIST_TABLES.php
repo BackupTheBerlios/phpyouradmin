@@ -94,7 +94,7 @@ JSprotectlnk();
     <?=trad(LT_nblig_aff_ppage)?>
     <input type="text" name="lc_nbligpp" size="3" maxlength="3" value="<? echo ($nbligpp>0 ? $nbligpp : $nbligpp_def) ?>"><br>
     <input type="checkbox" name="lc_NoConfSuppr" value="No"><?=trad(LT_noconfirmdelete)?><br><br>
-    <small><?=trad(BT_click)?> <a class="fxsmallbutton" href="#" oclick="protectlnk('admadm.php','<?=$jsppwd?>','<?=trad(com_enter_password)?>');"><?=trad(BT_here)?></a> <?=trad(LT_change_table_edit_prop)?></small>
+    <small><?=trad(BT_click)?> <a class="fxsmallbutton" href="#" onclick="protectlnk('admadm.php','<?=$jsppwd?>','<?=trad(com_enter_password)?>');"><?=trad(BT_here)?></a> <?=trad(LT_change_table_edit_prop)?></small>
     <br>
 
     <? } // fin si pas blaireau ni lecture seule
