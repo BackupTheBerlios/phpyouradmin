@@ -335,6 +335,8 @@ On pourra aussi dans ce champ insérer les scripts (entre les balises standards H
 <a name="clog"></a><span class="chapitrered12px">Evolution des versions...<br></span>
 Version courante  <b><? echo $VerNum; ?></b>
 <blockquote>
+<u>0.892, v 0.9 pre2 (01/05/05):</u><br>
+• Possibilité d'administrer des données de tables virtuelles: dans la table DESC_TABLE, on rajoute des enregistrements qui ne correspondent à aucune table (ou champ existant): dans ce cas il faut que le nom de la pseudo table contiennent la chaine '_VTB_'
 <u>0.891, v 0.9 pre2 (01/05/05):</u><br>
 • compatibilité register_globals=Off
 <u>0.890, v 0.9 pre1 (15/10/04):</u><br>

@@ -6,7 +6,8 @@ mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au s
 
 $title="CREATION DE $TBDname";
 $admadm=1; // titre avec les !!
-include ("header.php"); ?>
+include ("header.php"); 
+include ("reg_glob.inc");?>
 <H1>Super Administration de phpYourAdmin</H1>
 <H2>Administration de la table de description <?=$TBDname?></H2> 
 <?

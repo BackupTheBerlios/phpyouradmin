@@ -33,6 +33,7 @@ JSpopup(); ?>
 on est obligé d'utiliser l'index car les noms de champas avec [] ne sont pas supportés par javascript
 */
 function getIndex(what) {
+	
     for (var i=0;i<document.theform.elements.length;i++)
         if (what == document.theform.elements[i]) return i;
     return -1;
@@ -114,16 +115,18 @@ echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$row['NM_CHAMP']."\
 
 // construction de tableaux associatif de hachage contenant 
 // diverses infos sur les champs (type, null, auto_inc, val defaut)
-$table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
-while ($row_table_def = mysql_fetch_array($table_def)) {
-    $NM_CHAMP=$row_table_def['Field'];
-  $FieldType[$NM_CHAMP]=$row_table_def['Type'];
-  $FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-  // si nouvel enregistrement, affecte la valeur par défaut
-  $FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-  $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-  $FieldExtra[$NM_CHAMP]=$row_table_def['Extra']; // auto_increment 
-  }
+if (!strstr($NM_TABLE,"_VTB_")) { // verrue pour autoriser l'edition de tables qui n'existent pas
+	$table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
+	while ($row_table_def = mysql_fetch_array($table_def)) {
+	$NM_CHAMP=$row_table_def['Field'];
+	$FieldType[$NM_CHAMP]=$row_table_def['Type'];
+	$FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+	// si nouvel enregistrement, affecte la valeur par défaut
+	$FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+	$FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+	$FieldExtra[$NM_CHAMP]=$row_table_def['Extra']; // auto_increment 
+	}
+}
 ?>
 </TABLE>
 <br><span class="chapitrered12px"><?= $nbrows; ?> champs dans cette table: </span><br><br>
