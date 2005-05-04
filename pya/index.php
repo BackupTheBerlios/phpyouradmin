@@ -7,6 +7,9 @@ include ("header.php"); ?>
 <blockquote>
 <form action="./LIST_BASES.php" method="post">
 <?=trad("IND_txtacc")?>
+<H4><? echo trad("IND_bddtype")."<br/>";
+DispLD($tb_dbtype,"lc_parenv[db_type]")?></H4>
+<br><br>
 <H4><?=trad("IND_bdduser")?><br>
 <input type="text" name="lc_parenv[MySqlUser]" value="<?=(isset($ss_parenv[MySqlUser]) ? $ss_parenv[MySqlUser] : $DBUser)?>"></H4>
 <H4><?=trad("IND_bddpasswd")?> <br>

@@ -10,6 +10,7 @@ Entrez ci-dessous : ",
 "IND_bddpasswd"=>"Le mot de passe du serveur de base de données",
 "IND_pyauser"=>"L'identifiant servant à tracer les mises à jour",
 "IND_choilang"=>"Langue utilisée",
+"IND_bddtype"=>"Type de serveur de base de donn�es",
 
 "LB_title"=>"Edition des bases du serveur ",
 "LB_txtacc"=>"L'&eacute;dition du contenu des tables n'est accessible que si la base a &eacute;t&eacute; param&eacute;tr&eacute;e &agrave; cet effet.<BR>
@@ -71,7 +72,7 @@ Merci<br><br>",
 
 "BT_retour"=>" << Retour ",
 "BT_valider"=>"Valider",
-"BT_reset"=>"Annuler",
+"BT_reset"=>"R.A.Z.",
 "BT_click"=>"Cliquez",
 "BT_here"=>" ICI ",
 

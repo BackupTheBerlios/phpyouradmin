@@ -134,11 +134,11 @@ if (!strstr($NM_TABLE,"_VTB_")) { // verrue pour autoriser l'edition de tables q
 <input type="hidden" name="NM_TABLE" value="<?= $NM_TABLE?>">
     <!--On affiche les colonnes qui correspondent aux champs selectionnés-->
     <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
-    <THEAD valign="top">
-    <TH><u>Nom du champ</u><br>
+    <TR valign="top">
+    <THEAD><u>Nom du champ</u><br>
     Libellé à afficher<br><? DHelp("admlib") ?>
     <span style="font: 9px">Propriétés:<br>Type&nbsp;; Val. déf.&nbsp;; Null OK&nbsp;; Clé/index&nbsp;; Extra</span>
-    </TH>
+    </THEAD>
     <TH><u>Affichage liste :</u><br>
     - Ordre<? DHelp("admafl") ?>
     <BR>- Type<? DHelp("admafl") ?></TH>
@@ -269,8 +269,10 @@ if (!strstr($NM_TABLE,"_VTB_")) { // verrue pour autoriser l'edition de tables q
     }?>
 </table>
   <br>
-  <a href="./LIST_TABLES.php?admadm=1"><img src="./annuler.gif" border="0" onmouseover="self.status='Retour';return true"></A> 
-  <input type="image" src="valider.gif" border="0">
+        
+  <a href="./LIST_TABLES.php?admadm=1" class="fxvutton"><?=trad(BT_reset)?></A> 
+  &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
   </form>
 </div>
 <? include ("footer.php"); ?>

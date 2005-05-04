@@ -23,6 +23,7 @@ $NmChDT="TABLE0COMM";
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";
 
+include_once('adodb/adodb.inc.php');
 // NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
 require_once ("funct_sso.inc");
 // et tt ce qui concerne l'objet PYA

@@ -1,5 +1,5 @@
 <? //infos techniques PHPYOURADMIN
-$debug=false;
+$debug=true;
 $dbgn2=false;
 include ("infos_conn_MySql.inc");
 $infosparsed=true; // pour savoir si ce fichier a été parsé
@@ -15,6 +15,8 @@ include_once("fonctions.php");
 
 $def_lang="fr";
 $tb_langs=array("fr"=>"#SEL#francais","en"=>"anglais");
+
+$tb_dbtype=array("mysql"=>"#SEL#mysql","postgresq"=>"PostGresql");
 
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)
@@ -120,6 +122,13 @@ if (!isset($ss_parenv[lang])) {
 	}
 
 require "lang_".$ss_parenv[lang].".inc";
+
+if (!isset($ss_parenv[db_type])) {
+	$ss_parenv[db_type]="mysql";
+	$_SESSION["ss_parenv"]["db_type"]=$ss_parenv[db_type];
+	//session_register("ss_parenv[lang]");
+	}
+$_SESSION[db_type]=$ss_parenv[db_type];
 
 if ($lc_CO_USMAJ!=""){
   $$VarNomUserMAJ=$lc_CO_USMAJ;
