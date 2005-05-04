@@ -54,7 +54,7 @@ if (valc=="FICFOT"){
      document.theform.elements[indval].value='#Dossier de stockage par défaut: '+namec;
   }    
 
-else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL') 
+else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL' ||valc=='POPLM' )
   {
   if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas lié
     document.theform.elements[indtafl].selectedIndex=3; } // auto
@@ -190,7 +190,7 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
     if (strlen($val)==1) $val="0".$val;
     echo stripslashes($val);
     echo "\" size=\"5\">";
-    
+
     // Type d'affichage ds édition
     $vares=$row['TYPEAFF'];
     ?><BR>
@@ -203,7 +203,8 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
       <option value=<? es("LDL"); ?>> Liste Deroul. Liée</option>
       <option value=<? es("LDM"); ?>> Liste Deroul. choix mult.</option>
       <option value=<? es("LDLM"); ?>> Liste Der. Liée choix mult.</option>
-	  <option value=<? es("POPL"); ?>> Popup de délection</option>
+	  <option value=<? es("POPL"); ?>> Popup de sélection</option>
+	  <option value=<? es("POPLM"); ?>> Popup sélect. mult</option>
       <option value=<? es("STA"); ?>> Statique</option>
       <option value=<? es("STAL"); ?>> Statique Liée </option>
       <option value=<? es("FICFOT"); ?>> Fichier-Photo </option>

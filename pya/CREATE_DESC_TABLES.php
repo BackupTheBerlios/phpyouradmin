@@ -47,7 +47,7 @@ Sélectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 <table>
 <tr><td><h3>Liste des tables <? echo "(serveur $LBHost $DBHost)"; ?></h3>
 <select name="TableName[]" multiple size="10">
-<? $trest = mysql_list_tables($DBName);
+<? $trest=msq("SHOW TABLES FROM $DBName");// $trest = mysql_list_tables($DBName);
 while ($rst=mysql_fetch_row($trest)) {
   $LNmTb.=$rst[0].";"; // construit une chaine avec ts les noms de tables de la base
   if (strtolower($rst[0])!=strtolower($TBDname))
