@@ -1,0 +1,130 @@
+<?
+// fonctions d'accès aux BDD
+
+function db_connect($Host,$User,$Pwd,$DB="") {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		$link=pg_connect($Host,$User,$Pwd,$DB) or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
+		break;
+		
+	case "mysql":
+	default:
+		$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
+		if ($DB!="") mysql_select_db($DB) or die ("Impossible d'ouvrir la base de données $DB.");
+		break;
+	}
+	return($link);
+}
+
+function db_close($lnk) {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		pg_close($lnk);
+		break;
+		
+	case "mysql":
+		default:
+		mysql_close($lnk);
+		break;
+	}
+}
+
+function db_query($req,$lnkid="",$mserridrq=""){
+	$messret="<BR><BR><a href=\"javascript:history.back()\">RETOUR</A> à la page précédente";
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+	  if ($lnkid=="") { // connection par la connexion courante
+    $ret=pg_query($req) or die("<U>Requete PgSql invalide</U> : <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:     <I>".pg_last_error()."<br/>".pg_result_error()."</I>".$messret);}  
+		else
+    $ret=pg_query($lnkid,$req) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I>".$messret);
+		break;
+		
+	case "mysql":
+	default:	
+		if ($lnkid=="") { // connection par la connexion courante
+			$ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  
+			else
+			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
+		break;
+	}
+	return $ret;
+}
+
+function db_num_rows($res) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_num_rows($res));
+		break;
+		
+	case "mysql":
+	default:	
+		return(mysql_num_rows($res));
+		break;
+	}
+}
+
+function db_num_fields($res) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_num_fields($res));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_num_fields($res));
+		break;
+	}
+}
+
+function db_field_name($res,$i) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_field_name($res,$i));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_field_name($res,$i));
+		break;
+	}
+}
+
+function db_field_type($res,$i) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_field_type($res,$i));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_field_type($res,$i));
+		break;
+	}
+}
+
+function db_field_table($res,$i) { // attention pas d'equivalent en postgresq
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+	
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_field_table($res,$i));
+		break;
+	}
+}
+
+function db_fetch_rows($res) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_fetch_rows($res));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_fetch_rows($res));
+		break;
+	}
+}
+?>

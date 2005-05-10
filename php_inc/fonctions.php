@@ -23,11 +23,8 @@ $NmChDT="TABLE0COMM";
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";
 
-if (!isset($_SESSION['db_type'])) 
-	{$db_type="mysql";}
-	else
-	$db_type=$_SESSION['db_type'];
-require_once("db_".$db_type.".inc");
+// abstraction BDD
+require_once("db_abstract.inc");
 
 // NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
 require_once ("funct_sso.inc");
