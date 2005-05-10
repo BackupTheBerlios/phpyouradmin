@@ -1,5 +1,5 @@
 <? //infos techniques PHPYOURADMIN
-$debug=true;
+$debug=false;
 $dbgn2=false;
 include ("infos_conn_MySql.inc");
 $infosparsed=true; // pour savoir si ce fichier a été parsé
@@ -16,7 +16,7 @@ include_once("fonctions.php");
 $def_lang="fr";
 $tb_langs=array("fr"=>"#SEL#francais","en"=>"anglais");
 
-$tb_dbtype=array("mysql"=>"#SEL#mysql","postgresq"=>"PostGresql");
+$tb_dbtype=array("mysql"=>"#SEL#mysql","postgresq"=>"pgsql");
 
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)

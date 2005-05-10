@@ -23,7 +23,12 @@ $NmChDT="TABLE0COMM";
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";
 
-include_once('adodb/adodb.inc.php');
+if (!isset($_SESSION['db_type'])) 
+	{$db_type="mysql";}
+	else
+	$db_type=$_SESSION['db_type'];
+require_once("db_".$db_type.".inc");
+
 // NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
 require_once ("funct_sso.inc");
 // et tt ce qui concerne l'objet PYA
@@ -77,19 +82,6 @@ function nbsp($i=1){
 return(str_repeat("&nbsp;",$i));
 }
 
-// connection et sélection éventuelle d'une base
-function msq_conn_sel($Host,$User,$Pwd,$DB="") {
-     mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur $Host avec le user $User, passwd: ***** ");
-if ($DB!="") mysql_select_db($DB) or die ("Impossible d'ouvrir la base de données $DB.");}
-
-// fonction qui effectue une requete mysql, et affiche une erreur avec la requete si necessaire
-function msq($req,$lnkid="",$mserridrq="") {
-  $messret="<BR><BR><a href=\"javascript:history.back()\">RETOUR</A> à la page précédente";
-  if ($lnkid=="") { // connection par la connexion courante
-    $ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  else
-    $ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
-return $ret;}
-
 // fonction qui echoise un texte dans un style
 function echspan($style,$text) {
          echo "<span class=\"$style\">$text</span>";
@@ -138,14 +130,35 @@ function delfich($ChemFich) {
   if (file_exists($ChemFich)) unlink ($ChemFich);
   }
 
+// connection et sélection éventuelle d'une base
+function msq_conn_sel($Host,$User,$Pwd,$DB="") {
+     return(db_connect($Host,$User,$Pwd,$DB)) or die ("Impossible de se connecter au serveur $Host avec le user $User, passwd: ***** ");
+	}
+
+// fonction qui effectue une requete sql, et affiche une erreur avec la requete si necessaire
+function msq($req,$lnkid="",$mserridrq="") {
+	return (db_query($req,$lnkid="",$mserridrq=""));
+}
+
+// fonction qui effecture une requete et renvoie la première ligne de réponse sou sforme d'un tableau associatif
+function db_qr_res($req) {
+	$res=db_query($req);
+	if (db_num_rows($res) >0 ) 	{
+		$ret=db_fetch_rows($res);
+	} else {
+		$ret[0]="error or no record found");
+	}
+	return ($ret);
+}
+
 // fonction qui récupère un libellé dans une table fonction de la clé
 // sert aussi à tester si un enregistrement existe (renvoie faux sinon)
 function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {
 $wheresup=($wheresup!="" ? " AND ".$wheresup : "");
 $req="SELECT $ChpCle, $ChpLib FROM $CSpIC$Table$CSpIC WHERE $ChpCle='$ValCle' $wheresup";
-$reqRL=msq($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? ""
-:$lnkid));if (mysql_num_rows($reqRL)>0) {
-  $resRL=mysql_fetch_row($reqRL);
+$reqRL=msq($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? "":$lnkid));
+if (db_num_rows($reqRL)>0) {
+  $resRL=db_fetch_row($reqRL);
   return($resRL[1]);
   }
 else return (false);
@@ -154,7 +167,9 @@ else return (false);
 // fonction qui récupère les champ libellé (0) ou commentaire(1) d'une table
 function RecLibTable($NM_TABLE,$offs) {
 global $TBDname,$NmChDT;
-$req="SELECT LIBELLE,COMMENT FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";$reqRL=mysql_query($req) or die("Requete mysql de RecLibTable invalide : <I>$req</I>");$resRL=mysql_fetch_row($reqRL);
+$req="SELECT LIBELLE,COMMENT FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
+$reqRL=db_query($req) or die("Requete SQL de RecLibTable invalide : <I>$req</I>");
+$resRL=db_fetch_row($reqRL);
 return($resRL[$offs]);
 }
 
@@ -167,19 +182,20 @@ retourne un tableau associatif si valc="", une valeur sinon
 A priori, $reqsup avait été implémenté pour la gestion de projet, mais n'est plus utilisé*/
 
 function ttChpLink($valb0,$reqsup="",$valc=""){
-global $DBHost,$DBUser,$DBName,$carsepldef,$TBDname;
+global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname;
 //$valb0=str_replace (' ','',$valb0); // enlève espaces indésirables
 $valbrut=explode(';',$valb0);
 if (count($valbrut)>1) { // connection à une base différente
   $lntable=$valbrut[1];
   $defdb=explode(',',$valbrut[0]);
   $newbase=true;
- // si user et/ou hote d'accès à mysql est différent, on etablit une nvlle connexion Mysql
-   if (($defdb[1]!="" && $defdb[1]!=$DBHost)||($defdb[2]!="" && $defdb[2]!=$DBUser)) {
-     $lnc=mysql_connect($defdb[1],$defdb[2],$defdb[3]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: ***** ");
+ // si user et/ou hote d'accès à la Bdd est différent, on etablit une nvlle connexion
+ // on fait une nouvelle connection systématiquement pourt etre compatioble avec pg_sql
+   //if (($defdb[1]!="" && $defdb[1]!=$DBHost)||($defdb[2]!="" && $defdb[2]!=$DBUser)) {
+     $lnc=db_connect($defdb[1],$defdb[2],$defdb[3],$defdb[0]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: ***** ");
 	 $newconnect=true;
-     }
-   mysql_select_db($defdb[0]) or die ("Impossible d'ouvrir la base de données $defdb[0].");
+     //}
+   //mysql_select_db($defdb[0]) or die ("Impossible d'ouvrir la base de données $defdb[0].");
   }
 else { //commme avant
    $lntable=$valbrut[0];
@@ -200,7 +216,7 @@ if (strstr($defl[2],"&")) { // si chainage
          }
      $rcaf=$nmchp;
      $rqvc=msq("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
-     $resvc=mysql_fetch_row($rqvc);
+     $resvc=db_fetch_row($rqvc);
      $valbchain=$resvc[0];
     }
 else {
@@ -231,7 +247,7 @@ $rql=msq("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby");
 // constitution du tableau associatif à 2 dim de corresp code ->lib
 //echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <BR>-->";
 $tabCorlb=array();
-while ($resl=mysql_fetch_row($rql)) {
+while ($resl=db_fetch_row($rql)) {
   //$cle=strtoupper($resl[0]);
 	$cle=$resl[0];
 	//echo "<!--debug2: $cle\n-->";
@@ -250,11 +266,11 @@ while ($resl=mysql_fetch_row($rql)) {
   } 
   // fin boucle sur les résultats
 // retablit les paramètres normaux si nécéssaire
-if ($newconnect) {
-	mysql_close($lnc);
-	DBconnect(); // réouvre la session normale
+if ($newconnect || $newbase) {
+	db_close($lnc);
+	db_connect($DBHost,$DBUser,$DBPass,$DBName);// réouvre la session normale
 	}
-if ($newbase) mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
+//if ($newbase) mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
 if ($valc!="") {
   if ($resaf=="") $resaf="N.C.";
   return ($resaf);
@@ -282,7 +298,7 @@ La liste des enregistrements MX est placée dans le tableau mxhosts.
 function mysqft ($NOMC,$NM_TABLE)
 {
 $resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
-return (mysql_field_type($resf,0));
+return (db_field_type($resf,0));
 }
 // fonction qui retourne les flags d'un champ
 // Utiliser plutot la fonction ShowField qui retourne un tableau avec beaucoup plus d'infos
@@ -291,7 +307,7 @@ function mysqff ($NOMC,$NM_TABLE)
 $resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
 return (mysql_field_flags($resf,0)); 
 }
-// fonction qui retourne un tableau de hachage des caract d'un champ
+// fonction qui retourne un tableau de hachage des caracteristiques d'un champ
 function ShowField($NOMC,$NM_TABLE) {
 $table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (mysql_fetch_array($table_def));
@@ -611,10 +627,10 @@ function InitPOReq($req,$Base="") {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
   $resreq=msq($req." limit 1");
-  $tbValChp=mysql_fetch_row($resreq); // tableau des valeurs de l'enregistrement
-  for ($i=0;$i<mysql_num_fields($resreq);$i++) {
-      $NmChamp=mysql_field_name($resreq,$i);
-      $NTBL=mysql_field_table($resreq,$i);
+  $tbValChp=db_fetch_row($resreq); // tableau des valeurs de l'enregistrement
+  for ($i=0;$i<db_num_fields($resreq);$i++) {
+      $NmChamp=db_field_name($resreq,$i);
+      $NTBL=db_field_table($resreq,$i);
       $CIL[$NmChamp]=new PYAobj(); // nouvel objet
       $CIL[$NmChamp]->NmBase=$DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
