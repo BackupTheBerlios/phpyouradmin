@@ -137,17 +137,26 @@ function msq($req,$lnkid="",$mserridrq="") {
 	return (db_query($req,$lnkid="",$mserridrq=""));
 }
 
-// fonction qui effecture une requete et renvoie la première ligne de réponse sou sforme d'un tableau associatif
+// fonction qui effecture une requete et renvoie la première ligne de réponse sous forme d'un tableau indicé numeriquement
 function db_qr_res($req) {
 	$res=db_query($req);
 	if (db_num_rows($res) >0 ) 	{
-		$ret=db_fetch_rows($res);
+		$ret=db_fetch_row($res);
 	} else {
-		$ret[0]="error or no record found");
+		$ret[0]="error or no record found";
 	}
 	return ($ret);
 }
-
+// fonction qui effecture une requete et renvoie la première ligne de réponse sous forme d'un tableau ASSOCIATIF
+function db_qr_rass($req) {
+	$res=db_query($req);
+	if (db_num_rows($res) >0 ) 	{
+		$ret=db_fetch_assoc($res);
+	} else {
+		$ret[0]="error or no record found";
+	}
+	return ($ret);
+}
 // fonction qui récupère un libellé dans une table fonction de la clé
 // sert aussi à tester si un enregistrement existe (renvoie faux sinon)
 function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {
@@ -633,7 +642,7 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->InitPO();
-			$strdbgIPOR.=$NmChamp.", ";
+	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du résultat
   if ($debug) echo("Champs traités par la fct InitPOReq :".$strdbgIPOR."<br>\n");
   return($CIL);
