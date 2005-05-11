@@ -1,15 +1,17 @@
 <?
 // utilitaire permettant de générer la table DESC_TABLE qui décrit les autres pour l'édition
+include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
-mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
+
+$lnkc=db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
 
 $title="$DBName: Etat complet";
 $admadm=1; // titre avec les !!
-mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
+//mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
 include ("header.php"); ?>
 <H1>Super Administration de phpYourAdmin</H1>
-<H2>Définitions complètes de la base <?=$DBame?></H2>
+<H2>Définitions complètes de la base <?=$DBName?></H2>
 <Table border="1">
 <?
 $rqT=msq("select * from $TBDname where NM_CHAMP='$NmChDT' ORDER BY ORDAFF_L,NM_TABLE");
@@ -21,8 +23,24 @@ while ($rpT=mysql_fetch_array($rqT)) {
          else echo "<td colspan=2>";
       echo $rpT[COMMENT]."&nbsp;</td></tr>\n";
       // recup les  caract. des champs
+
+    
+    $table_def = db_query("select * from $rpT[NM_TABLE] LIMIT 1");
+    for ($i=0;$i<db_num_fields($table_def);$i++) {
+      $NM_CHAMP=db_field_name($table_def,$i);
+      $FieldType[$NM_CHAMP]=db_field_type($table_def,$i)."(".db_field_size($table_def,$i).")";
+      $FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+      // si nouvel enregistrement, affecte la valeur par défaut
+      $FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+      $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+      $FieldExtra[$NM_CHAMP]=db_field_flags($table_def,$i); // auto_increment 
+    	
+    }
+    
+    
+    /* methode qui marche a coup sur ... avec MySql
     $table_def = msq("SHOW FIELDS FROM $rpT[NM_TABLE]");
-    while ($row_table_def = mysql_fetch_array($table_def)) {
+    while ($row_table_def = db_fetch_array($table_def)) {
         $NM_CHAMP=$row_table_def['Field'];
       $FieldType[$NM_CHAMP]=$row_table_def['Type'];
       $FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
@@ -30,7 +48,7 @@ while ($rpT=mysql_fetch_array($rqT)) {
       $FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
       $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
       $FieldExtra[$NM_CHAMP]=$row_table_def['Extra']; // auto_increment 
-      }
+      } */
 
       $rqC=msq("select * from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='$rpT[NM_TABLE]' ORDER BY ORDAFF,NM_CHAMP");
       while ($rpC=mysql_fetch_array($rqC)) {

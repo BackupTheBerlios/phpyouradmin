@@ -1,7 +1,10 @@
 <?
 // utilitaire permettant de générer la table DESC_TABLE qui décrit les autres pour l'édition
+
+include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
+
 mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
 
 $title="CREATION DE $TBDname";

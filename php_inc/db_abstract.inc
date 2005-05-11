@@ -13,7 +13,7 @@ function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
 	default:
 		if ($portIP=="") $portIP=3306;
 		$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
-		if ($DB!="") mysql_select_db($DB) or die ("Impossible d'ouvrir la base de données $DB.");
+		if ($DB!="") {mysql_select_db($DB) or die ("Impossible d'ouvrir la base de données $DB.");}
 		break;
 	}
 	return($link);
@@ -92,6 +92,19 @@ function db_field_name($res,$i) {
 	}
 }
 
+function db_field_size($res,$i) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_field_size($res,$i));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_field_len($res,$i));
+		break;
+	}
+}
+
 function db_field_type($res,$i) { 
 	switch($_SESSION['db_type']) {
 	case "pgsql":
@@ -134,6 +147,21 @@ function db_fetch_row($res) {
 		break;
 	}
 }
+
+
+function db_fetch_array($res) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_fetch_array($res));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_fetch_array($res));
+		break;
+	}
+}
+
 function db_fetch_assoc($res) { 
 	switch($_SESSION['db_type']) {
 	case "pgsql":

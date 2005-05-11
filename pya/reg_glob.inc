@@ -1,7 +1,7 @@
 <? // simulation register_globals=On
 foreach( $_REQUEST as $a => $b)
 {
-if ($a!="PHPSESSID")
+if ($a!="PHPSESSID" && strlen($$a)<255) // strlen pour éviter les attaques
 	{
 //	global $a;
 	$$a = $b;
