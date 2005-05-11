@@ -84,6 +84,7 @@ Propriétés d'édition de la table <?= $LB_TABLE." (".$NM_TABLE?>) </span>
 <br>
 <?
 echo "<H2>Caractéristiques globales de la table $NM_TABLE</H2>";
+if (!strstr($NM_TABLE,"_VTB_")) echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
 ?>
 <form name="theform" action="./admadmresp.php" method="post">
 <? // propriétés générales de la table
@@ -165,8 +166,10 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
     echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$NM_CHAMP."\">";
     // Libellé du champ
     echo "<input type=\"text\" name=\"LIBELLE[$i]\" value=\"".stripslashes($row['LIBELLE'])."\">";
-    // Caractéristiques du champ (inchangeables)
-    echo "<BR><span style=\"font: 9px\">".$FieldType[$NM_CHAMP]."&nbsp;; ".$FieldValDef[$NM_CHAMP]."&nbsp;; ".$FieldNullOk[$NM_CHAMP]."&nbsp;;".$FieldKey[$NM_CHAMP]."&nbsp;; ".$FieldExtra[$NM_CHAMP]."</TD>\n"; // auto
+    // Caractéristiques du champ (inchangeables), et affichées que si tble non virtuelle
+    if (!strstr($NM_TABLE,"_VTB_")) {
+   	 echo "<BR><span style=\"font: 9px\">".$FieldType[$NM_CHAMP]."&nbsp;; ".$FieldValDef[$NM_CHAMP]."&nbsp;; ".$FieldNullOk[$NM_CHAMP]."&nbsp;;".$FieldKey[$NM_CHAMP]."&nbsp;; ".$FieldExtra[$NM_CHAMP]."</TD>\n"; // auto
+	} // fin si table pas virtuelle
 
     // Ordre d'affichage ds liste (sur 2 car)
     $val=$row['ORDAFF_L'];
@@ -269,8 +272,12 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
     }?>
 </table>
   <br>
-  <a href="./LIST_TABLES.php?admadm=1"><img src="./annuler.gif" border="0" onmouseover="self.status='Retour';return true"></A> 
-  <input type="image" src="valider.gif" border="0">
+  <a href="./LIST_TABLES.php?admadm=1" class="fxbutton"><?=trad(BT_retour)?></a> 
+        &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
+<!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
+  
+  
   </form>
 </div>
 <? include ("footer.php"); ?>
