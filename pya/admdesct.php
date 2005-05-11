@@ -114,6 +114,8 @@ echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$row['NM_CHAMP']."\
 
 // construction de tableaux associatif de hachage contenant 
 // diverses infos sur les champs (type, null, auto_inc, val defaut)
+// seulement si pas table virtuelle
+if (!strstr($NM_TABLE,"_VTB_")) {
 $table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
 while ($row_table_def = mysql_fetch_array($table_def)) {
     $NM_CHAMP=$row_table_def['Field'];
@@ -124,6 +126,7 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
   $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
   $FieldExtra[$NM_CHAMP]=$row_table_def['Extra']; // auto_increment 
   }
+} // fin si pas table virtuelle  
 ?>
 </TABLE>
 <br><span class="chapitrered12px"><?= $nbrows; ?> champs dans cette table: </span><br><br>
@@ -203,8 +206,8 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
       <option value=<? es("LDL"); ?>> Liste Deroul. Liée</option>
       <option value=<? es("LDM"); ?>> Liste Deroul. choix mult.</option>
       <option value=<? es("LDLM"); ?>> Liste Der. Liée choix mult.</option>
-	  <option value=<? es("POPL"); ?>> Popup de sélection</option>
-	  <option value=<? es("POPLM"); ?>> Popup sélect. mult</option>
+      <option value=<? es("POPL"); ?>> Popup de sélection</option>
+      <option value=<? es("POPLM"); ?>> Popup sélect. mult</option>
       <option value=<? es("STA"); ?>> Statique</option>
       <option value=<? es("STAL"); ?>> Statique Liée </option>
       <option value=<? es("FICFOT"); ?>> Fichier-Photo </option>
