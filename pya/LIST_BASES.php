@@ -1,4 +1,6 @@
-<? require("infos.php");
+<? 
+include_once("reg_glob.inc");
+require("infos.php");
 sess_start();
 unset($_SESSION[where_sup]);
 $title=trad("LB_title"). $_SERVER["HTTP_HOST"] ."( IP=".gethostbyname($_SERVER["HTTP_HOST"]).")";
@@ -12,7 +14,7 @@ DBconnect(false);
 <?=trad("LB_txtacc")?>
 <H2><?=trad("LB_baselist");?></H2>
 <UL>
-<? $resb=msq("SHOW DATABASES");
+<? $resb=db_show_bases();
 // liste toutes les bases
 while ($tresb=mysql_fetch_row($resb)) {
   $admok=false;

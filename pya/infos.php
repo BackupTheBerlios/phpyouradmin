@@ -16,7 +16,7 @@ include_once("fonctions.php");
 $def_lang="fr";
 $tb_langs=array("fr"=>"#SEL#francais","en"=>"anglais");
 
-$tb_dbtype=array("mysql"=>"#SEL#mysql","postgresq"=>"pgsql");
+$tb_dbtype=array("mysql"=>"#SEL#mysql","pgsql"=>"postGresql");
 
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)
@@ -58,19 +58,8 @@ if (isset($ss_parenv[MySqlUser])) $DBUser=$ss_parenv[MySqlUser];
 if (isset($ss_parenv[MySqlPasswd])) $DBPass=$ss_parenv[MySqlPasswd];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
-$mesdb="<font face=\"arial,helvetica\" size=\"2\" color=\"red\"><b>";
-$mesdb.="Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)<br>";
-$mesdb.="l'utilisateur <u>$DBUser</u> n'est peut-être pas autorisé à y accéder<br><br>";
-$mesdb.="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b><a href=\"javascript:history.back()\">RETOUR</a>";
-mysql_connect($DBHost,$DBUser, $DBPass) or die ($mesdb);
-// selection de la base (sauf si $seldb=false)
-// préparation message d'erreur au cas où.
-if ($seldb) {
-   $mesdb="<font face=\"arial,helvetica\" size=\"2\" color=\"red\"><b>";
-   $mesdb.="Impossible d'ouvrir la base de données <u>$DBName</u> <BR><br></b>&nbsp;&nbsp;&nbsp;(l'utilisateur <u>$DBUser</u> n'est peut-être pas autorisé à y accéder)<br><br>";
-   $mesdb.="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b><a href=\"javascript:history.back()\">RETOUR</a>";
-   mysql_select_db($DBName) or die ($mesdb);
-}
+db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ($mesdb);
+// selection de la base (sauf si $seldb=false
 }
 
 // fonction qui démarre la session, et qui regarde si certainses variables sont OK
@@ -111,6 +100,7 @@ if (isset($lc_parenv)) { // tableau des paramètres d'environnement passés en get
    foreach ($lc_parenv as $key=>$val) {
       // ne maj que ceux qui sont passés
       $ss_parenv[$key]=$val;
+      echovar("ss_parenv");
       }
    $_SESSION["ss_parenv"]=$ss_parenv; //session_register("ss_parenv");
 }

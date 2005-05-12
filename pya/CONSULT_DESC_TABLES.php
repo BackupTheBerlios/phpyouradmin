@@ -4,8 +4,7 @@ include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
 
-$lnkc=db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
-
+DBconnect(false);
 $title="$DBName: Etat complet";
 $admadm=1; // titre avec les !!
 //mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");

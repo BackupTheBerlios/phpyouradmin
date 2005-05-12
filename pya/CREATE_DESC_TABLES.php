@@ -4,8 +4,8 @@
 include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
-
-mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
+sess_start();
+DBconnect(true);
 
 $title="CREATION DE $TBDname";
 $admadm=1; // titre avec les !!
@@ -22,15 +22,16 @@ Cette page va vous permettre de visualiser ou (re)générer la table utilitaire (n
 Sélectionner une base dans la liste et cliquez sur le bouton SUITE ci-dessous pour commencer ...<Br>
 <form action="./CREATE_DESC_TABLES.php" method="post">
 <h3>Liste des bases du serveur <I><? echo "$LBHost </I>($DBHost)"; ?><br>
-<select name="DBName">
-<? $resb=msq("SHOW DATABASES");
-while ($tresb=mysql_fetch_row($resb)) {
-  echo "<OPTION VALUE=\"$tresb[0]\">$tresb[0]</OPTION>\n";
-  }
+
+<? $tblbas=db_show_bases(); 
+foreach($tblbas as $bas) {
+	$tbldbas[$bas]=$bas;
+}
+DispLD($tbldbas,"DBName");
 ?>
-</select>
+<br><br>
 <input type="hidden" name="STEP" value="1">
-<input type="submit" value="SUITE >>">
+<input type="submit"  class="fxbutton" value="SUITE >>">
 </form><br>
 <? 
 } //FIN SI STEP="", ie page d'accueil
@@ -39,7 +40,7 @@ else if ($STEP=="1") {
 
 ?>
 <?
-mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
+//mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
 ?>
 <h2>Etape 2</h2>
 La base sélectionnée est <B><U><?=$DBName?></B></U><br><br>
@@ -50,12 +51,16 @@ Sélectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 <form action="./CREATE_DESC_TABLES.php" name="theform" method="post">
 <table>
 <tr><td><h3>Liste des tables <? echo "(serveur $LBHost $DBHost)"; ?></h3>
+<? $tbltab=db_show_tables($DBName); 
+//echovar("tblbtab");
+?>
+
 <select name="TableName[]" multiple size="10">
-<? $trest=msq("SHOW TABLES FROM $DBName");// $trest = mysql_list_tables($DBName);
-while ($rst=mysql_fetch_row($trest)) {
-  $LNmTb.=$rst[0].";"; // construit une chaine avec ts les noms de tables de la base
-  if (strtolower($rst[0])!=strtolower($TBDname))
-     echo "<OPTION VALUE=\"$rst[0]\">$rst[0]</OPTION>\n";
+<? 
+foreach($tbltab as $rst) {
+  $LNmTb.=$rst.";"; // construit une chaine avec ts les noms de tables de la base
+  if (strtolower($rst)!=strtolower($TBDname))
+     echo "<OPTION VALUE=\"$rst\">$rst</OPTION>\n";
   }
 ?>
 </select>
@@ -68,7 +73,7 @@ while ($rst=mysql_fetch_row($trest)) {
 // que si DESC_TABLES existe !
 if (stristr($LNmTb,$TBDname)) {
    $rqdt=msq("select NM_TABLE from $TBDname group by NM_TABLE");
-   while ($rpdt=mysql_fetch_array($rqdt)) {
+   while ($rpdt=db_fetch_assoc($rqdt)) {
          if (!stristr($LNmTb,$rpdt[NM_TABLE])) {
             msq("delete from $TBDname where NM_TABLE='$rpdt[NM_TABLE]'");
             echo "<B>Enregistrements de la table <u>$rpdt[NM_TABLE] effacés!</u></b><BR>\n";
@@ -110,20 +115,13 @@ if (count($TableName)>0 ) {
         }
       echo "</UL>";
    }
-  mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
+   // test d'abord l'existence de la table DESC_TABLES
+  $tbltab=db_show_tables($DBName); 
+   $trouve=false;
+  foreach($tbltab as $tab) {
+  	if (strtolower($tb_names[$i])==strtolower($TBDname)) $trouve=true;
+  	}
   
-  // test d'abord l'existence de la table DESC_TABLES
-  $result = mysql_list_tables($DBName);
-  $i = 0;
-  $trouve=false;
-  while ($i < mysql_num_rows($result)) 
-    {
-      $tb_names[$i] = mysql_tablename($result, $i);
-    if (strtolower($tb_names[$i])==strtolower($TBDname))
-      {$trouve=true;
-       break; }
-      $i++;
-    } // fin boucle sur les tables
   
   if ($trouve && $CREATION=="vrai" && count($TableName)>0) {
     // effacement des enregistrements, mais uniquement ceux des tables sélectionnées
@@ -159,7 +157,7 @@ if (count($TableName)>0 ) {
      KEY NM_TABLE (NM_TABLE),
      KEY ORDAFF_L (ORDAFF_L),
      KEY ORDAFF (ORDAFF))";
-    mysql_query($reqC) or die ("requete de creation invalide: <BR>$ReqC");
+    db_query($reqC) or die ("requete de creation invalide: <BR>$ReqC");
     } // creation et pas d'existence
   
   // début remplissage de la table en fonction des autres

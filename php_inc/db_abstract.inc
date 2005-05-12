@@ -66,6 +66,47 @@ function db_num_rows($res) {
 	}
 }
 
+// renvoie un tableau de la liste des bases
+function db_show_bases() {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		$sql = "SELECT pdb.datname AS Database, pu.usename AS datowner, pg_encoding_to_char(encoding) AS datencoding, 
+					(SELECT description FROM pg_description pd WHERE pdb.oid=pd.objoid) AS datcomment 
+					FROM pg_database pdb, pg_user pu
+					WHERE pdb.datdba = pu.usesysid
+					ORDER BY pdb.datname";
+		break;
+	
+	case "mysql":
+	default:
+		$sql="SHOW DATABASES";
+		break;
+	}
+	$rep=db_query($sql);
+	if (db_num_rows($rep) > 0) {
+		while ($res=db_fetch_row($rep)) $ret[]=$res[0];
+		return($ret);
+	} else return (false);
+}
+
+function db_show_tables($DB) {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		$sql = "select relname from pg_stat_user_tables order by relname";
+		break;
+	
+	case "mysql":
+	default:
+		$sql="SHOW TABLES FROM $DB";
+		break;
+	}
+	$rep=db_query($sql);
+	if (db_num_rows($rep) > 0) {
+		while ($res=db_fetch_row($rep)) $ret[]=$res[0];
+		return($ret);
+	} else return (false);
+}
+
 function db_num_fields($res) { 
 	switch($_SESSION['db_type']) {
 	case "pgsql":

@@ -136,6 +136,37 @@ function msq_conn_sel($Host,$User,$Pwd,$DB="") {
 function msq($req,$lnkid="",$mserridrq="") {
 	return (db_query($req,$lnkid="",$mserridrq=""));
 }
+// fonction qui effectue une requête et renvoie toutes les lignes dans un tableau 
+// les lignes sont indexées numériquement
+// les colonnes aussi
+function db_qr_compres($req) {
+$res=db_query($req);
+$i=0;
+if (db_num_rows($res)) {
+	while ($rep=db_fetch_row($res)) {
+		$ret[$i]=$rep;
+		$i++;
+		}
+	return($ret);
+	}
+else return (false);
+}
+
+// fonction qui effectue une requête et renvoie toutes les lignes dans un tableau 
+// les lignes sont indexées numériquement
+// les colonnes aussi
+function db_qr_comprass($req) {
+$res=db_query($req);
+$i=0;
+if (db_num_rows($res)) {
+	while ($rep=db_fetch_assoc($res)) {
+		$ret[$i]=$rep;
+		$i++;
+		}
+	return($ret);
+	}
+else return (false);
+}
 
 // fonction qui effecture une requete et renvoie la première ligne de réponse sous forme d'un tableau indicé numeriquement
 function db_qr_res($req) {
