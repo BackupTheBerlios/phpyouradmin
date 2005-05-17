@@ -1,7 +1,7 @@
 <? require("infos.php");
+include_once("reg_glob.inc");
 sess_start();
 DBconnect();
-include_once("reg_glob.inc");
 // reset des variables de session de tri
 unset($_SESSION["where_sup"]); //unregvar ("where_sup");
 unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
@@ -68,7 +68,7 @@ function subm(table)
 // affiche liste des tables fonction de ce qu'il y a dans TABLE0COMM
 $TYPAFFLHID=($admadm=="1" ? "" :  " AND TYPAFF_L!='' ");
 $qr=msq("SELECT NM_TABLE, LIBELLE, COMMENT from $TBDname where NM_CHAMP='$NmChDT' AND NM_TABLE!='$TBDname' $TYPAFFLHID order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
-while ($res=mysql_fetch_row($qr))
+while ($res=db_fetch_row($qr))
   {
   $tb_name=$res[0];
   $tb_lbl=stripslashes($res[1]);

@@ -14,7 +14,7 @@ include ("header.php"); ?>
 <Table border="1">
 <?
 $rqT=msq("select * from $TBDname where NM_CHAMP='$NmChDT' ORDER BY ORDAFF_L,NM_TABLE");
-while ($rpT=mysql_fetch_array($rqT)) {
+while ($rpT=db_fetch_array($rqT)) {
       echothead($simpl);
       $nolig=0;
       echo "<tr class=\"alertered14px\"><td>".$rpT[NM_TABLE]."</td><td>".$rpT[LIBELLE]."&nbsp;</td>";
@@ -24,38 +24,17 @@ while ($rpT=mysql_fetch_array($rqT)) {
       // recup les  caract. des champs
 
     
-    $table_def = db_query("select * from $rpT[NM_TABLE] LIMIT 1");
-    for ($i=0;$i<db_num_fields($table_def);$i++) {
-      $NM_CHAMP=db_field_name($table_def,$i);
-      $FieldType[$NM_CHAMP]=db_field_type($table_def,$i)."(".db_field_size($table_def,$i).")";
-      $FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-      // si nouvel enregistrement, affecte la valeur par défaut
-      $FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-      $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-      $FieldExtra[$NM_CHAMP]=db_field_flags($table_def,$i); // auto_increment 
-    	
-    }
     
-    
-    /* methode qui marche a coup sur ... avec MySql
-    $table_def = msq("SHOW FIELDS FROM $rpT[NM_TABLE]");
-    while ($row_table_def = db_fetch_array($table_def)) {
-        $NM_CHAMP=$row_table_def['Field'];
-      $FieldType[$NM_CHAMP]=$row_table_def['Type'];
-      $FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-      // si nouvel enregistrement, affecte la valeur par défaut
-      $FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-      $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-      $FieldExtra[$NM_CHAMP]=$row_table_def['Extra']; // auto_increment 
-      } */
+      $table_def= db_table_defs($rpT[NM_TABLE]);
 
       $rqC=msq("select * from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='$rpT[NM_TABLE]' ORDER BY ORDAFF,NM_CHAMP");
-      while ($rpC=mysql_fetch_array($rqC)) {
+      while ($rpC=db_fetch_assoc($rqC)) {
             $nolig++;
             echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\">";
             echo "<td><b>$rpC[NM_CHAMP]</b>";
             $NM_CHAMP=$rpC[NM_CHAMP];
-            echo "<BR><span style=\"font: 9px\">".$FieldType[$NM_CHAMP]."&nbsp;; ".$FieldValDef[$NM_CHAMP]."&nbsp;; ".$FieldNullOk[$NM_CHAMP]."&nbsp;;".$FieldKey[$NM_CHAMP]."&nbsp;; ".$FieldExtra[$NM_CHAMP]."\n"; // auto
+            echo "<BR><span style=\"font: 9px\">".$table_def[$NM_CHAMP][FieldType]."&nbsp;; ".$table_def[$NM_CHAMP][FieldValDef]."&nbsp;; ".$table_def[$NM_CHAMP][FieldNullOk]."&nbsp;;".$table_def[$NM_CHAMP][FieldKey]."&nbsp;; ".$table_def[$NM_CHAMP][FieldExtra]."\n";
+	     // auto
             echo "</td>";
             echo "<td>$rpC[LIBELLE]&nbsp;</td>";
             if ($simpl!=1) {

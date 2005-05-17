@@ -1,7 +1,8 @@
-<? require("infos.php");
+<? 
+include_once("reg_glob.inc");
+require("infos.php");
 sess_start();
 DBconnect();
-include_once("reg_glob.inc");
 if (isset($lc_where_sup)) {
   $where_sup=$lc_where_sup;
   $_SESSION["where_sup"]=$where_sup; //session_register("where_sup");
@@ -22,7 +23,7 @@ $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
 // regarde s'il existe des filtres ou selection d'affichage de colonnes, que si pas de req custom
 if ($lc_NM_TABLE!="__reqcust") {
    $qr=msq("SELECT NM_CHAMP from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='$lc_NM_TABLE' AND (VAL_DEFAUT!='' OR TYP_CHP!='') AND TYPAFF_L!='' order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
-   $nbrqr=mysql_num_rows($qr);
+   $nbrqr=db_num_rows($qr);
    }
 // sinon, va directement sur la liste
 if ($nbrqr==0 || $lc_NM_TABLE=="__reqcust") {
@@ -54,7 +55,7 @@ $FCobj=new PYAobj();
 $FCobj->NmTable=$lc_NM_TABLE;
 $FCobj->NmBase=$DBName;
 $nolig=0;
-while ($res=mysql_fetch_array($qr))
+while ($res=db_fetch_array($qr))
   {
   $nolig++;
   $FCobj->NmChamp=$res[NM_CHAMP];

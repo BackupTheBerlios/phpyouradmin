@@ -1,15 +1,19 @@
 <?
-require("infos.php");
-sess_start();
 include_once("reg_glob.inc");
 $NM_TABLE=$lc_NM_TABLE;
+include("globvar.inc");
+require("infos.php");
+
+sess_start();
+
 DBconnect(); 
+
 // On compte le nombre d'enregistrement total correspondant à la table
 // on realise la requête
 $req1="SELECT * FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' order by ORDAFF";
 $result=msq($req1);
 // on compte le nombre de ligne renvoyée par la requête
-$nbrows=mysql_num_rows($result);
+$nbrows=db_num_rows($result);
 function es($val)
 {
   global $vares;
@@ -28,6 +32,9 @@ $admadm=1;
 include ("header.php");
 JSpopup(); ?>
 
+<style type="text/css">
+INPUT,SELECT,TEXTAREA {font-size:11px}
+</style>
 <SCRIPT>
 /* fonction qui renvoie l'index d'un élément de formulaire
 on est obligé d'utiliser l'index car les noms de champas avec [] ne sont pas supportés par javascript
@@ -84,14 +91,15 @@ Propriétés d'édition de la table <?= $LB_TABLE." (".$NM_TABLE?>) </span>
 <br>
 <?
 echo "<H2>Caractéristiques globales de la table $NM_TABLE</H2>";
-if (!strstr($NM_TABLE,"_VTB_")) echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
+if (strstr($NM_TABLE,$id_vtb)) echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
 ?>
 <form name="theform" action="./admadmresp.php" method="post">
 <? // propriétés générales de la table
 $reqg="SELECT * FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
 $resg=msq($reqg);
 $i=0;
-$row=mysql_fetch_array($resg);
+$row=db_fetch_assoc($resg);
+$row=case_kup($row); // verrue à cause de PgSql dont les noms de champs sont insensibles à la case
 echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$row['NM_CHAMP']."\">";
  
   echo "<TABLE><TR class=\"backredc\" valign=\"top\">";
@@ -116,21 +124,12 @@ echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$row['NM_CHAMP']."\
 // construction de tableaux associatif de hachage contenant 
 // diverses infos sur les champs (type, null, auto_inc, val defaut)
 // seulement si pas table virtuelle
-if (!strstr($NM_TABLE,"_VTB_")) {
-$table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
-while ($row_table_def = mysql_fetch_array($table_def)) {
-    $NM_CHAMP=$row_table_def['Field'];
-  $FieldType[$NM_CHAMP]=$row_table_def['Type'];
-  $FieldValDef[$NM_CHAMP]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-  // si nouvel enregistrement, affecte la valeur par défaut
-  $FieldNullOk[$NM_CHAMP]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-  $FieldKey[$NM_CHAMP]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-  $FieldExtra[$NM_CHAMP]=$row_table_def['Extra']; // auto_increment 
-  }
+if (!strstr($NM_TABLE,$id_vtb)) {
+$table_def = db_table_defs($NM_TABLE);
 } // fin si pas table virtuelle  
 ?>
 </TABLE>
-<br><span class="chapitrered12px"><?= $nbrows; ?> champs dans cette table: </span><br><br>
+<br><H3><?= $nbrows; ?> champs dans cette table: </H3><br>
 <input type="hidden" name="nbrows" value="<?= $nbrows; ?>">
 <input type="hidden" name="NM_TABLE" value="<?= $NM_TABLE?>">
     <!--On affiche les colonnes qui correspondent aux champs selectionnés-->
@@ -158,7 +157,9 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
     <TH>Commentaires sur ce champ....</TH>
   </THEAD>
   <? $i=1;
-  while ($row=mysql_fetch_array($result)) {
+  while ($row=db_fetch_assoc($result)) {
+    $row=case_kup($row); // verrue à cause de PgSql dont les noms de champs sont insensibles à la case
+
     echo "<TR>";
     // Nom du champ (inchangeable)
     $NM_CHAMP=$row['NM_CHAMP'];
@@ -167,8 +168,8 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
     // Libellé du champ
     echo "<input type=\"text\" name=\"LIBELLE[$i]\" value=\"".stripslashes($row['LIBELLE'])."\">";
     // Caractéristiques du champ (inchangeables), et affichées que si tble non virtuelle
-    if (!strstr($NM_TABLE,"_VTB_")) {
-   	 echo "<BR><span style=\"font: 9px\">".$FieldType[$NM_CHAMP]."&nbsp;; ".$FieldValDef[$NM_CHAMP]."&nbsp;; ".$FieldNullOk[$NM_CHAMP]."&nbsp;;".$FieldKey[$NM_CHAMP]."&nbsp;; ".$FieldExtra[$NM_CHAMP]."</TD>\n"; // auto
+    if (!strstr($NM_TABLE,$id_vtb)) {
+    	echo "<BR><span style=\"font: 9px\">".$table_def[$NM_CHAMP][FieldType]."&nbsp;; ".$table_def[$NM_CHAMP][FieldValDef]."&nbsp;; ".$table_def[$NM_CHAMP][FieldNullOk]."&nbsp;;".$table_def[$NM_CHAMP][FieldKey]."&nbsp;; ".$table_def[$NM_CHAMP][FieldExtra]."\n";
 	} // fin si table pas virtuelle
 
     // Ordre d'affichage ds liste (sur 2 car)
@@ -250,20 +251,23 @@ while ($row_table_def = mysql_fetch_array($table_def)) {
     // Traitement avant MAJ
     $vares=$row['TT_AVMAJ'];
     ?><TD>
+    <? // Traitement avant MAJ
+    echo "Avant: <input type=\"text\" name=\"TT_AVMAJ2[$i]\" value=\"".$row['TT_AVMAJ']."\"><br>";
+    ?>
     <select name="TT_AVMAJ[<?= $i ?>]">
-      <option value=<? es(""); ?>> Aucun</option>
-      <option value=<? es("DJ"); ?>> Date du jour</option>
-      <option value=<? es("DJSN"); ?>> Date Jour si nulle avant</option>
-      <option value=<? es("DJP2MSN"); ?>> Date Jour +2 mois si nulle avant</option>
+      <option value=<? es(""); ?>>Aucun</option>
+      <option value=<? es("DJ"); ?>>Date du jour</option>
+      <option value=<? es("DJSN"); ?>> Date Jour si null avt</option>
+      <option value=<? es("DJP2MSN"); ?>> Date Jour +2 mois si null avt</option>
       <option value=<? es("US"); ?>> Code User MAJ</option>
-      <option value=<? es("USSN"); ?>> Code User MAJ si nul avant</option>
-      <option value=<? es("EDOOFT"); ?>> Edition uniqt sur nouveau et copie</option>
+      <option value=<? es("USSN"); ?>> Code User MAJ si null avt</option>
+      <option value=<? es("EDOOFT"); ?>> Edition uniqt si new et copie</option>
     </select>
     <?
     // Traitement pendant MAJ
-    echo "<input type=\"text\" name=\"TT_PDTMAJ[$i]\" value=\"".$row['TT_PDTMAJ']."\">";
+    echo "<br>Pendant: <input type=\"text\" name=\"TT_PDTMAJ[$i]\" value=\"".$row['TT_PDTMAJ']."\">";
     // Traitement après MAJ
-    echo "<BR><input type=\"text\" name=\"TT_APRMAJ[$i]\" value=\"".$row['TT_APRMAJ']."\"></td>";
+    echo "<BR>Après: <input type=\"text\" name=\"TT_APRMAJ[$i]\" value=\"".$row['TT_APRMAJ']."\"></td>";
     
     // Commentaire
     echo "<TD><TEXTAREA cols=\"30\" rows=\"4\" name=\"COMMENT[$i]\">".stripslashes($row['COMMENT'])."</TEXTAREA></td>";

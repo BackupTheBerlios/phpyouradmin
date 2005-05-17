@@ -5,7 +5,7 @@ include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
 sess_start();
-DBconnect(true);
+DBconnect();
 
 $title="CREATION DE $TBDname";
 $admadm=1; // titre avec les !!
@@ -96,7 +96,7 @@ Les variables ci-dessus sont définies dans infos.php<BR><BR>
 <input type="hidden" name="DBName" value="<?=$DBName?>">
 <input type="hidden" name="STEP" value="2">
 </td></tr></table>
-<input type="submit" value="SUITE >>">
+<input type="submit" value="SUITE >>"  class="fxbutton">
 </form>
 <?
 }
@@ -117,11 +117,8 @@ if (count($TableName)>0 ) {
    }
    // test d'abord l'existence de la table DESC_TABLES
   $tbltab=db_show_tables($DBName); 
-   $trouve=false;
-  foreach($tbltab as $tab) {
-  	if (strtolower($tb_names[$i])==strtolower($TBDname)) $trouve=true;
-  	}
-  
+   
+ $trouve=in_array($TBDname,$tbltab);
   
   if ($trouve && $CREATION=="vrai" && count($TableName)>0) {
     // effacement des enregistrements, mais uniquement ceux des tables sélectionnées
@@ -138,36 +135,33 @@ if (count($TableName)>0 ) {
   elseif ($CREATION=="vrai")
     {
     // pour la requête, faire un copier coller de ce qui vient de phpmyadmin
+    if (in_array($TBDname,db_show_tables($DBName))) db_query("DROP TABLE $TBDname");
     $reqC="CREATE TABLE $TBDname (
     NM_TABLE varchar(50) NOT NULL,
      NM_CHAMP varchar(50) NOT NULL,
      LIBELLE varchar(50) NOT NULL,
-     ORDAFF_L varchar(5) DEFAULT '0' NOT NULL,
-     TYPAFF_L varchar(5) DEFAULT 'AUT' NOT NULL,
-     ORDAFF varchar(5) DEFAULT '0' NOT NULL,
-     TYPEAFF varchar(20) DEFAULT 'AUT' NOT NULL,
-     VALEURS varchar(255) NOT NULL,
-     VAL_DEFAUT varchar(200) NOT NULL,
-     TT_AVMAJ varchar(20) NOT NULL,
-     TT_PDTMAJ varchar(20) NOT NULL,
-     TT_APRMAJ varchar(20) NOT NULL,
-     TYP_CHP varchar(255) NOT NULL,
-     COMMENT tinytext NOT NULL,
+     ORDAFF_L varchar(5) DEFAULT '0' ,
+     TYPAFF_L varchar(5) DEFAULT 'AUT' ,
+     ORDAFF varchar(5) DEFAULT '0' ,
+     TYPEAFF varchar(20) DEFAULT 'AUT',
+     VALEURS varchar(255),
+     VAL_DEFAUT varchar(200),
+     TT_AVMAJ varchar(255) ,
+     TT_PDTMAJ varchar(255),
+     TT_APRMAJ varchar(255),
+     TYP_CHP varchar(255),
+     COMMENT text)";
+     /* rab , pas vraiment indispensable, et qui ne fonctionne pas avec PostGresql
      KEY NM_CHAMP (NM_CHAMP),
      KEY NM_TABLE (NM_TABLE),
      KEY ORDAFF_L (ORDAFF_L),
-     KEY ORDAFF (ORDAFF))";
+     KEY ORDAFF (ORDAFF))*/
     db_query($reqC) or die ("requete de creation invalide: <BR>$ReqC");
     } // creation et pas d'existence
-  
+    
   // début remplissage de la table en fonction des autres
   
-  $result = mysql_list_tables($DBName);
-  $i = 0;
-  while ($i < mysql_num_rows($result)) 
-    {
-    $tb_names[$i] = mysql_tablename($result, $i);
-    $NM_TABLE=$tb_names[$i];
+ foreach($tbltab as $NM_TABLE) {
     $tbtoregen=false;
     foreach ($TableName as $Table) {
       if ($Table==$NM_TABLE) {
@@ -177,32 +171,32 @@ if (count($TableName)>0 ) {
       }
     if ($tbtoregen) { // table a regénérer
          $rqlibt=msq("SELECT LIBELLE, COMMENT from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'");
-         if (mysql_num_rows($rqlibt) >0) $rwlibt=mysql_fetch_array($rqlibt);
+         if (db_num_rows($rqlibt) >0) $rwlibt=db_fetch_assoc($rqlibt);
          echo "<H3>Table <I>".$NM_TABLE."</I> ($rwlibt[LIBELLE] <small>$rwlibt[COMMENT]</small>)</H3>";
+	 
          $resf=msq("select * from $CSpIC$NM_TABLE$CSpIC LIMIT 0"); // uniquement pour avoir la liste des champs
       	// DU au fait que la fonction mysql_field_flags ne fonctionne correctement qu'avec un resultat "NORMAL" et pas avec une requete du type SHOW FIELDS
-         $table_def = mysql_query("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
+         if ($_SESSION[db_type]=="mysql") $table_def = mysql_query("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
         //$resf=mysql_list_fields ($DBName, $CSpIC$NM_TABLE$CSpIC);
-           if ($AFFALL=="vrai")
-echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".mysql_num_fields($resf)." champs :<BR><FONT SIZE=\"-1\">"; 
-        $fields_cnt     = mysql_num_rows($table_def);
+         if ($AFFALL=="vrai") echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".mysql_num_fields($resf)." champs :<BR><FONT SIZE=\"-1\">"; 
         // insère un champ commun de description de la table
-        if ($CREATION=="vrai") msq("INSERT INTO $TBDname set NM_TABLE='$NM_TABLE', NM_CHAMP='$NmChDT',LIBELLE='$NM_TABLE', ORDAFF='$i', ORDAFF_L='$i'");
-        for ($j = 0; $j < $fields_cnt; $j++) {
-          $row_table_def   = mysql_fetch_array($table_def);
-          //$NM_CHAMP=mysql_field_name ($resf, $j);
-          $NM_CHAMP=$row_table_def['Field'];
+        if ($CREATION=="vrai") msq("INSERT INTO $TBDname (NM_TABLE, NM_CHAMP,LIBELLE, ORDAFF, ORDAFF_L) values
+	  ('$NM_TABLE','$NmChDT','$NM_TABLE', '$i', '$i')");
+        for ($j = 0; $j < db_num_fields($resf); $j++) {
+          if ($_SESSION[db_type]=="mysql") $row_table_def = mysql_fetch_array($table_def);
+          $NM_CHAMP=db_field_name ($resf, $j);
+          //$NM_CHAMP=$row_table_def['Field'];
           $tbNM_CHAMP[$j]=$NM_CHAMP;
           $TYP_CHAMP="";
           $CREATMAJ=false;
           if ($CREATION=="MAJ") {
               $rqCE=msq("SELECT * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NM_CHAMP'");
             // si champ pas existant il est a créer
-            if (mysql_num_rows($rqCE)==0) $CREATMAJ=true; 
+            if (db_num_rows($rqCE)==0) $CREATMAJ=true; 
               }
           // cree l'enregistrement en MAJ ou 
           if ($CREATION=="vrai" || $CREATMAJ)  {
-            // init spéciales en fonction des noms de champs
+            // init spéciales en fonction des noms ou des types de champs
             // des types, etc
             echo "<B><U>Création </U></B>";
             $TT_AVMAJ="";
@@ -234,19 +228,32 @@ echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".mysql_num_fields($resf)." champs
             } // fin si VALAUTO
             $val=$j; // force ordre d'aff sur 2 car
             if (strlen($val)==1) $val="0".$val;
-            if (stristr(mysql_field_flags ($resf, $j),"auto_increment")) {
-              $TYPEAFF="STA";
-              $COMMENT=addslashes("Valeur auto incrémentée, impossible à changer par l'utilisateur");
-              } // fin si champ auto incrémenté
+	    if ($_SESSION[db_type]=="mysql") {
+		if (stristr(mysql_field_flags ($resf, $j),"auto_increment")) {
+		$TYPEAFF="STA";
+		$COMMENT=addslashes("Valeur auto incrémentée, impossible à changer par l'utilisateur");
+		} // fin si champ auto incrémenté
+	    } elseif ($_SESSION[db_type]=="pgsql") {
+	    	if (strstr(db_field_type ($resf, $j),"geometry")) {
+			$TYPEAFF="TXA";
+			$TYPAFF_L="";
+			$TT_AVMAJ="sql:astext(%1)";
+			$TT_APRMAJ="sql:geometryfromtext(%1)";
+		}
+	    }
       
-            msq("INSERT INTO $TBDname set NM_TABLE='$NM_TABLE', NM_CHAMP='$NM_CHAMP', LIBELLE='$LIBELLE', TYPEAFF='$TYPEAFF', VALEURS='$VALEURS', ORDAFF='$val', ORDAFF_L='$val', TYPAFF_L='$TYPAFF_L', TYP_CHP='$TYP_CHAMP', TT_AVMAJ='$TT_AVMAJ', COMMENT='$COMMENT'");
+            msq("INSERT INTO $TBDname 
+	     (NM_TABLE, NM_CHAMP, LIBELLE, TYPEAFF, VALEURS, ORDAFF, ORDAFF_L, TYPAFF_L, TYP_CHP, TT_AVMAJ, TT_PDTMAJ,TT_APRMAJ,COMMENT)
+	     values
+	      ('$NM_TABLE', '$NM_CHAMP', '$LIBELLE', '$TYPEAFF', '$VALEURS', '$val', '$val','$TYPAFF_L', '$TYP_CHAMP', '$TT_AVMAJ','$TT_PDTMAJ','$TT_APRMAJ', '$COMMENT')");
             }  // fin si champ créé dans la liste
       echo "<B>".$NM_CHAMP."</B>, ";
+      if ($_SESSION[db_type]!="mysql") $row_table_def['Type']=db_field_type($resf,$j);
       echo" de type ".$row_table_def['Type'];
       $LIBELLE=RecupLib($TBDname,"NM_CHAMP","LIBELLE",$NM_CHAMP);
       if ($LIBELLE!=$NM_CHAMP) echo " - <I>$LIBELLE</I>";
       $TYPEAFF=RecupLib($TBDname,"NM_CHAMP","TYPEAFF",$NM_CHAMP);
-      if ($TYPEAFF!="auto") echo "<small> Type aff.: $TYPEAFF</small>";
+      if ($TYPEAFF!="") echo "<small> Type aff.: $TYPEAFF</small>";
       $VALEURS=RecupLib($TBDname,"NM_CHAMP","VALEURS",$NM_CHAMP);
       if ($VALEURS!="") echo "<small> Valeurs: $VALEURS</small>";
       echo "<BR>";
@@ -265,13 +272,13 @@ echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".mysql_num_fields($resf)." champs
            echo "<BR>";
            }
         } // fin si énum
-         if ($AFFALL=="vrai") echo "Flags :".mysql_field_flags ($resf, $j)."<BR>";
+         if ($AFFALL=="vrai" && $_SESSION[db_type]=="mysql") echo "Flags MySql:".mysql_field_flags ($resf, $j)."<BR>";
       } // fin boucle sur les champs de la table
     
     // en MAJ on enlève les champs plus existants
     if ($CREATION=="MAJ") {
         $rqLCE=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT'");
-        while ($rpLCE=mysql_fetch_row($rqLCE)) {
+        while ($rpLCE=db_fetch_row($rqLCE)) {
             // si champ n'existe plus l'enlève
             if (!in_array($rpLCE[0],$tbNM_CHAMP)) { 
                 msq("DELETE FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$rpLCE[0]'");
@@ -284,7 +291,6 @@ echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".mysql_num_fields($resf)." champs
     $i++;
     } // fin boucle sur les tables de la base
   ?>
-  <span class"normalblack11px">
   <P>Cliquez <b><a href="LIST_TABLES.php?admadm=1&lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour changer les propriétés d'EDITION des tables .....
   <P>Cliquez <b><a href="LIST_TABLES.php?lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour éditer le CONTENU des tables.....<br>
   <?
@@ -293,7 +299,7 @@ else echo "<H3> Vous devez sélectionner au moins une table !</H3>";
 
 } // fin tests sur step
 ?>
-<a href="LIST_TABLES.php" class="fxbutton"> << RETOUR</A>
+<br><a href="javascipt:history.back()" class="fxbutton"> << RETOUR</A>
 <H3>Infos Serveur <?=pinfserv()?></H3>
 </body>
 </html>

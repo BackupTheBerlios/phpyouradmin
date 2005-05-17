@@ -52,14 +52,20 @@ global $ss_adrr,$def_adrr;
 }
 
 //fonction qui connecte à la base de données
-function DBconnect($seldb=true) {
+function DBconnect($DB=false) {
 include ("globvar.inc");
+if ($DB) $DBName=$DB;
 if (isset($ss_parenv[MySqlUser])) $DBUser=$ss_parenv[MySqlUser];
 if (isset($ss_parenv[MySqlPasswd])) $DBPass=$ss_parenv[MySqlPasswd];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
-db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ($mesdb);
+$ret=db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ($mesdb);
+if (!db_case_sens()) { // si base de données insensible à la casse sur les noms de tables et champ
+	$TBDname=strtolower($TBDname);
+	$NM_TABLE=strtolower($NM_TABLE);
+	}
 // selection de la base (sauf si $seldb=false
+return($ret);
 }
 
 // fonction qui démarre la session, et qui regarde si certainses variables sont OK
@@ -142,6 +148,13 @@ if ($$VarNomUserMAJ=="") { // verifie que util déclaré
   }
 }
 
+// fonction qui transforme les *clés* d'un tableau qui ne sont pas en majuscule en majuscule
+function case_kup($tb) {
+	foreach ($tb as $cle=>$val) {
+		$ret[strtoupper($cle)]=$val;
+	}
+	return($ret);
+}
 // fonction d'affichage de débogage
 function DispDebug() {
   global $where_sup, $tbchptri,$tbordtri,$FirstEnr,$tbAfC;

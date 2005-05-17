@@ -5,7 +5,7 @@ sess_start();
 unset($_SESSION[where_sup]);
 $title=trad("LB_title"). $_SERVER["HTTP_HOST"] ."( IP=".gethostbyname($_SERVER["HTTP_HOST"]).")";
 include ("header.php");
-DBconnect(false);
+$lnkbdd=DBconnect(false);
 //mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
 
 ?>
@@ -16,16 +16,14 @@ DBconnect(false);
 <UL>
 <? $resb=db_show_bases();
 // liste toutes les bases
-while ($tresb=mysql_fetch_row($resb)) {
-  $admok=false;
-  $rest = msq("SHOW TABLES from ".addslashes($tresb[0]));
-  while ($trest=mysql_fetch_row($rest))
-    {
-    // regarde si la table d'admin existe dans la base
-    if (strtolower ($trest[0])==strtolower($TBDname)) $admok=true;
-    }
+foreach ($resb as $tresb) {
+	$DBName=$tresb;
+	DBconnect($DBName);
+	$dbg=db_show_tables($tresb);
+	//echovar ("dbg");
+  	$admok=($dbg && in_array($TBDname,$dbg));
   // n'affiche le lien pour édition que si la table d'admin existe dans la base
-  if ($admok) echo "<LI> <A HREF=\"LIST_TABLES.php?lc_DBName=$tresb[0]&cfLB=vrai\">$tresb[0]</A></LI>";
+  if ($admok) echo "<LI> <A HREF=\"LIST_TABLES.php?lc_DBName=$tresb&cfLB=vrai\">$tresb</A></LI>";
   }
 ?>
 </UL>

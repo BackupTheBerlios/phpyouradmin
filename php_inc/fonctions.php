@@ -19,6 +19,8 @@ $MaxFSizeDef="100000"; // taille max des fichiers joints par défaut!!
 $TBDname="DESC_TABLES";
 // nom du champ contenant les caractéristiques globales à la table
 $NmChDT="TABLE0COMM";
+// id contenu ds les tables virtuelles ie celles qui n'existent pas en base
+$id_vtb="_vtb_";
 
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";

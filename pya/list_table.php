@@ -1,8 +1,8 @@
 <?
+include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
 DBconnect();
-include_once("reg_glob.inc");
 // On compte le nombre d'enregistrement total correspondant à la table
 // on realise la requête
 
@@ -88,7 +88,7 @@ if ($NM_TABLE!="__reqcust") {
    $condexists=false;
    $afcexists=false;
 
-   while ($rwrq=mysql_fetch_array($rqrq)) {
+   while ($rwrq=db_fetch_array($rqrq)) {
      // reconstitution nom de la var du Type Requête
      $NomChp=$rwrq[NM_CHAMP];
      $nmvarTR="tf_".$NomChp;
@@ -146,7 +146,7 @@ else { // req custom
 }
 
 // on compte le nombre de ligne renvoyée par la requête
-$nbrows=mysql_num_rows($result);
+$nbrows=db_num_rows($result);
 
 $title=trad(LR_title). $NM_TABLE." , ".trad(com_database)." ". $DBName;
 include ("header.php");
@@ -205,24 +205,26 @@ else // si nbrésultat>0
   </TH>
   <?
   if ($NM_TABLE!="__reqcust") {
-     $reqcust="select * from $CSpIC$NM_TABLE$CSpIC";
-     $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF_L, LIBELLE");
+     $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPAFF_L!='' ORDER BY ORDAFF_L, LIBELLE");
      $j=0; // n° de colonne
-     while ($res0=mysql_fetch_object($rq1)) {
+     while ($res0=mysql_fetch_assoc($rq1)) {
          $tbobjCC[$j]=$res0;
-         if ($tbAfC[$res0->NM_CHAMP]) $j++; // la condition n'est true que si champ à afficher et case cochée
+         if ($tbAfC[$res0[NM_CHAMP]]) $j++; // la condition n'est true que si champ à afficher et case cochée
          }
      $nbcol=($j-1);
 
      for ($i=0;$i<=$nbcol;$i++){
-          $objCC=$tbobjCC[$i]; // objet contenant les caractéristiques du champ
-          $NomChamp=$objCC->NM_CHAMP;
+          $NomChamp=$tbobjCC[$i][NM_CHAMP];
           $tbCIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
           $tbCIL[$NomChamp]->NmBase=$DBName;
           $tbCIL[$NomChamp]->NmTable=$NM_TABLE;
           $tbCIL[$NomChamp]->NmChamp=$NomChamp;
           $tbCIL[$NomChamp]->InitPO();
      } // fin boucle sur les champs
+     
+   // CHANGER LE * EN TABLEAU DES CHAMPS 
+    $reqcust="select * from $CSpIC$NM_TABLE$CSpIC";
+
   }
 
   else { // requete custom (perd l'ordre d'affichage sinon)
@@ -253,7 +255,7 @@ else // si nbrésultat>0
   - sinon, la clé est constituée de tous les champs
   */
   $nbpk=0;  // nbre de champs clés primaires
-  for($Idf=0;$Idf<mysql_num_fields($req);$Idf++) {
+  for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
     if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
        $tbpk[$nbpk]=$Idf;
        $nbpk++;
