@@ -3,6 +3,7 @@ include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
 DBconnect();
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
 // On compte le nombre d'enregistrement total correspondant à la table
 // on realise la requête
 
@@ -74,7 +75,7 @@ if (isset($lc_PgReq)) {
     }
 else if(!isset($PgReq)) $PgReq=0;
 
-$limitc=" LIMIT $FirstEnr,$nbligpp";
+$limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr  LIMIT $nbligpp");
 
 // on est pas en requête custom
 if ($NM_TABLE!="__reqcust") {
@@ -88,9 +89,9 @@ if ($NM_TABLE!="__reqcust") {
    $condexists=false;
    $afcexists=false;
 
-   while ($rwrq=db_fetch_array($rqrq)) {
+   while ($rwrq=db_fetch_row($rqrq)) {
      // reconstitution nom de la var du Type Requête
-     $NomChp=$rwrq[NM_CHAMP];
+     $NomChp=$rwrq[0];
      $nmvarTR="tf_".$NomChp;
      $nmvarVR="rq_".$NomChp; // Valeur de la Requete
      if (isset($$nmvarTR) && $$nmvarVR!="") {// si ces var non nulles, il y a forcément une condition
@@ -112,11 +113,12 @@ if ($NM_TABLE!="__reqcust") {
        } // fin si il existe un critère sur ce champ
        
      // on teste maintenant l'existence de variables de colonnes à afficher
-     $tmp_tbAfC[$NomChp]=($rwrq[TYPAFF_L]!="" && $rwrq[TYPAFF_L]!="HID"); // initialise tabeau des colonnes affichées
+     //$tmp_tbAfC[$NomChp]=($rwrq[TYPAFF_L]!="" && $rwrq[TYPAFF_L]!="HID"); // initialise tabeau des colonnes affichées
+     $tmp_tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affichées
      $nmvarAfC="AfC_".$NomChp;
      if (isset($$nmvarAfC)) {// si cette var existe, colonne sélectionnable
        $afcexists=true;
-       if ($debug) echovar($nmvarAfC);  
+       //if ($debug) echovar($nmvarAfC);  
        $tmp_tbAfC[$NomChp]=($tmp_tbAfC[$NomChp] && $$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif     
        }
      } // fin boucle sur les champs
@@ -128,7 +130,6 @@ if ($NM_TABLE!="__reqcust") {
    //  setcookie("cktbAfC",implode(";",$tbAfC),(time()+604800)); // mémorise la config une semaine
      $_SESSION["tbAfC"]=$tbAfC; //session_register ("tbAfC");
 	 }
-
    $where=($where_sup=="" ? "" : "where ".$where_sup);
    $result=msq("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
 
@@ -206,15 +207,15 @@ else // si nbrésultat>0
   <?
   if ($NM_TABLE!="__reqcust") {
      $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPAFF_L!='' ORDER BY ORDAFF_L, LIBELLE");
-     $j=0; // n° de colonne
-     while ($res0=mysql_fetch_assoc($rq1)) {
-         $tbobjCC[$j]=$res0;
-         if ($tbAfC[$res0[NM_CHAMP]]) $j++; // la condition n'est true que si champ à afficher et case cochée
+     $nbcol=0; // n° de colonne
+     while ($res0=db_fetch_assoc($rq1)) {
+         $tbobjCC[$nbcol]=$res0[$ult[NM_CHAMP]];
+         if ($tbAfC[$res0[$ult[NM_CHAMP]]]) $nbcol++; // la condition n'est true que si champ à afficher et case cochée
          }
-     $nbcol=($j-1);
-
+     $nbcol=($nbcol-1);
+     
      for ($i=0;$i<=$nbcol;$i++){
-          $NomChamp=$tbobjCC[$i][NM_CHAMP];
+          $NomChamp=$tbobjCC[$i];
           $tbCIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
           $tbCIL[$NomChamp]->NmBase=$DBName;
           $tbCIL[$NomChamp]->NmTable=$NM_TABLE;
@@ -222,8 +223,8 @@ else // si nbrésultat>0
           $tbCIL[$NomChamp]->InitPO();
      } // fin boucle sur les champs
      
-   // CHANGER LE * EN TABLEAU DES CHAMPS 
-    $reqcust="select * from $CSpIC$NM_TABLE$CSpIC";
+   
+    $reqcust="select *".($_SESSION[db_type]=="pgsql" ? ",oid" : "")." from $CSpIC$NM_TABLE$CSpIC";
 
   }
 
@@ -254,14 +255,15 @@ else // si nbrésultat>0
   - s'il y a une clé primaire, on la constitue;  ds ce cas $pk=true
   - sinon, la clé est constituée de tous les champs
   */
-  $nbpk=0;  // nbre de champs clés primaires
-  for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
-    if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
-       $tbpk[$nbpk]=$Idf;
-       $nbpk++;
-       } // fin si champ est une clé primaire
-    }  // fin boucle sur les champs
-
+  if ($_SESSION[db_type]=="mysql") {
+	$nbpk=0;  // nbre de champs clés primaires
+	for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
+	if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
+	$tbpk[$nbpk]=$Idf;
+	$nbpk++;
+	} // fin si champ est une clé primaire
+	}  // fin boucle sur les champs
+  }
 //  $chp0=mysql_field_name($req,0);
 //  $chp1=mysql_field_name($req,1);
 //  if (mysql_num_fields($req)>2) $chp2=mysql_field_name($req,2);
@@ -271,21 +273,25 @@ else // si nbrésultat>0
   $lb_reccopy=trad(LR_record_copy);
   $lb_recshow=trad(LR_record_show);
 
-  while ($tbValChp=mysql_fetch_array($req, MYSQL_BOTH)) {
+  while ($tbValChp=db_fetch_assoc($req)) {
     $nolig++;
     // première colonne: modifier / supprimer
       echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD class=\"LRcoledit\" align=\"center\">";
     // gestion clé
     $key=""; // reinit
-    if ($nbpk>0) { // clé primaire existe : on la construit (elle peut être multiple)
-       for ($Idf=0;$Idf<$nbpk;$Idf++)
-           $key.=mysql_field_name($req,$tbpk[$Idf])."='".$tbValChp[$tbpk[$Idf]]."' AND ";
-       }
-    else { // pas de clé primaire: on prend ts les champs
-       for ($Idf=0;$Idf<mysql_num_fields($req);$Idf++)
-           $key.=mysql_field_name($req,$Idf)."='".$tbValChp[$Idf]."' AND ";
-         }
-    $key=vdc($key,5); // enlève le dernier " AND "
+    if ($_SESSION[db_type]=="mysql") {
+	if ($nbpk>0) { // clé primaire existe : on la construit (elle peut être multiple)
+	for ($Idf=0;$Idf<$nbpk;$Idf++)
+		$key.=mysql_field_name($req,$tbpk[$Idf])."='".$tbValChp[$tbpk[$Idf]]."' AND ";
+	}
+	else { // pas de clé primaire: on prend ts les champs
+	foreach ($tbValChp as $Chp=>$Val) // for ($Idf=0;$Idf<mysql_num_fields($req);$Idf++) $key.=mysql_field_name($req,$Idf)."='".$tbValChp[$Idf]."' AND ";
+		$key.="$Chp='$Val' AND ";          
+		}
+	$key=vdc($key,5); // enlève le dernier " AND "
+    } elseif ($_SESSION[db_type]=="pgsql") 
+    	$key="oid=".$tbValChp[oid];
+	
 //    $key=($pk ? $chp0."='".$tbValChp[0]."'" : $chp0."='".$tbValChp[0]."' AND ".$chp1."='".$tbValChp[1]."' ");
     // si le 3ème existe, on le prend aussi
   //  if (!$pk && $chp2!="") $key.="AND ".$chp2."='".$tbValChp[2]."'";

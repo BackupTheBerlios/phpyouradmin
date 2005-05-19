@@ -106,7 +106,7 @@ if (isset($lc_parenv)) { // tableau des paramètres d'environnement passés en get
    foreach ($lc_parenv as $key=>$val) {
       // ne maj que ceux qui sont passés
       $ss_parenv[$key]=$val;
-      echovar("ss_parenv");
+      //echovar("ss_parenv");
       }
    $_SESSION["ss_parenv"]=$ss_parenv; //session_register("ss_parenv");
 }

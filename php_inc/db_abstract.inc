@@ -1,4 +1,40 @@
 <?
+// fonction qui renvoie le tableau des champs de PYA
+// en fonction de la sensibilité à la casse du sgbd
+function rtb_ultchp() {
+if (db_case_sens()) {
+	return array(
+	"NM_TABLE"=>"NM_TABLE",
+	"NM_CHAMP"=>"NM_CHAMP",
+	"LIBELLE"=>"LIBELLE",
+	"ORDAFF_L"=>"ORDAFF_L",
+	"TYPAFF_L"=>"TYPAFF_L",
+	"ORDAFF"=>"ORDAFF",
+	"TYPEAFF"=>"TYPEAFF",
+	"VALEURS"=>"VALEURS",
+	"VAL_DEFAUT"=>"VAL_DEFAUT",
+	"TT_AVMAJ"=>"TT_AVMAJ",
+	"TT_PDTMAJ"=>"TT_PDTMAJ",
+	"TT_APRMAJ"=>"TT_APRMAJ",
+	"TYP_CHP"=>"TYP_CHP",
+	"COMMENT"=>"COMMENT");
+	}
+else return array(
+	"NM_TABLE"=>"nm_table",
+	"NM_CHAMP"=>"nm_champ",
+	"LIBELLE"=>"libelle",
+	"ORDAFF_L"=>"ordaff_l",
+	"TYPAFF_L"=>"typaff_l",
+	"ORDAFF"=>"ordaff",
+	"TYPEAFF"=>"typeaff",
+	"VALEURS"=>"valeurs",
+	"VAL_DEFAUT"=>"val_defaut",
+	"TT_AVMAJ"=>"tt_avmaj",
+	"TT_PDTMAJ"=>"tt_pdtmaj",
+	"TT_APRMAJ"=>"tt_aprmaj",
+	"TYP_CHP"=>"typ_chp",
+	"COMMENT"=>"comment");
+}
 // fonctions d'accès aux BDD
 // fonctions qui renvoie true si la bdd est sensible à la case sur les noms de champs/tables
 function db_case_sens() {
@@ -67,10 +103,10 @@ function db_query($req,$lnkid="",$mserridrq=""){
 }
 // fonction qui renvoie un tableau à 2 dim des caractéristiques des champs d'une table
 
-function db_table_defs($NM_TABLE) {
+function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
-		$table_def= db_query("select * from $NM_TABLE LIMIT 1");
+		$table_def= db_query("select $NM_CHAMPD from $NM_TABLE LIMIT 1");
 		for ($i=0;$i<db_num_fields($table_def);$i++) {
 			$NM_CHAMP=db_field_name($table_def,$i);
 			$ret[$NM_CHAMP][FieldType]=db_field_type($table_def,$i)."(".db_field_size($table_def,$i).")";
@@ -87,13 +123,15 @@ function db_table_defs($NM_TABLE) {
 	default:	
 		$table_def = msq("SHOW FIELDS FROM $rpT[NM_TABLE]");
 		while ($row_table_def = db_fetch_array($table_def)) {
-			$NM_CHAMP=$row_table_def['Field'];
-			$ret[$NM_CHAMP][FieldType]=$row_table_def['Type'];
-			$ret[$NM_CHAMP][FieldValDef]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-			// si nouvel enregistrement, affecte la valeur par défaut
-			$ret[$NM_CHAMP][FieldNullOk]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-			$ret[$NM_CHAMP][FieldKey]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-			$ret[$NM_CHAMP][FieldExtra]=$row_table_def['Extra']; // auto_increment 
+			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
+				$NM_CHAMP=$row_table_def['Field'];
+				$ret[$NM_CHAMP][FieldType]=$row_table_def['Type'];
+				$ret[$NM_CHAMP][FieldValDef]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+				// si nouvel enregistrement, affecte la valeur par défaut
+				$ret[$NM_CHAMP][FieldNullOk]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+				$ret[$NM_CHAMP][FieldKey]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+				$ret[$NM_CHAMP][FieldExtra]=$row_table_def['Extra']; // auto_increment 
+			}
 		} 
 		break;
 	}

@@ -137,7 +137,7 @@ if (count($TableName)>0 ) {
     // pour la requête, faire un copier coller de ce qui vient de phpmyadmin
     if (in_array($TBDname,db_show_tables($DBName))) db_query("DROP TABLE $TBDname");
     $reqC="CREATE TABLE $TBDname (
-    NM_TABLE varchar(50) NOT NULL,
+     NM_TABLE varchar(50) NOT NULL,
      NM_CHAMP varchar(50) NOT NULL,
      LIBELLE varchar(50) NOT NULL,
      ORDAFF_L varchar(5) DEFAULT '0' ,
@@ -200,6 +200,8 @@ if (count($TableName)>0 ) {
             // des types, etc
             echo "<B><U>Création </U></B>";
             $TT_AVMAJ="";
+	    $TT_APRMAJ="";
+	    $TT_PDTMAJ="";
             $TYPEAFF="AUT";
             $TYPAFF_L="AUT";
             $COMMENT="";
