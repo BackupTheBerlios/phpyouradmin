@@ -3,11 +3,10 @@ sess_start();
 include_once("reg_glob.inc");
 DBconnect();
 // réponse a un ajout, modif ou suppression d'un enregistrement
-
+if ($debug) echovar("_FILES");
 // s'il existe au moins 1 champ fichier-photo,
 // on calcule la CLE POUR LE NOM DE STOCKAGE DES FICHIERS ATTACHES EVENTUELS
 $rpfl=msq("SELECT TYPEAFF from $TBDname where NM_TABLE='$NM_TABLE' AND TYPEAFF='FICFOT'");
-
 if (db_num_rows($rpfl)>0) { 
 //echovar("_FILES");
   // détermination champ cle pour stockage fichier ou image
@@ -68,7 +67,7 @@ while ($res1=db_fetch_row($rq1))
   $PYAoMAJ->InitPO();
   $PYAoMAJ->ValChp=$$NOMC; // issu du formulaire
   if ($PYAoMAJ->TypeAff=="FICFOT") {
-     if ($_FILES[$NOMC][error]!="0") die ("error: impossible de joindre le fichier ".$_FILES[$NOMC][name]."; sa taille est peut-etre trop importante");
+     if ($_FILES[$NOMC][name]!="" && $_FILES[$NOMC][error]!="0") die ("error: impossible de joindre le fichier ".$_FILES[$NOMC][name]."; sa taille est peut-etre trop importante");
      $VarFok="Fok".$NOMC;
      $PYAoMAJ->ValChp=($_FILES[tmp_name]!="" ? $_FILES[tmp_name] : $PYAoMAJ->ValChp);
      $PYAoMAJ->Fok=$$VarFok;

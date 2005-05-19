@@ -259,10 +259,11 @@ else // si nbrésultat>0
   if ($_SESSION[db_type]=="mysql") {
 	$nbpk=0;  // nbre de champs clés primaires
 	for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
+	echo mysql_field_flags($req,$Idf)." <BR/>";
 	if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
-	$tbpk[$nbpk]=$Idf;
-	$nbpk++;
-	} // fin si champ est une clé primaire
+		$tbpk[$nbpk]=mysql_field_name($req,$Idf);
+		$nbpk++;
+		} // fin si champ est une clé primaire
 	}  // fin boucle sur les champs
   }
 //  $chp0=mysql_field_name($req,0);
@@ -283,7 +284,7 @@ else // si nbrésultat>0
     if ($_SESSION[db_type]=="mysql") {
 	if ($nbpk>0) { // clé primaire existe : on la construit (elle peut être multiple)
 	for ($Idf=0;$Idf<$nbpk;$Idf++)
-		$key.=mysql_field_name($req,$tbpk[$Idf])."='".$tbValChp[$tbpk[$Idf]]."' AND ";
+		$key.=$tbpk[$Idf]."='".$tbValChp[$tbpk[$Idf]]."' AND ";
 	}
 	else { // pas de clé primaire: on prend ts les champs
 	foreach ($tbValChp as $Chp=>$Val) // for ($Idf=0;$Idf<mysql_num_fields($req);$Idf++) $key.=mysql_field_name($req,$Idf)."='".$tbValChp[$Idf]."' AND ";

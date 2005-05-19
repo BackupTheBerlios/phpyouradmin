@@ -121,7 +121,7 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 		
 	case "mysql":
 	default:	
-		$table_def = msq("SHOW FIELDS FROM $rpT[NM_TABLE]");
+		$table_def = msq("SHOW FIELDS FROM $NM_TABLE");
 		while ($row_table_def = db_fetch_array($table_def)) {
 			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
 				$NM_CHAMP=$row_table_def['Field'];
