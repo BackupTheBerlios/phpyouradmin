@@ -190,6 +190,22 @@ function db_qr_rass($req) {
 	}
 	return ($ret);
 }
+// fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL INSERT 
+function tbset2insert($set) {
+foreach ($set as $chp=>$val) {
+	$lchp[]=$chp;
+	$vchp[]="'$val'";
+	}
+return("(".implode(",",$lchp).") VALUES (".implode(",",$vchp).")");
+}
+// fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL SET 
+function tbset2set($set) {
+foreach ($set as $chp=>$val) {
+	$lchp[]=$chp."='$val'";
+	}
+return(" ".implode(",",$lchp)." ");
+}
+
 // fonction qui récupère un libellé dans une table fonction de la clé
 // sert aussi à tester si un enregistrement existe (renvoie faux sinon)
 function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {

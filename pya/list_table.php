@@ -3,6 +3,7 @@ include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
 DBconnect();
+
 $ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
 // On compte le nombre d'enregistrement total correspondant à la table
 // on realise la requête
@@ -11,12 +12,12 @@ if ($lc_FirstEnr!="") {
   $FirstEnr=$lc_FirstEnr;
   $_SESSION["FirstEnr"]=$FirstEnr; //session_register("FirstEnr");
   }
-else if ($FirstEnr=="" && $cfp=="") // on vient d'une autre page que de celle là ou des pages de consult
+else if (!isset($FirstEnr) ) // && $cfp=="" on vient d'une autre page que de celle là ou des pages de consult
   {$FirstEnr=0;
   unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
   unset($_SESSION["tbordtri"]); //unregvar ("tbordtri");
   unset($_SESSION["FirstEnr"]); //unregvar ("FirstEnr");
-  $_SESSION["FirstEnr"]=$FirstEnr; //session_register("FirstEnr");
+  $_SESSION["FirstEnr"]=$FirstEnr=0; //session_register("FirstEnr");
   }  
 
   
@@ -200,10 +201,10 @@ else // si nbrésultat>0
     ?>
     <!--On affiche les colonnes qui correspondent aux champs selectionnés-->
     <TABLE>
-    <THEAD valign="top">
-  <TH align="center">
+    <TR class="THEAD" valign="top">
+  <TD class="th" align="center">
   <? echo (($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") ? trad(com_details) : trad(LR_del_mod_cop)); ?>
-  </TH>
+  </TD>
   <?
   if ($NM_TABLE!="__reqcust") {
      $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPAFF_L!='' ORDER BY ORDAFF_L, LIBELLE");
@@ -238,17 +239,17 @@ else // si nbrésultat>0
   foreach($tbCIL as $CIL) {
       $NomChamp=$CIL->NmChamp;
       if ($CIL->Typaff_l!="" && $CIL->Typaff_l!="") { // rajouté à cause des req custom
-         echo "<TH>";
+         echo "<TD>";
          DispFlClasst($NomChamp); // affiche fleches de classement existant
          echo "<A HREF=\"list_table.php?chptri=$NomChamp&ordtri=asc\" title=\"$lb_orderasc\"><IMG SRC=\"flasc.gif\" border=\"0\"></A>&nbsp;";
          echo "<A HREF=\"list_table.php?chptri=$NomChamp&ordtri=desc\" title=\"$lb_orderdesc\"><IMG SRC=\"fldesc.gif\" border=\"0\"></A>&nbsp;";
          echo "<BR>".$CIL->Libelle;
-         echo "</TH>\n";
+         echo "</TD>\n";
          }
      else unset ($tbCIL[$NomChamp]); // sinon efface l'objet
       } // fin boucle sur les colonnes affichées
   ?>
-  </THEAD>
+  </TR>
   <?
   $req=msq("$reqcust $where $orderb $limitc");
   /* pour la clé :

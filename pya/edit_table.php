@@ -1,8 +1,9 @@
 <?
+include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
 DBconnect();
-include_once("reg_glob.inc");
+
 if ($NM_TABLE!="__reqcust") {
    // recup libellé et commentaire de la table
    $LB_TABLE=RecLibTable($NM_TABLE,0);
@@ -53,15 +54,16 @@ if ($modif==1 || $modif==2) { // recup des valeurs de l'enregistrement
     $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
     if ($NM_TABLE!="__reqcust") $reqcust="SELECT * FROM $CSpIC$NM_TABLE$CSpIC";
     $req=msq("$reqcust $where");
-    $tbValChp=mysql_fetch_array($req);
+    $tbValChp=db_fetch_array($req);
   }
 
 
 if ($NM_TABLE!="__reqcust") {
    // Création et Initialisation des propriétés des objets PYAobj
-   $rq1=mysql_query("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE") or die ("req 2 invalide");
-   while ($CcChp=mysql_fetch_object($rq1)) { // boucles sur les champs
-     $NM_CHAMP=$CcChp->NM_CHAMP;
+   $rq1=db_query("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE") or die ("req 2 invalide");
+   while ($CcChp=db_fetch_row($rq1)) { // boucles sur les champs
+   
+     $NM_CHAMP=$CcChp[0];
      $ECT[$NM_CHAMP]=new PYAobj();
      $ECT[$NM_CHAMP]->NmBase=$DBName;
      $ECT[$NM_CHAMP]->NmTable=$NM_TABLE;

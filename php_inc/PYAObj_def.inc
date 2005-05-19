@@ -627,7 +627,7 @@ function EchoEditAuto() {
        $lg=strrchr($this->FieldType, "(");
        $lg= substr($lg,1,-1); // ne récupère que l'entier
        $size=min(intval($lg*1.5),100);
-         echo "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" maxlength=\"$lg\" size=\"$size\">";
+         echo "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" ".($lg > 0 ? "maxlength=\"$lg\" size=\"$size\"": "").">";
        break;
 
      default :
@@ -678,7 +678,7 @@ Function InitAvMaj($User="") {
 // méthode retourne un set pour les mises à jour
 // et gère aussi les fichiers joints (!)
 
-function RetSet($keycopy) {
+function RetSet($keycopy,$rttb=false) {
 global $MaxFSize,$MaxFSizeDef; // taille max des fichiers joints !!
 if ($MaxFSize==0 || $MaxFSize=="") $MaxFSize=$MaxFSizeDef ;
 
@@ -771,7 +771,7 @@ if ($this->TypeAff=="FICFOT") {
     $this->ValChp=$value;
     } // fin si type de champ=fichier attaché
 
-  return ($this->NmChamp."='".$this->ValChp."', "); // retourne le set...;
+  return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."='".$this->ValChp."', "); // retourne le set ou un tableau associatif...;
 } // fin méthode RetSet
 
 

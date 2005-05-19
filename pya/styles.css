@@ -35,7 +35,7 @@ BIG {
     line-height: 13px;
     color : #990033}
 
-TH {
+.THEAD {
     background-color: #990000;
 		color:white; 
     font-weight: bold;

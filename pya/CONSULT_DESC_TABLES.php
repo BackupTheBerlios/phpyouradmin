@@ -3,8 +3,9 @@
 include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
+sess_start();
+DBconnect();
 
-DBconnect(false);
 $title="$DBName: Etat complet";
 $admadm=1; // titre avec les !!
 //mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de données $DBName.");
