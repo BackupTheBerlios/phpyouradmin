@@ -11,6 +11,7 @@ $nValRadLd=4; // nbre de valeurs passage liste déroulante/boutons radio case à c
 $SzLDM=6; // parmetre size pour les listes déroulantes multiples
 $VSLD="#SEL#"; // caractères inséré en début de valeur de listes indiquant la sélection
 $carsepldef="-"; // caractère par défaut séparant les valeur dans les listes déroulantes
+$maxprof=10; // prof max des hiérarchies
 $CSpIC=""; // caractère pour "isoler" les noms de champs merdiques
 // ne fonctionne qu'avec des versions récentes de MySql
 $MaxFSizeDef="100000"; // taille max des fichiers joints par défaut!!
@@ -277,18 +278,27 @@ if (strstr($defl[2],"&")) { // si chainage
 else {
      while ($defl[$nbca+2]!="") {
        $nmchp=$defl[$nbca+2];
+       $c2aff=true; // champ à afficher effectivement
        if (strstr($nmchp,"!")) { // caractère spérateur défini
          $nmchp=explode("!",$nmchp);
        $tbcs[$nbca+1]=$nmchp[0]; // séparateur avant le "!"
        $nmchp=$nmchp[1];
          }
-       if (strstr($nmchp,"@")) { // si classement sur ce champ
+       if (strstr($nmchp,"@@")) { // si ce champ indique un champ de structure hiérachique avec la clé de type pid= parent id
+         $cppid=substr ($nmchp,2); // enlève le @@
+	 $c2aff=false;
+	 }	 
+       elseif (strstr($nmchp,"@")) { // si classement sur ce champ
          $nmchp=substr ($nmchp,1); // enlève le @
-       $orderby=" order by $nmchp "; 
+         $orderby=" order by $nmchp "; 
          }
-       $rcaf=$rcaf.",".$nmchp;
+	 
+       if ($c2aff) {	 
+       	  $rcaf=$rcaf.",".$nmchp;
+	  }
        $nbca++;
-       }
+       } // fin boucle
+       if ($cppid) $nbca=$nbca-1;  
 }
  // soit on cherche 1 et 1 seule valeur
 if  ($valc!="") {
@@ -298,28 +308,58 @@ if  ($valc!="") {
 else {
      $whsl=$reqsup;
      }
-$rql=msq("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby");
-// constitution du tableau associatif à 2 dim de corresp code ->lib
-//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <BR>-->";
-$tabCorlb=array();
-while ($resl=db_fetch_row($rql)) {
-  //$cle=strtoupper($resl[0]);
-	$cle=$resl[0];
-	//echo "<!--debug2: $cle\n-->";
-  if (isset($valbchain)) { // champ lié à nouveau
-     $resaf=ttChpLink($valbchain,"",$cle); // on réentre dans la fonction et on va chercher dans le champ 
-     }
-  else { // pas de liaison, on construit
-    $resaf=$resl[1];
-    for ($k=2;$k<=$nbca;$k++) {
-      $cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-      $resaf=$resaf.$cs.$resl[$k];
-      }
-  }
-  $tabCorlb[$cle]=$resaf; // tableau associatif de correspondance code -> libellé
-  //echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
-  } 
-  // fin boucle sur les résultats
+
+if ($cppid && $valc=="") { //on a une structure héiarchique et plus d'une valeur à chercher
+	// on cherche les parents initiaux, ie ceux dont le pid est null ou égal à eux même 
+	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid='' OR $cppid=$defl[1])  $orderby");
+	echo "req="."SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid='' OR $cppid=$defl[1])  $orderby hu<br/>";
+	if (db_num_rows($rql) > 0) {
+		$tab=array();
+		while ($rw=db_fetch_row($rql)) {
+			if($rw[0] !="") { // si clé valide
+				$resaf=$rw[2];
+				for ($k=2;$k<=$nbca;$k++) {
+					$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
+					$resaf=$resaf.$cs.$rw[$k +1];
+					} // boucle sur chps éventuels en plus
+				$tab[$rw[0]]=$resaf;
+				/*$rrtb=rettarbo($rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0);
+				if ($rrtb) {$tabCorlb=array_merge($tab,$rrtb);} //else $tabCorlb=$tab; */
+				
+				} // fin si clé valide
+			} // fin boucle réponses
+		} // si réponses
+	else {
+		$tabCorlb[err]="Error ! impossible construire l'arbre ";
+		}
+	
+	}	
+else 	{ // pas hiérarchique => normal     
+	$rql=msq("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby");
+	// constitution du tableau associatif à 2 dim de corresp code ->lib
+	//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <BR>-->";
+	$tabCorlb=array();
+	while ($resl=db_fetch_row($rql)) {
+		//$cle=strtoupper($resl[0]);
+		$cle=$resl[0];
+		//echo "<!--debug2: $cle\n-->";
+		if (isset($valbchain)) { // champ lié à nouveau
+			$resaf=ttChpLink($valbchain,"",$cle); // on réentre dans la fonction et on va chercher dans le champ 
+			}
+		else { // pas de liaison, on construit
+			$resaf=$resl[1];
+			for ($k=2;$k<=$nbca;$k++) {
+				$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
+				$resaf=$resaf.$cs.$resl[$k];
+				}
+			}
+		$tabCorlb[$cle]=$resaf; // tableau associatif de correspondance code -> libellé
+		
+		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
+	} 
+	// fin boucle sur les résultats
+} // fin si pas hiérarchique  
+
 // retablit les paramètres normaux si nécéssaire
 if ($newconnect || $newbase) {
 	db_close($lnc);
@@ -334,6 +374,35 @@ else {
 	return($tabCorlb); // retourne le tableau associatif
 	}
 }
+// fonction complémentaire réentrante pour la gestion hiérarchique
+function rettarbo($valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv=0) {
+	global $carsepldef,$maxprof;
+	//if ($niv==3) die("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby");
+	$niv=$niv+1;
+	if ($niv>$maxprof) return(false);
+	$tabCorlb=false;
+	$rql=db_query("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby");
+	echo ("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby, nbrep:".db_num_rows($rql).", niv=$niv<br/>");
+	// constitution du tableau associatif à 2 dim de corresp code ->lib
+	while ($resl=db_fetch_row($rql)) {
+		//$cle=strtoupper($resl[0]);
+		$cle=$resl[0];
+		//echo "<!--debug2: $cle\n-->";
+		$resaf=$resl[2];
+		for ($k=2;$k<=$nbca;$k++) {
+			
+			$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
+			$resaf=$resaf.$cs.$resl[$k + 1];
+			}
+		$tab[$cle]=str_repeat("--",$niv).$resaf; // tableau associatif de correspondance code -> libellé
+		$rrtb=rettarbo($cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv);
+		if ($rrtb) {$tabCorlb=array_merge($tab,$rrtb);} else $tabCorlb=$tab;//$tabCorlb=array_merge($tabCorlb,$rrtb);
+		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
+	} // fin boucle sur les réponses
+	return($tabCorlb);
+}
+
+// FIN ENSEMBLE DE FONCTIONS NECESSAIRES A ttChpLink
 
 // info serveur
 function pinfserv() {
