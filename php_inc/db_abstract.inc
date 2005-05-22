@@ -330,4 +330,17 @@ function db_fetch_assoc($res) {
 		break;
 	}
 }
+
+function db_fetch_object($res) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_fetch_object($res));
+		break;
+		
+	case "mysql":
+	default:
+		return(mysql_fetch_object($res));
+		break;
+	}
+}
 ?>

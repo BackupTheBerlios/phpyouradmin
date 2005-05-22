@@ -259,7 +259,7 @@ else // si nbrésultat>0
   if ($_SESSION[db_type]=="mysql") {
 	$nbpk=0;  // nbre de champs clés primaires
 	for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
-	echo mysql_field_flags($req,$Idf)." <BR/>";
+	//echo mysql_field_flags($req,$Idf)." <BR/>";
 	if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
 		$tbpk[$nbpk]=mysql_field_name($req,$Idf);
 		$nbpk++;

@@ -310,11 +310,10 @@ else {
      }
 
 if ($cppid && $valc=="") { //on a une structure héiarchique et plus d'une valeur à chercher
-	// on cherche les parents initiaux, ie ceux dont le pid est null ou égal à eux même 
+	// on cherche les parents initiaux, ie ceux dont le pid est null ou égal à la clé du même enregistrement
 	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid='' OR $cppid=$defl[1])  $orderby");
-	echo "req="."SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid='' OR $cppid=$defl[1])  $orderby hu<br/>";
 	if (db_num_rows($rql) > 0) {
-		$tab=array();
+		$tabCorlb=array();
 		while ($rw=db_fetch_row($rql)) {
 			if($rw[0] !="") { // si clé valide
 				$resaf=$rw[2];
@@ -322,10 +321,9 @@ if ($cppid && $valc=="") { //on a une structure héiarchique et plus d'une valeur
 					$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
 					$resaf=$resaf.$cs.$rw[$k +1];
 					} // boucle sur chps éventuels en plus
-				$tab[$rw[0]]=$resaf;
-				/*$rrtb=rettarbo($rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0);
-				if ($rrtb) {$tabCorlb=array_merge($tab,$rrtb);} //else $tabCorlb=$tab; */
-				
+				$tabCorlb[$rw[0]]=$resaf;
+				rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0); 
+				//print_r($tabCorlb);				
 				} // fin si clé valide
 			} // fin boucle réponses
 		} // si réponses
@@ -375,33 +373,42 @@ else {
 	}
 }
 // fonction complémentaire réentrante pour la gestion hiérarchique
-function rettarbo($valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv=0) {
+// !! le tableau pricipal est passé par argument !
+function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv=0) {
 	global $carsepldef,$maxprof;
 	//if ($niv==3) die("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby");
 	$niv=$niv+1;
-	if ($niv>$maxprof) return(false);
-	$tabCorlb=false;
-	$rql=db_query("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby");
-	echo ("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby, nbrep:".db_num_rows($rql).", niv=$niv<br/>");
+	if ($niv>$maxprof) {
+		$tabCorlb[errprogf]="ERREUR Profond max de l'arbre ($maxprof) dépassée !";
+		return;
+		}
+	$rqra=db_query("SELECT $defl[1],$cppid $rcaf from $defl[0] where ($cppid='$valcppid' AND $defl[1]!='$valcppid') $orderby");
+	//echo ("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby, nbrep:".db_num_rows($rqra).", niv=$niv<br/>");
 	// constitution du tableau associatif à 2 dim de corresp code ->lib
-	while ($resl=db_fetch_row($rql)) {
-		//$cle=strtoupper($resl[0]);
-		$cle=$resl[0];
+	while ($resra=db_fetch_row($rqra)) {
+		//$cle=strtoupper($rera[0]);
+		$cle=$resra[0];
 		//echo "<!--debug2: $cle\n-->";
-		$resaf=$resl[2];
+		$resaf=$resra[2];
 		for ($k=2;$k<=$nbca;$k++) {
-			
 			$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-			$resaf=$resaf.$cs.$resl[$k + 1];
+			$resaf=$resaf.$cs.$resra[$k + 1];
 			}
-		$tab[$cle]=str_repeat("--",$niv).$resaf; // tableau associatif de correspondance code -> libellé
-		$rrtb=rettarbo($cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv);
-		if ($rrtb) {$tabCorlb=array_merge($tab,$rrtb);} else $tabCorlb=$tab;//$tabCorlb=array_merge($tabCorlb,$rrtb);
-		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
+		$tabCorlb[$cle]=str_repeat("&nbsp;|&nbsp;&nbsp;",$niv-1)."&nbsp;|--".$resaf; // tableau associatif de correspondance code -> libellé
+		rettarbo($tabCorlb,$cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv);
 	} // fin boucle sur les réponses
-	return($tabCorlb);
+	return;
 }
-
+function array_concat($tb1,$tb2) {
+if (!$tb2) return($tb1);
+foreach ($tb1 as $k=>$v) {
+	$tb3[$k]=$v;
+}
+foreach ($tb2 as $k=>$v) {
+	$tb3[$k]=$v;
+}
+return($tb3);
+}
 // FIN ENSEMBLE DE FONCTIONS NECESSAIRES A ttChpLink
 
 // info serveur

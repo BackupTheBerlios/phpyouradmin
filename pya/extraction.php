@@ -1,15 +1,18 @@
 <?
+include_once("reg_glob.inc");
+require("infos.php");
+sess_start();
+DBconnect();
+$whodb=stripslashes(urldecode($whodb));
+
 // entetes http pour téléchargement
+if (!$debug) {
 header('Content-disposition: filename=extractPYA.tsv');
 header('Content-type: application/octetstream');
 header('Content-type: application/ms-excel');
 header('Pragma: no-cache');
 header('Expires: 0');
-
-session_start();
-include ("infos.php");
-DBconnect();
-include_once("reg_glob.inc");
+}
 
 $tab="\t"; //tab en ascii
 echo "Extraction de données de phpYourAdmin\n\n";
@@ -34,7 +37,7 @@ else { // req custom
    $COM_TABLE="";
 }
 
-$nbrows=mysql_num_rows($result);
+$nbrows=db_num_rows($result);
 
 if ($nbrows==0) {
   echo "AUCUN ENREGISTREMENT !\n" ;} 
@@ -45,7 +48,7 @@ else {
 
        $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF_L, LIBELLE");
        $j=0; // n° de colonne
-       while ($res0=mysql_fetch_object($rq1)) {
+       while ($res0=db_fetch_object($rq1)) {
          $tbobjCC[$j]=$res0;
          if ($tbAfC[$res0->NM_CHAMP]) $j++;
          }
@@ -55,6 +58,7 @@ else {
        for ($i=0;$i<=$nbcol;$i++) {
            $objCC=$tbobjCC[$i]; // objet contenant les caractéristiques du champ
            $NomChamp=$objCC->NM_CHAMP;
+	   echo $NomChamp."<br>";
            $CIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet pour chaque champ, stocké ds un tableau
            $CIL[$NomChamp]->NmBase=$DBName;
            $CIL[$NomChamp]->NmTable=$NM_TABLE;
@@ -70,13 +74,13 @@ else {
 
 // si   infos, affiche les vrais noms de champs
   if (!$ss_parenv[noinfos]) {
-        echo "Noms champs MysQl\t";
+        echo "Noms des champs de la Bdd\t";
       foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
           if ($objCIL->Typaff_l!="" && $objCIL->Typaff_l!="") echo  $objCIL->NmChamp."\t";
         }
       echo "\n";
       echo "\n";
-  } // fin si afichage des noms de champs Mysql 
+  } // fin si afichage des noms de champs  
   
   // affichage entêtes de lignes (noms des champs en clair)
   echo "N° ligne\t";
@@ -93,7 +97,7 @@ else {
   $req=msq("$reqcust $whodb");
   
   $i=1;
-  while ($tbValChp=mysql_fetch_array($req)) {
+  while ($tbValChp=db_fetch_array($req)) {
     // colonnes 
       echo $i."\t"; // affiche n° de ligne
       $i++;
