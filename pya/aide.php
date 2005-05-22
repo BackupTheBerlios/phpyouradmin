@@ -223,7 +223,8 @@ NOM_TABLE,NOM_CHAMP_CLE,NOM_CHAMP_AFF1,NOM_CHAMP_AFF2,...,NOM_CHAMP_AFFn<br><br>
 <u>Rem 1</u>: Apparu à la version 0.75: si on fait précéder du caractère &amp; le nom du champ, la valeur affichée est déduite du paramètre VALEURS de ce champ dans son enregistrement de définition<br>
 <u>Rem 2</u>: il est possible de choisir le caractère séparateur s'affichant avant chaque champ NOM_CHAMP_AFFx avec x&gt;=2: pour cela on pourra précéder le nom du champ du caractère voulu puis ! ex: <i>&quot; -!rfp_mail&quot;</i>. Les caractères , et ; sont bien entendus proscrits. Si rien n'est spécifié, le caractère par défaut <?=carsepldef?>, définit dans la variable globale $carsepldef sera utilisé.<br>
 <u>Rem 3</u>: il est possible de choisir le champ suivant lequel sera classé la liste: pour cela on mettra un caract @ devant sont nom ex: <i>@rfp_nom</i><br>
-<u>Rem 4:</u> Ne pas mettre d'espaces avant ou après les , et ; <br><br>
+<u>Rem 4</u>: On peut depuis la version 0.894 définir un champ spécifiant la structure hiérarchique de la table liée: ce champ doit contenir le pid (parent id) de l'enregistrement parent ex: <i><b>@@</b>ufo_coufosup</i>; dans ce cas la liste déroulante affiche la hiérarchie de la table<br>
+<u>Rem 5:</u> Ne pas mettre d'espaces avant ou après les , et ; <br><br>
 
 <u>Ex :</u> on ne souhaite afficher dans une liste que les personnes dont le code est situé dans le champ RPP_CORES d'une table intermédiaire RESPONSABLE; dans la table de définition phpYourAdmin de cette table, le champ RPP_CORES possède l'enregistrement VALEURS suivant: <em>PERSONNES,per_coper,per_titre,per_prenom,per_nom</em>: <br>
 la liste affichée sera alors &quot;en clair&quot; titre prenom nom. Pour arriver à cet effet, on mettra les valeurs RESPONSABLE,RPP_CORES,&amp;RPP_CORES.
@@ -335,6 +336,8 @@ On pourra aussi dans ce champ insérer les scripts (entre les balises standards H
 <a name="clog"></a><span class="chapitrered12px">Evolution des versions...<br></span>
 Version courante  <b><? echo $VerNum; ?></b>
 <blockquote>
+<u>0.894, v 0.9 pre2 (20/05/05):</u><br>
+• LD avec hiérarchie
 <u>0.892, v 0.9 pre2 (01/05/05):</u><br>
 • Possibilité d'administrer des données de tables virtuelles: dans la table DESC_TABLE, on rajoute des enregistrements qui ne correspondent à aucune table (ou champ existant): dans ce cas il faut que le nom de la pseudo table contiennent la chaine '_VTB_'
 <u>0.891, v 0.9 pre2 (01/05/05):</u><br>
