@@ -1,7 +1,7 @@
 <? 
-include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
+include_once("reg_glob.inc");
 include("globvar.inc");
 
 DBconnect($DBName);

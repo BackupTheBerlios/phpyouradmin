@@ -1,10 +1,9 @@
 <?
-include_once("reg_glob.inc");
 $NM_TABLE=$lc_NM_TABLE;
 include("globvar.inc");
 require("infos.php");
-
 sess_start();
+include_once("reg_glob.inc");
 
 DBconnect(); 
 
@@ -40,8 +39,8 @@ INPUT,SELECT,TEXTAREA {font-size:11px}
 on est obligé d'utiliser l'index car les noms de champas avec [] ne sont pas supportés par javascript
 */
 function getIndex(what) {
-    for (var i=0;i<document.theform.elements.length;i++)
-        if (what == document.theform.elements[i]) return i;
+    for (var i=0;i<document.TDeform.elements.lengTD;i++)
+        if (what == document.TDeform.elements[i]) return i;
     return -1;
 }
 
@@ -57,29 +56,29 @@ indval=ind+1; // indice de l'element valeurs
 
 if (valc=="FICFOT"){
     alert('Pensez à créer un répertoire nommé ' + namec +', avec les droits en écriture pour le user du serveur web ....');
-     document.theform.elements[indtafl].selectedIndex=5; // lien
-     document.theform.elements[indval].value='#Dossier de stockage par défaut: '+namec;
+     document.TDeform.elements[indtafl].selectedIndex=5; // lien
+     document.TDeform.elements[indval].value='#Dossier de stockage par défaut: '+namec;
   }    
 
 else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL' ||valc=='POPLM' )
   {
   if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas lié
-    document.theform.elements[indtafl].selectedIndex=3; } // auto
+    document.TDeform.elements[indtafl].selectedIndex=3; } // auto
   else { 
-    document.theform.elements[indtafl].selectedIndex=4; // met type aff ds liste liée si liée en ppal
+    document.TDeform.elements[indtafl].selectedIndex=4; // met type aff ds liste liée si liée en ppal
     }
-  if (document.theform.elements[indval].value=='') {
-    document.theform.elements[indval].value='Pensez à rentrer les valeurs ou le lien ici !';
+  if (document.TDeform.elements[indval].value=='') {
+    document.TDeform.elements[indval].value='Pensez à rentrer les valeurs ou le lien ici !';
     }
-  document.theform.elements[indval].focus();
+  document.TDeform.elements[indval].focus();
   }
 
 else if (valc=='HID') 
   {
-  document.theform.elements[indtafl].selectedIndex=0; // caché
+  document.TDeform.elements[indtafl].selectedIndex=0; // caché
   }
 else {
-  document.theform.elements[indtafl].selectedIndex=3; // auto
+  document.TDeform.elements[indtafl].selectedIndex=3; // auto
   }
 return;
 }
@@ -93,7 +92,7 @@ Propriétés d'édition de la table <?= $LB_TABLE." (".$NM_TABLE?>) </span>
 echo "<H2>Caractéristiques globales de la table $NM_TABLE</H2>";
 if (strstr($NM_TABLE,$id_vtb)) echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
 ?>
-<form name="theform" action="./admadmresp.php" method="post">
+<form name="TDeform" action="./admadmresp.php" meTDod="post">
 <? // propriétés générales de la table
 $reqg="SELECT * FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
 $resg=msq($reqg);
@@ -134,28 +133,28 @@ $table_def = db_table_defs($NM_TABLE);
 <input type="hidden" name="NM_TABLE" value="<?= $NM_TABLE?>">
     <!--On affiche les colonnes qui correspondent aux champs selectionnés-->
     <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
-    <THEAD valign="top">
-    <TH><u>Nom du champ</u><br>
+    <TR class="THEAD" valign="top">
+    <TD class="th"><u>Nom du champ</u><br>
     Libellé à afficher<br><? DHelp("admlib") ?>
     <span style="font: 9px">Propriétés:<br>Type&nbsp;; Val. déf.&nbsp;; Null OK&nbsp;; Clé/index&nbsp;; Extra</span>
-    </TH>
-    <TH><u>Affichage liste :</u><br>
+    </TD>
+    <TD class="th"><u>Affichage liste :</u><br>
     - Ordre<? DHelp("admafl") ?>
-    <BR>- Type<? DHelp("admafl") ?></TH>
-    <TH><u>Edition :</u><br>
+    <BR>- Type<? DHelp("admafl") ?></TD>
+    <TD class="th"><u>Edition :</u><br>
     - Ordre dans formulaire<br>
-    - Type contrôle saisie<? DHelp("admtyped") ?></TH>
-    <TH>Valeurs ou lien<? DHelp("admval") ?><br>
-    <span style="font: 9px">* séparés par des ","</span></TH>
-    <TH><u>Ecran de requête :</u><br>
+    - Type contrôle saisie<? DHelp("admtyped") ?></TD>
+    <TD class="th">Valeurs ou lien<? DHelp("admval") ?><br>
+    <span style="font: 9px">* séparés par des ","</span></TD>
+    <TD class="th"><u>Ecran de requête :</u><br>
     - Type filtre<? DHelp("admtypfilt") ?>
-    <BR>- Affichage sélectionnable<? DHelp("admafsel") ?></TH>
-    <TH><u>Traitements automatiques :</u><br>
+    <BR>- Affichage sélectionnable<? DHelp("admafsel") ?></TD>
+    <TD class="th"><u>Traitements automatiques :</u><br>
     - avant MAJ <? DHelp("admttavmaj") ?><br>
     - pendant MAJ  <? DHelp("admttpdtmaj") ?><br>
-    - après MAJ</TH>
-    <TH>Commentaires sur ce champ....</TH>
-  </THEAD>
+    - après MAJ</TD>
+    <TD class="th">Commentaires sur ce champ....</TD>
+  </TR>
   <? $i=1;
   while ($row=db_fetch_assoc($result)) {
     $row=case_kup($row); // verrue à cause de PgSql dont les noms de champs sont insensibles à la case
@@ -201,7 +200,7 @@ $table_def = db_table_defs($NM_TABLE);
     // Type d'affichage ds édition
     $vares=$row['TYPEAFF'];
     ?><BR>
-    <select name="TYPEAFF[<?=$i?>]" onchange="alertfic(this.value,'<?=$DBName."_".$NM_TABLE."_".$row['NM_CHAMP']; ?>',getIndex(this));">
+    <select name="TYPEAFF[<?=$i?>]" onchange="alertfic(TDis.value,'<?=$DBName."_".$NM_TABLE."_".$row['NM_CHAMP']; ?>',getIndex(TDis));">
       <option value=<? es("HID"); ?>> Caché</option>
       <option value=<? es("TXT"); ?>> Boite Texte</option>
       <option value=<? es("TXA"); ?>> Text Area</option>
@@ -278,7 +277,7 @@ $table_def = db_table_defs($NM_TABLE);
   <br>
   <a href="./LIST_TABLES.php?admadm=1" class="fxbutton"><?=trad(BT_retour)?></a> 
         &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
+  <a href="#" onclick="document.TDeform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
 <!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
   
   

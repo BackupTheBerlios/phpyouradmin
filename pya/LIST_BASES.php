@@ -1,8 +1,10 @@
 <? 
-include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
 unset($_SESSION[where_sup]);
+unset($_SESSION[NM_TABLE]);
+unset($_SESSION[DBName]);
+include_once("reg_glob.inc");
 $title=trad("LB_title"). $_SERVER["HTTP_HOST"] ."( IP=".gethostbyname($_SERVER["HTTP_HOST"]).")";
 include ("header.php");
 $lnkbdd=DBconnect(false);

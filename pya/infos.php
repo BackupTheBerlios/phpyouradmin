@@ -1,5 +1,5 @@
 <? //infos techniques PHPYOURADMIN
-$debug=true;
+$debug=false;
 $dbgn2=false;
 include ("infos_conn_MySql.inc");
 $infosparsed=true; // pour savoir si ce fichier a été parsé

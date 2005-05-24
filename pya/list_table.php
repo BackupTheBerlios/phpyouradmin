@@ -1,7 +1,7 @@
 <?
-include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
+include_once("reg_glob.inc");
 DBconnect();
 
 $ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)

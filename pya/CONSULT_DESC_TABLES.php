@@ -1,9 +1,9 @@
 <?
 // utilitaire permettant de générer la table DESC_TABLE qui décrit les autres pour l'édition
-include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
 sess_start();
+include_once("reg_glob.inc");
 DBconnect();
 
 $title="$DBName: Etat complet";

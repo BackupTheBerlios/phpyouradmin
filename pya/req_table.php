@@ -1,12 +1,16 @@
 <? 
-include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
 DBconnect();
+
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
+
 if (isset($lc_where_sup)) {
   $where_sup=$lc_where_sup;
-  $_SESSION["where_sup"]=$where_sup; //session_register("where_sup");
   }
+else $where_sup="";
+
+$_SESSION["where_sup"]=$where_sup; //session_register("where_sup");
 
 $reqcust=$lc_reqcust;
 $_SESSION["reqcust"]=$reqcust; //session_register("reqcust");
@@ -19,6 +23,7 @@ unset($_SESSION["FirstEnr"]); //unregvar ("FirstEnr");
 unset($_SESSION["tbAfC"]); //unregvar ("tbAfC");
 $NoConfSuppr=$lc_NoConfSuppr;
 $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
+include_once("reg_glob.inc");
 
 // regarde s'il existe des filtres ou selection d'affichage de colonnes, que si pas de req custom
 if ($lc_NM_TABLE!="__reqcust") {
@@ -58,7 +63,7 @@ $nolig=0;
 while ($res=db_fetch_array($qr))
   {
   $nolig++;
-  $FCobj->NmChamp=$res[NM_CHAMP];
+  $FCobj->NmChamp=$res[$ult[NM_CHAMP]];
   $FCobj->InitPO();
   echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD><B>$FCobj->Libelle</B><BR><small>$FCobj->Comment</small></TD><TD>";
   $FCobj->EchoFilt();

@@ -1,7 +1,7 @@
 <?
-include_once("reg_glob.inc");
 require("infos.php");
 sess_start();
+include_once("reg_glob.inc");
 DBconnect();
 
 if ($NM_TABLE!="__reqcust") {

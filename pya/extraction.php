@@ -1,9 +1,12 @@
-<?
-include_once("reg_glob.inc");
+<? 
 require("infos.php");
 sess_start();
+include_once("reg_glob.inc");
 DBconnect();
+
 $whodb=stripslashes(urldecode($whodb));
+
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
 
 // entetes http pour téléchargement
 if (!$debug) {
@@ -18,6 +21,7 @@ $tab="\t"; //tab en ascii
 echo "Extraction de données de phpYourAdmin\n\n";
 echo "Base $DBName\n\n";
 if ($debug) {
+   echovar("ss_parenv");
    echovar("whodb");
    echovar("DBName");
    echovar("NM_TABLE");
@@ -45,26 +49,24 @@ if ($nbrows==0) {
 else {
   if ($NM_TABLE!="__reqcust") {
      $reqcust="select * from $CSpIC$NM_TABLE$CSpIC";
-
-       $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF_L, LIBELLE");
-       $j=0; // n° de colonne
-       while ($res0=db_fetch_object($rq1)) {
-         $tbobjCC[$j]=$res0;
-         if ($tbAfC[$res0->NM_CHAMP]) $j++;
+     
+     $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPAFF_L!='' ORDER BY ORDAFF_L, LIBELLE");
+     $nbcol=0; // n° de colonne
+     while ($res0=db_fetch_assoc($rq1)) {
+         $tbobjCC[$nbcol]=$res0[$ult[NM_CHAMP]];
+         if ($tbAfC[$res0[$ult[NM_CHAMP]]]) {$nbcol++;}// la condition n'est true que si champ à afficher et case cochée
          }
-       $nbcol=($j-1);
-
-     // initialise les objets    
-       for ($i=0;$i<=$nbcol;$i++) {
-           $objCC=$tbobjCC[$i]; // objet contenant les caractéristiques du champ
-           $NomChamp=$objCC->NM_CHAMP;
-	   echo $NomChamp."<br>";
-           $CIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet pour chaque champ, stocké ds un tableau
-           $CIL[$NomChamp]->NmBase=$DBName;
-           $CIL[$NomChamp]->NmTable=$NM_TABLE;
-           $CIL[$NomChamp]->NmChamp=$NomChamp;
-           $CIL[$NomChamp]->InitPO();
-         }
+     $nbcol=($nbcol-1);
+     
+     for ($i=0;$i<=$nbcol;$i++){
+          $NomChamp=$tbobjCC[$i];
+          $CIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
+          $CIL[$NomChamp]->NmBase=$DBName;
+          $CIL[$NomChamp]->NmTable=$NM_TABLE;
+          $CIL[$NomChamp]->NmChamp=$NomChamp;
+          $CIL[$NomChamp]->InitPO();
+     	} // fin boucle sur les champs
+     
      } // fin si pas custom
 
   else { // requete custom (perd l'ordre d'affichage sinon)
@@ -76,7 +78,7 @@ else {
   if (!$ss_parenv[noinfos]) {
         echo "Noms des champs de la Bdd\t";
       foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
-          if ($objCIL->Typaff_l!="" && $objCIL->Typaff_l!="") echo  $objCIL->NmChamp."\t";
+          if ($objCIL->Typaff_l!="" && $objCIL->Typaff_l!="hid") echo  $objCIL->NmChamp."\t";
         }
       echo "\n";
       echo "\n";

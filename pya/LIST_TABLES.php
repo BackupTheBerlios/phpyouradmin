@@ -1,7 +1,5 @@
 <? require("infos.php");
-include_once("reg_glob.inc");
 sess_start();
-DBconnect();
 // reset des variables de session de tri
 unset($_SESSION["where_sup"]); //unregvar ("where_sup");
 unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
@@ -16,6 +14,8 @@ if (isset($ss_adrr['edit_table.php']))
    unset ($ss_adrr['edit_table.php']);
    unset($_SESSION["ss_adrr"]); //session_register("ss_adrr");
    }
+include_once("reg_glob.inc");
+DBconnect();
 
 $title=($admadm==1? trad(LT_titleadm) : trad(LT_titleedit))." ".$DBName;
 include ("header.php");
