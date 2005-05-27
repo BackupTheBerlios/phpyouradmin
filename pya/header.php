@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <TITLE><?=($admadm==1 ? "!P!Y!A! ":"PYA ").$title?></TITLE>
-<link href="<?=($ss_parenv[css_ssf] ? $ss_parenv[css_ssf] : "styles.css")?> rel="styleSheet" type="text/css">
+<link href="styles.css" rel="styleSheet" type="text/css"><?// =($ss_parenv[css_ssf] ? $ss_parenv[css_ssf] : "styles.css")?> 
 <script src="functions.js" type="text/javascript" language="javascript"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </HEAD>

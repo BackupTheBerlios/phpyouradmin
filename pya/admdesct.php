@@ -39,8 +39,8 @@ INPUT,SELECT,TEXTAREA {font-size:11px}
 on est obligé d'utiliser l'index car les noms de champas avec [] ne sont pas supportés par javascript
 */
 function getIndex(what) {
-    for (var i=0;i<document.TDeform.elements.lengTD;i++)
-        if (what == document.TDeform.elements[i]) return i;
+    for (var i=0;i<document.theform.elements.length;i++)
+        if (what == document.theform.elements[i]) return i;
     return -1;
 }
 
@@ -56,29 +56,29 @@ indval=ind+1; // indice de l'element valeurs
 
 if (valc=="FICFOT"){
     alert('Pensez à créer un répertoire nommé ' + namec +', avec les droits en écriture pour le user du serveur web ....');
-     document.TDeform.elements[indtafl].selectedIndex=5; // lien
-     document.TDeform.elements[indval].value='#Dossier de stockage par défaut: '+namec;
+     document.theform.elements[indtafl].selectedIndex=5; // lien
+     document.theform.elements[indval].value='#Dossier de stockage par défaut: '+namec;
   }    
 
 else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL' ||valc=='POPLM' )
   {
   if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas lié
-    document.TDeform.elements[indtafl].selectedIndex=3; } // auto
+    document.theform.elements[indtafl].selectedIndex=3; } // auto
   else { 
-    document.TDeform.elements[indtafl].selectedIndex=4; // met type aff ds liste liée si liée en ppal
+    document.theform.elements[indtafl].selectedIndex=4; // met type aff ds liste liée si liée en ppal
     }
-  if (document.TDeform.elements[indval].value=='') {
-    document.TDeform.elements[indval].value='Pensez à rentrer les valeurs ou le lien ici !';
+  if (document.theform.elements[indval].value=='') {
+    document.theform.elements[indval].value='Pensez à rentrer les valeurs ou le lien ici !';
     }
-  document.TDeform.elements[indval].focus();
+  document.theform.elements[indval].focus();
   }
 
 else if (valc=='HID') 
   {
-  document.TDeform.elements[indtafl].selectedIndex=0; // caché
+  document.theform.elements[indtafl].selectedIndex=0; // caché
   }
 else {
-  document.TDeform.elements[indtafl].selectedIndex=3; // auto
+  document.theform.elements[indtafl].selectedIndex=3; // auto
   }
 return;
 }
@@ -92,7 +92,7 @@ Propriétés d'édition de la table <?= $LB_TABLE." (".$NM_TABLE?>) </span>
 echo "<H2>Caractéristiques globales de la table $NM_TABLE</H2>";
 if (strstr($NM_TABLE,$id_vtb)) echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
 ?>
-<form name="TDeform" action="./admadmresp.php" meTDod="post">
+<form name="theform" action="./admadmresp.php" method="post">
 <? // propriétés générales de la table
 $reqg="SELECT * FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
 $resg=msq($reqg);
@@ -200,7 +200,7 @@ $table_def = db_table_defs($NM_TABLE);
     // Type d'affichage ds édition
     $vares=$row['TYPEAFF'];
     ?><BR>
-    <select name="TYPEAFF[<?=$i?>]" onchange="alertfic(TDis.value,'<?=$DBName."_".$NM_TABLE."_".$row['NM_CHAMP']; ?>',getIndex(TDis));">
+    <select name="TYPEAFF[<?=$i?>]" onchange="alertfic(this.value,'<?=$DBName."_".$NM_TABLE."_".$row['NM_CHAMP']; ?>',getIndex(this));">
       <option value=<? es("HID"); ?>> Caché</option>
       <option value=<? es("TXT"); ?>> Boite Texte</option>
       <option value=<? es("TXA"); ?>> Text Area</option>
@@ -277,7 +277,7 @@ $table_def = db_table_defs($NM_TABLE);
   <br>
   <a href="./LIST_TABLES.php?admadm=1" class="fxbutton"><?=trad(BT_retour)?></a> 
         &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="#" onclick="document.TDeform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
+  <a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
 <!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
   
   

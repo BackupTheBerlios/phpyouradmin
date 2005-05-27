@@ -763,7 +763,7 @@ global $debug, $DBName;
       $NmChamp=db_field_name($resreq,$i);
       $NTBL=db_field_table($resreq,$i);
       $CIL[$NmChamp]=new PYAobj(); // nouvel objet
-      $CIL[$NmChamp]->NmBase=$DBName;
+      $CIL[$NmChamp]->NmBase=$Base;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->InitPO();
