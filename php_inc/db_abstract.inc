@@ -109,13 +109,13 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 		$table_def= db_query("select $NM_CHAMPD from $NM_TABLE LIMIT 1");
 		for ($i=0;$i<db_num_fields($table_def);$i++) {
 			$NM_CHAMP=db_field_name($table_def,$i);
-			$ret[$NM_CHAMP][FieldType]=db_field_type($table_def,$i)."(".db_field_size($table_def,$i).")";
-			/* non encore fait pour postgresql
-			$ret[$NM_CHAMP][FieldValDef]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-			$ret[$NM_CHAMP][FieldNullOk]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-			$ret[$NM_CHAMP][FieldKey]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-			$ret[$NM_CHAMP][FieldExtra]=db_field_flags($table_def,$i); // auto_increment 
-			*/
+			$ret[$NM_CHAMP]['FieldType']=db_field_type($table_def,$i)."(".db_field_size($table_def,$i).")";
+			// non encore fait pour postgresql
+			$ret[$NM_CHAMP]['FieldValDef']="";
+			$ret[$NM_CHAMP]['FieldNullOk']="YES"; // YES ou rien
+			$ret[$NM_CHAMP]['FieldKey']=""; // clé=PRI, index=MUL, unique=UNI
+			$ret[$NM_CHAMP]['FieldExtra']=""; // auto_increment 
+			
 			}
 		break;
 		
@@ -125,12 +125,12 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 		while ($row_table_def = db_fetch_array($table_def)) {
 			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
 				$NM_CHAMP=$row_table_def['Field'];
-				$ret[$NM_CHAMP][FieldType]=$row_table_def['Type'];
-				$ret[$NM_CHAMP][FieldValDef]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+				$ret[$NM_CHAMP]['FieldType']=$row_table_def['Type'];
+				$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
 				// si nouvel enregistrement, affecte la valeur par défaut
-				$ret[$NM_CHAMP][FieldNullOk]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-				$ret[$NM_CHAMP][FieldKey]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-				$ret[$NM_CHAMP][FieldExtra]=$row_table_def['Extra']; // auto_increment 
+				$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
 			}
 		} 
 		break;

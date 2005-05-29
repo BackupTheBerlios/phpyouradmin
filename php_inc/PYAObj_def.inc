@@ -35,6 +35,7 @@ function InitPO()  {
 // Nom de la table de description des autres
 // nom du champ contenant les caractéristiques globales à la table
 global $TBDname,$NmChDT;
+$retVal="";
     if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
     	$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
     	// normallement on est déjà connecté
@@ -42,37 +43,37 @@ global $TBDname,$NmChDT;
         $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
         if (db_num_rows($rpDF)>0) {
               $CcChp=db_fetch_assoc($rpDF);
-              $this->Libelle=$CcChp[$ult[LIBELLE]];
-              $this->Typaff_l=$CcChp[$ult[TYPAFF_L]];
-              $this->TypeAff=$CcChp[$ult[TYPEAFF]];
-              $this->Valeurs=$CcChp[$ult[VALEURS]];
-              $this->Tt_AvMaj=$CcChp[$ult[TT_AVMAJ]];
-              $this->Tt_PdtMaj=$CcChp[$ult[TT_PDTMAJ]];
-              $this->Tt_AprMaj=$CcChp[$ult[TT_APRMAJ]];
-              $this->TypFilt=$CcChp[$ult[VAL_DEFAUT]];
-              $this->TypCSA=$CcChp[$ult[TYP_CHP]];
-              $this->Comment=$CcChp[$ult[COMMENT]];
+              $this->Libelle=$CcChp[$ult['LIBELLE']];
+              $this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
+              $this->TypeAff=$CcChp[$ult['TYPEAFF']];
+              $this->Valeurs=$CcChp[$ult['VALEURS']];
+              $this->Tt_AvMaj=$CcChp[$ult['TT_AVMAJ']];
+              $this->Tt_PdtMaj=$CcChp[$ult['TT_PDTMAJ']];
+              $this->Tt_AprMaj=$CcChp[$ult['TT_APRMAJ']];
+              $this->TypFilt=$CcChp[$ult['VAL_DEFAUT']];
+              $this->TypCSA=$CcChp[$ult['TYP_CHP']];
+              $this->Comment=$CcChp[$ult['COMMENT']];
 
               $TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
-	      $this->FieldType=$TbDescChp[$this->NmChamp][FieldType];
+	      $this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
               $TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
               if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
               if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
               $this->TTC=$TTC;
-              $this->FieldValDef=$TbDescChp[$this->NmChamp][FieldValDef];
+              $this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
               // si nouvel enregistrement, affecte la valeur par défaut
               if ($this->TypEdit=="") $this->ValChp=$this->FieldValDef; 
-              $this->FieldNullOk=$TbDescChp[$this->NmChamp][FieldNullOk]; // YES ou rien
-              $this->FieldKey=$TbDescChp[$this->NmChamp][FieldKey]; // clé=PRI, index=MUL, unique=UNI
-              $this->FieldExtra=$TbDescChp[$this->NmChamp][FieldExtra]; // auto_increment
+              $this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
+              $this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clé=PRI, index=MUL, unique=UNI
+              $this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
               // si champ auto increment et pas caché, on le met en statique
               if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
 	      /*
-				$ret[$NM_CHAMP][FieldValDef]=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+				$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
 				// si nouvel enregistrement, affecte la valeur par défaut
-				$ret[$NM_CHAMP][FieldNullOk]=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-				$ret[$NM_CHAMP][FieldKey]=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-				$ret[$NM_CHAMP][FieldExtra]=$row_table_def['Extra']; // auto_increment 
+				$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
 	      
 	      $TbDescChp=ShowField($this->NmChamp,$this->NmTable);
               $this->FieldType=$TbDescChp['Type'];
@@ -90,9 +91,9 @@ global $TBDname,$NmChDT;
               if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
 	      */
             }
-        else $retVal.= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouvé dans la table de description";
+        else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouvé dans la table de description";
         }
-    else $retVal.= "Appel de la méthode InitPO de l'objet PYAObj incorrecte: au moins une des propriétés de base n'a pas été définie"; 
+    else $retVal = "Appel de la méthode InitPO de l'objet PYAObj incorrecte: au moins une des propriétés de base n'a pas été définie"; 
     if ($this->DirEcho) {
     	echo $retVal;
     } else {
@@ -101,18 +102,17 @@ global $TBDname,$NmChDT;
 } // fin méthode d'initialisation$DH
 
 // méthode d'affichage de filtre de requete
-  function EchoFilt($bDN=true,$bDL=true) { // booleens affiche négation et affiche libellé ie baratins sur les dates
+  function EchoFilt($bDN=true,$bDL=true) { // booleens affiche négation et affiche libellé ie baratins sur les dates e
    global $VSLD;
     switch ($this->TypFilt) {
       case "INPLIKE":
-        $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"INPLIKE\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"INPLIKE\">";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
-        if ($bDN) $this->DispNeg();
         break;
   
   //! ttes les listes sont à choix multiple (condition OR sur les valeurs)
       case "LDC": // Liste déroulante affichant les différentes valeurs du champ  
-        $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
         $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
         $tbval["%"]=$VSLD."(tous)";
@@ -120,12 +120,11 @@ global $TBDname,$NmChDT;
           $tbval[$rwsq[0]]=$rwsq[0];
           }
         asort($tbval); // tri de la liste
-        DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,$this->DirEcho);
-        if ($bDN) $this->DispNeg();
+        $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
         break;
   
       case "LDF": // Liste déroulante affichant les différentes valeurs fixes listées dans le champ valeur, ou les valeurs du set ou enum
-        $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
         // $tbval["%"]=$VSLD."%"; fait après
         if ($this->TTC=="enum" || $this->TTC=="set") {
             $tabval = str_replace('set(', '', $this->FieldType);
@@ -149,14 +148,13 @@ global $TBDname,$NmChDT;
 				// ci-dessus ça reconstruit les indices...
 				$tbval=array("%"=>$VSLD."(tous)")+$tbval;
 
-        DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,$this->DirEcho);
-        if ($bDN) $this->DispNeg();
+        $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
         break;
   
       case "LDL": // Liste déroulante affichant les différentes valeurs liées par le champ valeurs
-        $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
         $tbval=ttChpLink($this->Valeurs);
-				if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,clé,%
+	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,clé,%
             {
             foreach ($tbval as $key=>$val)
                {
@@ -176,33 +174,34 @@ global $TBDname,$NmChDT;
 				$retVal.= $tabval[103];
 				$retVal.= "-->";
 //        asort($tbval); // pas de tri de la liste (spécifié dans la liaison)
-        DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fcrr,$this->DirEcho);
-        if ($bDN) $this->DispNeg();
+        $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fcrr,false);
         break;
         
       case "DANT": // criteres sur date antérieure ou postérieure
       case "DPOST":
-        $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
         if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est ". ($this->TypFilt=="DANT" ? "antérieure" : "postérieure") ." à ";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
-        if ($bDN) $this->DispNeg();
         break;
         
       case "DATAP": // criteres sur date antérieure ET postérieure
-        $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
              $retVal.= "Enregistrements pour lequels $this->Libelle est <br>postérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et antérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
              }
         else {
              $retVal.= "$this->Libelle post <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> & ante <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
              }
-        if ($bDN) $this->DispNeg();
         break;
   
       default:
-        $retVal.= "&nbsp;";
+        $retVal= "&nbsp;";
+	$bDN=false;
         break;
+	
       } // fin switch sur type de filtre
+      // negation
+   if ($bDN) $retVal.=$this->DispNeg(false);
    
    if ($this->DirEcho) {
     	echo $retVal;
@@ -212,9 +211,9 @@ global $TBDname,$NmChDT;
   } // fin méthode EchoFilt
 //
 // Méthode qui affiche la case de négation
-function DispNeg() {
+function DispNeg($DE2=true) {
         $retVal.= "<BR><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> Négation</span>";
-   if ($this->DirEcho) {
+   if ($this->DirEcho && $DE2) {
     	echo $retVal;
     } else {
     	return($retVal);
@@ -429,19 +428,19 @@ function EchoEdit($DH=true) {
       }
       if (!in_array($this->ValChp,$tbkey) && $this->ValChp!="")
         $retVal.= "<H6>Erreur : la valeur $this->ValChp contenue dans le champ n'est pas dans la liste ! </H6>";
-      DispLD($tbval,$this->NmChamp,"no",$this->Fccr,$this->DirEcho); // lise der. non multiple
+      $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false); // lise der. non multiple
       break;
 
     case "LDM": // liste déroulante non liée MULTIPLE
       $defl=explode(',',$this->Valeurs);
       $tbvalm=explode(',',$this->ValChp);
       
-      $tbval["NULL"]="Auncun(e)"; // valeur vide
+      $tbval["NULL"]="Aucun(e)"; // valeur vide
       $Am1S=false; // Init au moins une valeur sélectionnée
       foreach ($defl as $val) {
         if (strstr($val,":")) {
            $valtb=explode(":",$val);
-           $key=$valtb[0];
+		$key=$valtb[0];
            $val=$valtb[1];
            }
         else $key=$val;
@@ -465,7 +464,7 @@ function EchoEdit($DH=true) {
         $err=vdc($err,2); // enlève dernier", ";
         $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) non présente(s) dans la liste ! </h6>";
         }
-      DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,$this->DirEcho);
+      $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false);
       break;
       
     case "LDL": // liste déroulante liée
@@ -486,7 +485,7 @@ function EchoEdit($DH=true) {
           }
       if (!in_array($this->ValChp,$tberrck) && $this->ValChp!="") 
         $retVal.= "<H6>Erreur : la valeur $this->ValChp contenue dans le champ n'est pas dans la liste ! </H6>";
-      DispLD($tbval,$this->NmChamp,"no",$this->Fccr,$this->DirEcho);
+      $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false);
       break;
 
     case "LDLM": // liste déroulante liée MULTIPLE
@@ -521,7 +520,7 @@ function EchoEdit($DH=true) {
           $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) dans le champ non présente(s) dans la liste ! </h6>";
           }
         }        
-      DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,$this->DirEcho); // liste déroulante, multiple
+      $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false); // liste déroulante, multiple
       break;
     
 		case "POPL": // popup de sélection
