@@ -69,7 +69,7 @@ while ($res1=db_fetch_row($rq1))
   if ($PYAoMAJ->TypeAff=="FICFOT") {
      if ($_FILES[$NOMC][name]!="" && $_FILES[$NOMC][error]!="0") die ("error: impossible de joindre le fichier ".$_FILES[$NOMC][name]."; sa taille est peut-etre trop importante");
      $VarFok="Fok".$NOMC;
-     $PYAoMAJ->ValChp=($_FILES[tmp_name]!="" ? $_FILES[tmp_name] : $PYAoMAJ->ValChp);
+     $PYAoMAJ->ValChp=($_FILES[$NOMC][tmp_name]!="" ? $_FILES[$NOMC][tmp_name] : $PYAoMAJ->ValChp);
      $PYAoMAJ->Fok=$$VarFok;
      $VarFname=$NOMC."_name"; // ancienne méthode
      $PYAoMAJ->Fname=($$VarFname !="" ? $$VarFname : $_FILES[$NOMC][name]);

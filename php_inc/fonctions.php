@@ -83,13 +83,25 @@ return(str_repeat("&nbsp;",$i));
 }
 
 // fonction qui echoise un texte dans un style
-function echspan($style,$text) {
-         echo "<span class=\"$style\">$text</span>";
+function echspan($style,$text,$DirEcho=true) {
+    $retVal.= "<span class=\"$style\">$text</span>";
+    if ($DirEcho) {
+    	echo $retVal;
+    } else {
+    	return($retVal);
+    }
+
 }
 
 // fonction qui echoise un champ n
 function echochphid($NmC,$ValC) {
-         echo "<input type=\"hidden\" name=\"$NmC\" value=\"$ValC\">\n";
+    $retVal.= "<input type=\"hidden\" name=\"$NmC\" value=\"$ValC\">\n";
+    if ($DirEcho) {
+    	echo $retVal;
+    } else {
+    	return($retVal);
+    }
+
 }
 
 // finction qui vérifie qu'une adresse mail est valide
@@ -453,55 +465,60 @@ return (mysql_fetch_array($table_def));
 // - le nom du controle
 // - s'il est multiple ou non (non par défaut)
 // - 4ème argument (optionel) force  les cases à cocher ou boutons radio qqsoit le nbre de valeur
-function DispLD($tbval,$nmC,$Mult="no",$Fccr="") {
+function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true) {
 global $nValRadLd,$VSLD,$SzLDM;
 if (count($tbval)==0) {
-   echo "Aucune liste de valeurs disponible <BR>";
-   echo "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
+   $retVal.= "Aucune liste de valeurs disponible <BR>";
+   $retVal.= "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
    }
 elseif (count($tbval)>$nValRadLd && $Fccr=="") { 
 // liste déroulante: nbre val suffisantes et pas de forcage 
-  echo "<SELECT ondblclick=\"document.theform.submit();\" NAME=\"".$nmC;
+  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));
-  echo ($Mult!="no" ? "[]\" MULTIPLE SIZE=\"$SizeLDM\">" : "\">");
+  $retVal.= ($Mult!="no" ? "[]\" MULTIPLE SIZE=\"$SizeLDM\">" : "\">");
   foreach ($tbval as $key =>$val) {
-    echo "<OPTION VALUE=\"$key\" ";
+    $retVal.= "<OPTION VALUE=\"$key\" ";
     if (strstr($val,$VSLD)) {
       $sel="SELECTED";
       $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
       }
     else $sel="";
-    echo $sel.">$val</OPTION>";
+    $retVal.= $sel.">$val</OPTION>";
     } // fin boucle sur les valeurs
-  echo "</SELECT>";
-  echo ($Mult!="no" ? "<br><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
+  $retVal.= "</SELECT>";
+  $retVal.= ($Mult!="no" ? "<br><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
 else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases à cocher si multiple ou pas de forçage en radio
   { 
   foreach ($tbval as $key =>$val) {
     if ($key!="") {
-      echo "<INPUT TYPE=\"CHECKBOX\" NAME=\"".$nmC."[]\" VALUE=\"$key\" ";
+      $retVal.= "<INPUT TYPE=\"CHECKBOX\" NAME=\"".$nmC."[]\" VALUE=\"$key\" ";
       if (strstr($val,$VSLD)) {
         $sel="checked";
         $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
         }
       else $sel="";
-      echo $sel.">".$val;
-      echo (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
+      $retVal.= $sel.">".$val;
+      $retVal.= (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
       } // fin si valeur non nulle    
     } // fin boucle sur les valeurs
   } // fin cases à cocher
 else {// boutons radio
   foreach ($tbval as $key =>$val) {
-    echo "<INPUT TYPE=\"RADIO\" NAME=\"$nmC\"".($Mult!="no" ? "[]" :"" )." VALUE=\"$key\" ";
+    $retVal.= "<INPUT TYPE=\"RADIO\" NAME=\"$nmC\"".($Mult!="no" ? "[]" :"" )." VALUE=\"$key\" ";
     if (strstr($val,$VSLD)) {
       $sel="checked";
       $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
       }
     else $sel="";
-    echo $sel.">".$val;
-    echo (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
+    $retVal.= $sel.">".$val;
+    $retVal.= (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
     } // fin boucle sur les valeurs
   }// fin boutons radio
+  if ($DirEcho) {
+ 	echo $retVal;
+  } else {
+    	return($retVal);
+  }
 } // fin fonction
 
  
