@@ -472,8 +472,12 @@ function EchoEdit($DH=true) {
       (base,user,passwd);table,chpclé,chp_aff1,chpaff2,...,chpaffn)
       */
       $tabCorlb=ttChpLink($this->Valeurs,$this->Val2);
-      if ($this->FieldNullOk=="YES")
-        {  // si null autorisé
+      if (strstr($this->Valeurs,"@@")) {  // si hierachique
+	$valnul=($this->TTC=="char" ? "NULL" : 0);
+        $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
+        $tbval[$valnul]="Elle-meme(self)";
+        }
+      elseif ($this->FieldNullOk=="YES") {  // si null autorisé
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
         $tbval["NULL"]="Aucun(e)";
         }
@@ -495,7 +499,12 @@ function EchoEdit($DH=true) {
       $tabCorlb=ttChpLink($this->Valeurs,$this->Val2);
       //dans le champ lui même, les valeurs clés sont stockées séparées par des virgules
       $tbvalm=explode(',',$this->ValChp);
-      $tbval["NULL"]="Aucun(e)";
+
+     if (strstr($this->Valeurs,"@@")) $valsh=" ou elle-meme";
+      $valnul=($this->TTC=="char" ? "NULL" : 0);
+      $tbval[$valnul]="Aucun(e)".$valsh;
+
+
       $tberrck=array(); // clear tableau de controle d'erreur
       $Am1S=false; // Init au moins une valeur sélectionnée
       foreach ($tabCorlb as $key=>$val) {
@@ -508,7 +517,7 @@ function EchoEdit($DH=true) {
         }
 
       // si aucun de sélectionné ...
-      if (!$Am1S) $tbval["NULL"]=$VSLD."Aucun(e)";
+      if (!$Am1S) $tbval[$valnul]=$VSLD."Aucun(e)".$valsh;
       // controle d'erreur
       if (is_array($tbvalm)) {
         unset($err);
