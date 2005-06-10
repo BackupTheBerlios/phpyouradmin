@@ -332,10 +332,11 @@ On pourra aussi dans ce champ insérer les scripts (entre les balises standards H
 <BR>
 <BR>
 <U>N.B.</U>: depuis la version 0.895, il existe une propriété complémentaire : DirEcho.
-Par défaut elle est initialisée à true, c'est à dire que quand on appelle la méthode EchoEditAll par ex, le contrôle est "échoisé" directement. Pour pouvoir utiliser les objets avec un système de templates par exemple on fera comme suit:<BR>
+Par défaut elle est initialisée à true, c'est à dire que quand on appelle la méthode EchoEditAll par ex, le contrôle est "échoisé" directement. <br/>
+Pour pouvoir utiliser les objets avec un système de templates par exemple on procèdera comme suit:<BR>
 <PRE>
 $CIL->DirEcho=false;
-$val2disp=$CIL->EchoEditAll();
+$val2disp=$CIL->EchoEditAll(); // fait que le code html est renvoyé ds le return
 $tpl->set_var('val2disp', $val2disp );
 </PRE>
 <div align="center"><a href="#haut"><img src="haut.gif" width="70" height="11" border="0" alt="Sommaire"></a><br>
@@ -347,7 +348,7 @@ Version courante  <b><? echo $VerNum; ?></b>
 • - correction bug uploads de fichiers<br>
 • - possibilité de ne pas "échoiser" directement dans les méthode de l'objet PYA: utilisation de la propriéré DirEcho à false<br>
 <u>0.894, v 0.9 pre2 (20/05/05):</u><br>
-• LD avec hiérarchie<br>
+• LD avec hiérarchie; code @@ devant le nom du champ contenant le pid<br>
 <u>0.892, v 0.9 pre2 (01/05/05):</u><br>
 • Possibilité d'administrer des données de tables virtuelles: dans la table DESC_TABLE, on rajoute des enregistrements qui ne correspondent à aucune table (ou champ existant): dans ce cas il faut que le nom de la pseudo table contiennent la chaine '_VTB_'
 <u>0.891, v 0.9 pre2 (01/05/05):</u><br>

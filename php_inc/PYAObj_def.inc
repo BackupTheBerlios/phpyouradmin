@@ -19,14 +19,14 @@ class PYAobj {
                 // si contient RAD force boutons radios
   var $Valeurs;
   var $Val2=""; // valeurs en plus, évaluées en fonction de l'enregistrement
-	var $adpopl="popl.php"; // url par défaut de la popup d'édition
+  var $adpopl="popl.php"; // url par défaut de la popup d'édition
   var $TypFilt;
   var $TypCSA;
   var $Tt_AvMaj;
   var $Tt_PdtMaj;
   var $Tt_AprMaj;
   var $TypEdit; // important de savoir si on est en création (""), copie(2), édition(1) ou consultation (C)
-  var $DirEcho=true; // Direct Echo: pour savoir si on $retVal.=ise direct ou renvoie la valeur
+  var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
 
 // méthode qui initialise toutes les propriétés de l'objet pour un champ
@@ -351,8 +351,8 @@ function RVLS($EiS) {
 // on a séparé les auto et manuels
 function EchoEditAll($DH=true) {
   if ($this->TypeAff!="AUT") {
-    $this->EchoEdit($DH);}
-  else $this->EchoEditAuto();
+    return($this->EchoEdit($DH));}
+  else return($this->EchoEditAuto());
   }
 
 // méthode qui affiche le controle dédition
@@ -368,7 +368,8 @@ function EchoEdit($DH=true) {
 
    switch ($this->TypeAff) {
    //chgt en statique normale
-        case "TXT": // boite texte normale
+        case "AUT": // AUto
+	case "TXT": // boite texte normale
         case "TXA": // texte area
            $this->TypeAff="STA";
            break;
@@ -397,7 +398,6 @@ function EchoEdit($DH=true) {
       $evJS=" ".$tbeven[0]."=\"".$tbeven[1]."\"";
       }
    else $evJS="";
-
 
    switch ($this->TypeAff) {
     case "": // on affiche rien

@@ -323,7 +323,7 @@ else {
 
 if ($cppid && $valc=="") { //on a une structure héiarchique et plus d'une valeur à chercher
 	// on cherche les parents initiaux, ie ceux dont le pid est null ou égal à la clé du même enregistrement
-	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1])  $orderby");
+	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid='0')  $orderby");
 	if (db_num_rows($rql) > 0) {
 		$tabCorlb=array();
 		while ($rw=db_fetch_row($rql)) {
