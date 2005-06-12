@@ -25,7 +25,7 @@ class PYAobj {
   var $Tt_AvMaj;
   var $Tt_PdtMaj;
   var $Tt_AprMaj;
-  var $TypEdit; // important de savoir si on est en création (""), copie(2), édition(1) ou consultation (C)
+  var $TypEdit; // important de savoir si on est en création ("" ou N), copie(2), édition(1) ou consultation (C)
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
 
@@ -43,16 +43,17 @@ $retVal="";
         $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
         if (db_num_rows($rpDF)>0) {
               $CcChp=db_fetch_assoc($rpDF);
-              $this->Libelle=$CcChp[$ult['LIBELLE']];
+              $this->Libelle=stripslashes($CcChp[$ult['LIBELLE']]);
               $this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
               $this->TypeAff=$CcChp[$ult['TYPEAFF']];
               $this->Valeurs=$CcChp[$ult['VALEURS']];
+	      if (substr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hiérarchique, force les listes déroulante
               $this->Tt_AvMaj=$CcChp[$ult['TT_AVMAJ']];
               $this->Tt_PdtMaj=$CcChp[$ult['TT_PDTMAJ']];
               $this->Tt_AprMaj=$CcChp[$ult['TT_APRMAJ']];
               $this->TypFilt=$CcChp[$ult['VAL_DEFAUT']];
               $this->TypCSA=$CcChp[$ult['TYP_CHP']];
-              $this->Comment=$CcChp[$ult['COMMENT']];
+              $this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
 
               $TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
 	      $this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
@@ -62,7 +63,7 @@ $retVal="";
               $this->TTC=$TTC;
               $this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
               // si nouvel enregistrement, affecte la valeur par défaut
-              if ($this->TypEdit=="") $this->ValChp=$this->FieldValDef; 
+              if ($this->TypEdit=="" || $this->TypEdit=="N") $this->ValChp=$this->FieldValDef; 
               $this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
               $this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clé=PRI, index=MUL, unique=UNI
               $this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
@@ -475,7 +476,7 @@ function EchoEdit($DH=true) {
       if (strstr($this->Valeurs,"@@")) {  // si hierachique
 	$valnul=($this->TTC=="char" ? "NULL" : 0);
         $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
-        $tbval[$valnul]="Elle-meme(self)";
+        $tbval[$valnul]="Aucun, Elle-meme(self)";
         }
       elseif ($this->FieldNullOk=="YES") {  // si null autorisé
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");

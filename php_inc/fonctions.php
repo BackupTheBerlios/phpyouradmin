@@ -464,14 +464,14 @@ return (mysql_fetch_array($table_def));
 // - un tableau associatif clé=>valeur
 // - le nom du controle
 // - s'il est multiple ou non (non par défaut)
-// - 4ème argument (optionel) force  les cases à cocher ou boutons radio qqsoit le nbre de valeur
+// - 4ème argument (optionel) force  les cases à cocher ou boutons radio ou liste déroulante qqsoit le nbre de valeur
 function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true) {
 global $nValRadLd,$VSLD,$SzLDM;
 if (count($tbval)==0) {
    $retVal.= "Aucune liste de valeurs disponible <BR>";
    $retVal.= "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
    }
-elseif (count($tbval)>$nValRadLd && $Fccr=="") { 
+elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
 // liste déroulante: nbre val suffisantes et pas de forcage 
   $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));

@@ -101,7 +101,7 @@ function db_query($req,$lnkid="",$mserridrq=""){
 	}
 	return $ret;
 }
-// fonction qui renvoie un tableau à 2 dim des caractéristiques des champs d'une table
+// fonction qui renvoie un tableau à 2 dim des caractéristiques du ou des champs d'une table
 
 function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 	switch($_SESSION['db_type']) {
@@ -126,8 +126,8 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
 				$NM_CHAMP=$row_table_def['Field'];
 				$ret[$NM_CHAMP]['FieldType']=$row_table_def['Type'];
-				$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-				// si nouvel enregistrement, affecte la valeur par défaut
+				//$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+				$ret[$NM_CHAMP]['FieldValDef']=$row_table_def['Default'];
 				$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
 				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
 				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
