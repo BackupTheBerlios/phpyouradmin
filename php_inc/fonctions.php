@@ -9,6 +9,7 @@ $nbrtxa=5; // nbre de lignes des textarea
 $nbctxa=40; // nbre de colonnes des textarea
 $nValRadLd=4; // nbre de valeurs passage liste déroulante/boutons radio case à cocher
 $SzLDM=6; // parmetre size pour les listes déroulantes multiples
+$DispMsg=true; // affichage par défaut du message "appuyez sur control pour sélectionner plusieurs valeurs
 $VSLD="#SEL#"; // caractères inséré en début de valeur de listes indiquant la sélection
 $carsepldef="-"; // caractère par défaut séparant les valeur dans les listes déroulantes
 $maxprof=10; // prof max des hiérarchies
@@ -247,7 +248,8 @@ return($resRL[$offs]);
  Nom_base,nom_serveur,nom_user,passwd;0: table, 1: champ lié (clé); 2: ET SUIVANTS champs affichés
 
 retourne un tableau associatif si valc="", une valeur sinon
-A priori, $reqsup avait été implémenté pour la gestion de projet, mais n'est plus utilisé*/
+A priori, $reqsup avait été implémenté pour la gestion de projet, mais n'est plus utilisé
+SISI*/
 
 function ttChpLink($valb0,$reqsup="",$valc=""){
 global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname;
@@ -312,10 +314,17 @@ else {
        } // fin boucle
        if ($cppid) $nbca=$nbca-1;  
 }
- // soit on cherche 1 et 1 seule valeur
+ // soit on cherche 1 et 1 seule valeur, ou plusieurs : $valc est un tableau
 if  ($valc!="") {
-    $whsl=" where $defl[1]='$valc'";
+    if (is_array($valc)) {
+	foreach($valc as $uval) {
+		$whsl.=" $defl[1]='$uval' OR ";
+	}
+	$whsl=" where ".vdc($whsl,3);
+    } else {
+    	$whsl=" where $defl[1]='$valc'";
     }
+}
 // soit la liste est limitée par une clause where supplémentaire
 else {
      $whsl=$reqsup;
@@ -466,7 +475,7 @@ return (mysql_fetch_array($table_def));
 // - s'il est multiple ou non (non par défaut)
 // - 4ème argument (optionel) force  les cases à cocher ou boutons radio ou liste déroulante qqsoit le nbre de valeur
 function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true) {
-global $nValRadLd,$VSLD,$SzLDM;
+global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
 if (count($tbval)==0) {
    $retVal.= "Aucune liste de valeurs disponible <BR>";
    $retVal.= "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
@@ -486,7 +495,7 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
     $retVal.= $sel.">$val</OPTION>";
     } // fin boucle sur les valeurs
   $retVal.= "</SELECT>";
-  $retVal.= ($Mult!="no" ? "<br><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
+  $retVal.= (($Mult!="no" && $DispMsg) ? "<br><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
 else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases à cocher si multiple ou pas de forçage en radio
   { 
   foreach ($tbval as $key =>$val) {
@@ -562,18 +571,7 @@ function popup(page, width, height) {
         var undefined;
         undefined='';
         }
-
-    var tmp;
-    if (oPopupWin) {
-        // Make sure oPopupWin is empty before
-        // calling .close() or we could throw an
-        // exception and never set it to null.
-        tmp = oPopupWin;
-        oPopupWin = null;
-        // Only works in IE...  Netscape crashes
-        // if you have previously closed it by hand
-        if (navigator.appName != "Netscape") tmp.close();
-      }
+  closepop();
   if (width==undefined)
   width=<?=$wdth?>;
   if (height==undefined)
@@ -587,6 +585,20 @@ function popup(page, width, height) {
 		return true; // dont follow link
 	else return false; // dont follow link
 	//return !oPopupWin;
+
+}
+function closepop() {
+    if (oPopupWin) {
+        var tmp;
+        // Make sure oPopupWin is empty before
+        // calling .close() or we could throw an
+        // exception and never set it to null.
+        tmp = oPopupWin;
+        oPopupWin = null;
+        // Only works in IE...  Netscape crashes
+        // if you have previously closed it by hand
+        if (navigator.appName != "Netscape") tmp.close();
+      }
 
 }
 </SCRIPT>

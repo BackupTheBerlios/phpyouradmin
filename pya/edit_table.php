@@ -116,10 +116,10 @@ foreach ($ECT as $PYAObj) {
 <? // boutons valider et annuler que quand read only false
     if ($ss_parenv[ro]!=true) { ?>
         &nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="javascript:ConfReset()" class="fxbutton"> <?=trad(BT_reset)?> </a>
+		<a href="<?=($poplex ? "closepop();" : "")?>javascript:ConfReset()" class="fxbutton"> <?=trad(BT_reset)?> </a>
 		<!--<A HREF="javascript:ConfReset()" title="RAZ du formulaire"><IMG SRC="./annuler.gif" border="0"></a>-->
         &nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
+		<a href="#" onclick="<?=($poplex ? "closepop();" : "")?>document.theform.submit();" class="fxbutton"> <?=trad(BT_valider)?> </a>
 <!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
     <?} ?>
 

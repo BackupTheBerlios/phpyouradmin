@@ -380,7 +380,7 @@ function EchoEdit($DH=true) {
         case "LDM": // liste déroulante non liée MULTIPLE
         case "LDL":
         case "LDLM":
-				case "POPL":
+	case "POPL":
         // on est en consultation forcée.
         // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur à afficher
         // est certainement à piocher dans une liste clé-valeurs et non à afficher telle quelle
@@ -533,11 +533,34 @@ function EchoEdit($DH=true) {
       $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false); // liste déroulante, multiple
       break;
     
-		case "POPL": // popup de sélection
-			$retVal.= "Valeur du lien : ".$this->Valeurs.", valeur du champ : ".$this->ValChp;
-			$retVal.= '<a href="#" onclick="popup(\''.$this->adpopl.'?Valeurs='.urlencode($this->Valeurs).'&ValChp='.urlencode($this->Valeurs).'\',500,500)">Test Popup</a>';
-			
-		break;
+    $Mult=false;
+    case "POPLM": // popup de sélection
+    $Mult=true;
+    case "POPL": // popup de sélection
+		$retVal.= "Valeur du lien : ".$this->Valeurs.", valeur du champ : ".$this->ValChp;
+	
+	$retVal.='<SELECT ID="'.$this->NmChamp.'" NAME="'.$this->NmChamp.($Mult ? "[]" : "").'" SIZE="'.(($Mult ? 10 : 1)).'" MULTIPLE>';
+	if ($this->ValChp) { // si valeur existe
+		if (strstr($this->ValChp,",")) {
+			$tabk=explode(",",$this->ValChp);
+			foreach($tabk as $k) {
+				$tabVS[$k]=ttChpLink($this->Valeurs,"",$this->ValChp);
+			}
+		} else {
+		$tabVS[$this->ValChp]=ttChpLink($this->Valeurs,"",$this->ValChp);
+		}
+	}
+
+	if ($tabVS) {
+		foreach ($tabVS as $k=>$v) {
+		$retVal.="<OPTION VALUE=\"$k\">$v</OPTION>";
+		}
+	}
+	$retVal.='</SELECT>';
+	
+	$retVal.= '<a href="#" onclick="popup(\''.$this->adpopl.'?Valeurs='.urlencode($this->Valeurs).'&ValChp='.urlencode($this->ValChp).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)">Test Popup</a>';
+
+	break;
     		
     case "FICFOT":
       if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
