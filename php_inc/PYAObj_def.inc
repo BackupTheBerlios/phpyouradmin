@@ -55,42 +55,44 @@ $retVal="";
               $this->TypCSA=$CcChp[$ult['TYP_CHP']];
               $this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
 
-              $TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
-	      $this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
-              $TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
-              if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
-              if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
-              $this->TTC=$TTC;
-              $this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
-              // si nouvel enregistrement, affecte la valeur par défaut
-              if ($this->TypEdit=="" || $this->TypEdit=="N") $this->ValChp=$this->FieldValDef; 
-              $this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
-              $this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clé=PRI, index=MUL, unique=UNI
-              $this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
-              // si champ auto increment et pas caché, on le met en statique
-              if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
-	      /*
-				$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-				// si nouvel enregistrement, affecte la valeur par défaut
-				$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
-				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
-	      
-	      $TbDescChp=ShowField($this->NmChamp,$this->NmTable);
-              $this->FieldType=$TbDescChp['Type'];
-              $TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
-              if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
-              if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
-              $this->TTC=$TTC;
-              $this->FieldValDef=$TbDescChp['Default'];
-              // si nouvel enregistrement, affecte la valeur par défaut
-              if ($this->TypEdit=="") { $this->ValChp=$TbDescChp['Default']; }
-              $this->FieldNullOk=$TbDescChp['Null']; // YES ou rien
-              $this->FieldKey=$TbDescChp['Key']; // clé=PRI, index=MUL, unique=UNI
-              $this->FieldExtra=$TbDescChp['Extra']; // auto_increment
-              // si champ auto increment et pas caché, on le met en statique
-              if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
-	      */
+              if (!strstr($this->NmChamp,$id_vtb)) { // champ pas virtuel
+		$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
+		$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
+		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
+		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
+		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
+		$this->TTC=$TTC;
+		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
+		// si nouvel enregistrement, affecte la valeur par défaut
+		if ($this->TypEdit=="") $this->ValChp=$this->FieldValDef; 
+		$this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
+		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clé=PRI, index=MUL, unique=UNI
+		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
+		// si champ auto increment et pas caché, on le met en statique
+		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
+		/*
+					$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+					// si nouvel enregistrement, affecte la valeur par défaut
+					$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+					$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+					$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
+		
+		$TbDescChp=ShowField($this->NmChamp,$this->NmTable);
+		$this->FieldType=$TbDescChp['Type'];
+		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
+		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
+		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
+		$this->TTC=$TTC;
+		$this->FieldValDef=$TbDescChp['Default'];
+		// si nouvel enregistrement, affecte la valeur par défaut
+		if ($this->TypEdit=="") { $this->ValChp=$TbDescChp['Default']; }
+		$this->FieldNullOk=$TbDescChp['Null']; // YES ou rien
+		$this->FieldKey=$TbDescChp['Key']; // clé=PRI, index=MUL, unique=UNI
+		$this->FieldExtra=$TbDescChp['Extra']; // auto_increment
+		// si champ auto increment et pas caché, on le met en statique
+		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
+		*/
+		} // fin si champ pas virtuel
             }
         else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouvé dans la table de description";
         }
