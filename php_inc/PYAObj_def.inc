@@ -34,7 +34,8 @@ class PYAobj {
 function InitPO()  {
 // Nom de la table de description des autres
 // nom du champ contenant les caractéristiques globales à la table
-global $TBDname,$NmChDT;
+// morceua de chaine identifiant une table virtuelle
+global $TBDname,$NmChDT,$id_vtb;
 $retVal="";
     if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
     	$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
@@ -54,8 +55,9 @@ $retVal="";
               $this->TypFilt=$CcChp[$ult['VAL_DEFAUT']];
               $this->TypCSA=$CcChp[$ult['TYP_CHP']];
               $this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
-
-              if (!strstr($this->NmChamp,$id_vtb)) { // champ pas virtuel
+	      
+	      if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caractériser le champ que s'il n'est pas dans une table virtuelle
+	      
 		$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
 		$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
 		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
@@ -64,7 +66,7 @@ $retVal="";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
 		// si nouvel enregistrement, affecte la valeur par défaut
-		if ($this->TypEdit=="") $this->ValChp=$this->FieldValDef; 
+		if ($this->TypEdit=="" || $this->TypEdit=="N") $this->ValChp=$this->FieldValDef; 
 		$this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
 		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clé=PRI, index=MUL, unique=UNI
 		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
@@ -92,8 +94,8 @@ $retVal="";
 		// si champ auto increment et pas caché, on le met en statique
 		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
 		*/
-		} // fin si champ pas virtuel
-            }
+	      } // fin si pas champ dans une table virtuelle
+            } // fin si champ trouvé
         else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouvé dans la table de description";
         }
     else $retVal = "Appel de la méthode InitPO de l'objet PYAObj incorrecte: au moins une des propriétés de base n'a pas été définie"; 

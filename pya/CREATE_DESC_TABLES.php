@@ -74,7 +74,7 @@ foreach($tbltab as $rst) {
 if (stristr($LNmTb,$TBDname)) {
    $rqdt=msq("select NM_TABLE from $TBDname group by NM_TABLE");
    while ($rpdt=db_fetch_assoc($rqdt)) {
-         if (!stristr($LNmTb,$rpdt[NM_TABLE])) {
+         if (!stristr($LNmTb,$rpdt[NM_TABLE]) && !stristr($rpdt[NM_TABLE],$id_vtb)) { // effacment si y est plus ou table non virtuelle
             msq("delete from $TBDname where NM_TABLE='$rpdt[NM_TABLE]'");
             echo "<B>Enregistrements de la table <u>$rpdt[NM_TABLE] effacés!</u></b><BR>\n";
             }
