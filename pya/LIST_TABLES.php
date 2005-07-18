@@ -34,6 +34,13 @@ A:visited {color: <?=$admadm_color?>}
 JSprotectlnk(); // colle le code JS d'une fonction qui protège un lien par un mot de passe
 ?>
 <SCRIPT language="JavaScript">
+function getIndex(what) {
+    for (var i=0;i<document.theform.elements.length;i++)
+        if (what == document.theform.elements[i]) return i;
+    return -1;
+}
+
+
 function verif(theform)
 {
   if (document.theform.lc_NM_TABLE.value=="")
@@ -49,6 +56,55 @@ function subm(table)
   if (table=='__reqcust' && document.theform.lc_reqcust.value=='') {
      alert('<?=trad(LT_reqv)?>'); }
   else document.theform.submit();
+}
+
+function submrqc(rqc)
+{ // attention, document. est nécéssaire pour Mozilla
+  document.theform.lc_reqcust.value=rqc;
+  document.theform.lc_NM_TABLE.value='__reqcust';
+  document.theform.submit();
+}
+
+// boite de confirmation  de suppression d'un enregistrement
+function ConfSuppr(url) {
+if (confirm('<?=trad(LR_confirm_del_message)?>'))
+self.location.href=url;
+}
+
+function insertValueQuery() {
+    var myQuery = document.theform.lc_reqcust;
+    var myListBox = document.theform.elements[5];
+
+    if(myListBox.options.length > 0) {
+        var chaineAj = "";
+        var NbSelect = 0;
+        for(var i=0; i<myListBox.options.length; i++) {
+            if (myListBox.options[i].selected){
+                NbSelect++;
+                if (NbSelect > 1)
+                    chaineAj += ", ";
+                chaineAj += myListBox.options[i].value;
+            }
+        }
+
+        //IE support
+        if (document.selection) {
+            myQuery.focus();
+            sel = document.selection.createRange();
+            sel.text = chaineAj;
+            document.theform.insert.focus();
+        }
+        //MOZILLA/NETSCAPE support
+        else if (myQuery.selectionStart || myQuery.selectionStart == "0") {
+            var startPos = myQuery.selectionStart;
+            var endPos = myQuery.selectionEnd;
+            var chaineSql = myQuery.value;
+
+            myQuery.value = chaineSql.substring(0, startPos) + chaineAj + chaineSql.substring(endPos, chaineSql.length);
+        } else {
+            myQuery.value += chaineAj;
+        }
+    }
 }
 
 </SCRIPT>
@@ -67,7 +123,7 @@ function subm(table)
 <?
 // affiche liste des tables fonction de ce qu'il y a dans TABLE0COMM
 $TYPAFFLHID=($admadm=="1" ? "" :  " AND TYPAFF_L!='' ");
-$qr=msq("SELECT NM_TABLE, LIBELLE, COMMENT from $TBDname where NM_CHAMP='$NmChDT' AND NM_TABLE!='$TBDname' $TYPAFFLHID order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
+$qr=msq("SELECT NM_TABLE, LIBELLE, COMMENT from $TBDname where NM_CHAMP='$NmChDT' AND NM_TABLE!='$TBDname' AND NM_TABLE NOT LIKE '__reqcust' $TYPAFFLHID order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
 while ($res=db_fetch_row($qr))
   {
   $tb_name=$res[0];
@@ -87,10 +143,67 @@ JSprotectlnk();
   ?><input type="hidden" name="lc_FirstEnr"value="0"><?
   if ($ss_parenv[blair]!="1" && $ss_parenv[ro]!=true) {
     ?>
-    <h3>&#149; &nbsp;<a href="javascript:subm('__reqcust');" title="Requete speciale ( ! no clause LIMIT !)"><?=trad(LT_reqcust)?></a></h3>
-    <textarea name="lc_reqcust" cols="100" rows="5"><?=$reqcust?></textarea>
+    <h2><?=trad(LT_reqcust)?></h2>
+    
+    <?
+    // GESTION DES REQUETES UTILISATEUR
+   	$LT_reqedit=trad("LT_reqedit");
+    	$LT_reqdel=trad("LT_reqdel");
+	
+	if ($action_req=="-1") {
+		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='$key'");
+	}
+	
+	if ($lc_NM_TABLE=="reqcsave") {
+		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='".addslashes($lc_parenv[reqcust_name])."'");
+		msq("INSERT INTO $TBDname 
+		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
+		VALUES 
+		('__reqcust','TABLE0COMM','".addslashes($lc_parenv[reqcust_name])."','".addslashes($lc_reqcust)."')");
+		$reqcust=$lc_reqcust;
+	}
+	   
+    	$rqrqc=msq("select * from $TBDname where NM_TABLE='__reqcust'");
+    	if (db_num_rows($rqrqc)>0 ) {
+		while ($res=db_fetch_array($rqrqc)) {
+			$url=addslashes("LIST_TABLES.php?key=".$res['LIBELLE']."&action_req=-1");
+			echo "&#149; <a href=\"javascript:submrqc('".$res['COMMENT']."')\">".$res['LIBELLE']."</a>&nbsp;\n";
+			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$LT_reqdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;";
+			echo "<A HREF=\"#\" onclick=\"document.theform.lc_reqcust.value='".stripslashes($res['COMMENT'])."';document.theform.elements[2].value='".stripslashes($res['LIBELLE'])."';\" TITLE=\"$LT_reqedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"12\"></A>&nbsp;";
+			echo "<BR/>\n";
+		}
+    	} // fin si il y a des réponses
+    ?>
+    <h3><?=trad(LT_reqcust_cour)?></h3>
+    <b><?=trad(LT_reqcust_name)?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv[reqcust_name]?>">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="document.theform.lc_NM_TABLE.value='reqcsave';document.theform.action='LIST_TABLES.php';document.theform.submit();"><img src="filesave.png" border=0></a><br><br/>
+    
+    <table border="0"><tr>
+    <td><b><?=trad(LT_reqcust_code)?> </b><br/>
+    <textarea name="lc_reqcust" cols="70" rows="5"><?=$reqcust?></textarea>
     <input type="hidden" name="lc_parenv[lbreqcust]" value="Requête spécifique utilisateur"><br>
-     <br>
+    <?//<input type="text" name="bite" onclick="alert(getIndex(this))" value="test index objet formulaire"><br>?>
+    
+    <a class="fxbutton" href="#" onclick="subm('__reqcust');"><?=trad("LT_reqexec")?></a></td>
+    <td><a href="#" onclick="insertValueQuery();" class="fxbutton"> << </a></td>
+    <td>
+    <?
+    $tbvalsql=array(" SELECT " =>" SELECT "," * " =>" * "," FROM " =>" FROM "," WHERE " =>" WHERE "," ORDER BY " =>" ORDER BY"," LEFT JOIN " =>" LEFT JOIN ");
+    $rqtb=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE NOT LIKE '__reqcust' AND NM_TABLE NOT LIKE '$id_vtb%' AND NM_CHAMP='$NmChDT'");
+   
+    while ($rstb=db_fetch_array($rqtb)) {
+    	$tbvalsql[" $rstb[NM_TABLE] "]=$rstb[LIBELLE];
+	$rqchp=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE='".$rstb[NM_TABLE]."'");
+	while ($rschp=db_fetch_array($rqchp)) {
+		$tbvalsql[" $rschp[NM_CHAMP] "]="-- ".$rschp[LIBELLE];
+		
+	}
+    } // fin boucle sur les tables
+    
+    DispLD($tbvalsql, "sql_words","yes");
+    ?></td>
+    </tr></table>
+    <br/>
+    <h2><?=trad(LT_param)?></h2>    
     <?=trad(LT_nblig_aff_ppage)?>
     <input type="text" name="lc_nbligpp" size="3" maxlength="3" value="<? echo ($nbligpp>0 ? $nbligpp : $nbligpp_def) ?>"><br>
     <input type="checkbox" name="lc_NoConfSuppr" value="No"><?=trad(LT_noconfirmdelete)?><br><br>

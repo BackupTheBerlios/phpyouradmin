@@ -76,7 +76,7 @@ if (isset($lc_PgReq)) {
     }
 else if(!isset($PgReq)) $PgReq=0;
 
-$limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr  LIMIT $nbligpp");
+$limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr LIMIT $nbligpp");
 
 // on est pas en requête custom
 if ($NM_TABLE!="__reqcust") {
@@ -270,10 +270,10 @@ else // si nbrésultat>0
 //  $chp1=mysql_field_name($req,1);
 //  if (mysql_num_fields($req)>2) $chp2=mysql_field_name($req,2);
   $nolig=0;
-  $lb_recedit=trad(LR_record_edit);
-  $lb_recdel=trad(LR_record_delete);
-  $lb_reccopy=trad(LR_record_copy);
-  $lb_recshow=trad(LR_record_show);
+  $lb_recedit=trad("LR_record_edit");
+  $lb_recdel=trad("LR_record_delete");
+  $lb_reccopy=trad("LR_record_copy");
+  $lb_recshow=trad("LR_record_show");
 
   while ($tbValChp=db_fetch_assoc($req)) {
     $nolig++;
