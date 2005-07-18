@@ -65,12 +65,25 @@ function submrqc(rqc)
   document.theform.submit();
 }
 
+
+function reqsave() {
+if (document.theform.elements[2].value=='') {
+	alert('<?=trad(LT_reqsavevide)?>');
+	document.theform.elements[2].focus;
+}
+else {
+	document.theform.lc_NM_TABLE.value='reqcsave';
+	document.theform.action='LIST_TABLES.php';
+	document.theform.submit();
+}
+}
 // boite de confirmation  de suppression d'un enregistrement
 function ConfSuppr(url) {
 if (confirm('<?=trad(LR_confirm_del_message)?>'))
 self.location.href=url;
 }
 
+// Pompé de phpMyAdmin 
 function insertValueQuery() {
     var myQuery = document.theform.lc_reqcust;
     var myListBox = document.theform.elements[5];
@@ -175,7 +188,7 @@ JSprotectlnk();
     	} // fin si il y a des réponses
     ?>
     <h3><?=trad(LT_reqcust_cour)?></h3>
-    <b><?=trad(LT_reqcust_name)?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv[reqcust_name]?>">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="document.theform.lc_NM_TABLE.value='reqcsave';document.theform.action='LIST_TABLES.php';document.theform.submit();"><img src="filesave.png" border=0></a><br><br/>
+    <b><?=trad(LT_reqcust_name)?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv[reqcust_name]?>">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="reqsave();"><img src="filesave.png" border=0></a><br><br/>
     
     <table border="0"><tr>
     <td><b><?=trad(LT_reqcust_code)?> </b><br/>
@@ -194,13 +207,19 @@ JSprotectlnk();
     	$tbvalsql[" $rstb[NM_TABLE] "]=$rstb[LIBELLE];
 	$rqchp=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE='".$rstb[NM_TABLE]."'");
 	while ($rschp=db_fetch_array($rqchp)) {
-		$tbvalsql[" $rschp[NM_CHAMP] "]="-- ".$rschp[LIBELLE];
+		$tbvalsql[" $rschp[NM_CHAMP] "]="-- ".$rstb[LIBELLE].".".$rschp[LIBELLE];
 		
 	}
     } // fin boucle sur les tables
     
     DispLD($tbvalsql, "sql_words","yes");
-    ?></td>
+    ?>
+    
+    <SCRIPT language="JavaScript">
+    // modifie l'evenement double clic de la liste
+    document.theform.elements[5].ondblclick=insertValueQuery;
+    </script>
+    </td>
     </tr></table>
     <br/>
     <h2><?=trad(LT_param)?></h2>    
