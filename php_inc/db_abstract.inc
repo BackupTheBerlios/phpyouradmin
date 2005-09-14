@@ -35,6 +35,31 @@ else return array(
 	"TYP_CHP"=>"typ_chp",
 	"COMMENT"=>"comment");
 }
+// fonction qui renvoie ou non le caractère de protection
+// des strings: avec pgsql si on le met avec des entiers ou des numériques, ça merde
+/* en fait ce qui merde, c'est si on met '' pour un champnum
+function rt_carpstr($ttc) {
+switch($_SESSION['db_type']) {
+	case "pgsql":
+		switch($ttc) {
+			//case "integer":
+			case "int5":
+				return("");
+				break;
+
+			default:
+			return("'");
+			break;
+		}
+		
+		
+	case "mysql":
+		default:
+		return("'");
+		break;
+	}
+}*/
+
 // fonctions d'accès aux BDD
 // fonctions qui renvoie true si la bdd est sensible à la case sur les noms de champs/tables
 function db_case_sens() {

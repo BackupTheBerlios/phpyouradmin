@@ -647,6 +647,11 @@ function EchoEditAuto() {
   else {
 
    switch ($this->TTC) { // switch sur type de champ
+     case "boolean": // specifique postgres
+	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" value=\"TRUE\" $ck>vrai (true)\n";
+	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" value=\"FALSE\" $ck>faux (false)\n";
+	break;
+
      case "enum" : // liste de valeurs
        // la juste dessous pompé de phpMyAdmin sans tout bien comprendre
        $enum = str_replace('enum(', '', $this->FieldType);
@@ -854,7 +859,17 @@ if ($this->TypeAff=="FICFOT") {
     $this->ValChp=$value;
     } // fin si type de champ=fichier attaché
 
-  return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."='".$this->ValChp."', "); // retourne le set ou un tableau associatif...;
+ // fonction qui retourné eventuellement ' fonction du type de champ
+// avec PostGres, le ' autour des champs num fout la merde
+// $cpstr=rt_carpstr($this->TTC);
+$cpstr="'";
+
+  if ($this->ValChp !="") {
+	$this->ValChp=$cpstr.$this->ValChp.$cpstr;
+	}
+  else	$this->ValChp="DEFAULT";
+	
+  return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
 } // fin méthode RetSet
 
 

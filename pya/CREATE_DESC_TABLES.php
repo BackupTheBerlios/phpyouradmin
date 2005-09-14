@@ -171,17 +171,21 @@ if (count($TableName)>0 ) {
       }
     if ($tbtoregen) { // table a regénérer
          $rqlibt=msq("SELECT LIBELLE, COMMENT from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'");
-         if (db_num_rows($rqlibt) >0) $rwlibt=db_fetch_assoc($rqlibt);
-         echo "<H3>Table <I>".$NM_TABLE."</I> ($rwlibt[LIBELLE] <small>$rwlibt[COMMENT]</small>)</H3>";
+         if (db_num_rows($rqlibt) >0) {
+	     $rwlibt=db_fetch_assoc($rqlibt);
+	     $table0cexists=true;
+	 } else {
+	     $table0cexists=false;
+	 }
+	 echo "<H3>Table <I>".$NM_TABLE."</I> ($rwlibt[LIBELLE] <small>$rwlibt[COMMENT]</small>)</H3>";
 	 
          $resf=msq("select * from $CSpIC$NM_TABLE$CSpIC LIMIT 0"); // uniquement pour avoir la liste des champs
       	// DU au fait que la fonction mysql_field_flags ne fonctionne correctement qu'avec un resultat "NORMAL" et pas avec une requete du type SHOW FIELDS
          if ($_SESSION[db_type]=="mysql") $table_def = mysql_query("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
         //$resf=mysql_list_fields ($DBName, $CSpIC$NM_TABLE$CSpIC);
-         if ($AFFALL=="vrai") echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".mysql_num_fields($resf)." champs :<BR><FONT SIZE=\"-1\">"; 
+         if ($AFFALL=="vrai") echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".db_num_fields($resf)." champs :<BR><FONT SIZE=\"-1\">"; 
         // insère un champ commun de description de la table
-        if ($CREATION=="vrai") msq("INSERT INTO $TBDname (NM_TABLE, NM_CHAMP,LIBELLE, ORDAFF, ORDAFF_L) values
-	  ('$NM_TABLE','$NmChDT','$NM_TABLE', '$i', '$i')");
+        if ($CREATION=="vrai" || !$table0cexists) msq("INSERT INTO $TBDname (NM_TABLE, NM_CHAMP,LIBELLE, ORDAFF, ORDAFF_L) values	  ('$NM_TABLE','$NmChDT','$NM_TABLE', '$i', '$i')");
         for ($j = 0; $j < db_num_fields($resf); $j++) {
           if ($_SESSION[db_type]=="mysql") $row_table_def = mysql_fetch_array($table_def);
           $NM_CHAMP=db_field_name ($resf, $j);
@@ -214,18 +218,25 @@ if (count($TableName)>0 ) {
                  $TT_AVMAJ="DJ"; // mise à jour auto de la date de MAJ
                  $LIBELLE="MAJ le";
                  }
-               if (stristr ($NM_CHAMP,$dtcrea)) 
+               elseif (stristr ($NM_CHAMP,$dtcrea)) 
                  {$TYPEAFF="STA"; // affichage statique (non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste 
                  $TT_AVMAJ="DJSN";// mise à jour auto de la date de creation
                  $LIBELLE="Date Creation";
                  }
-               if (stristr ($NM_CHAMP,$usmaj)) 
+               elseif (stristr ($NM_CHAMP,$usmaj)) 
                  {$TYPEAFF="STAL"; // affichage statique lié (non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste
                  $VALEURS=$chpperlie;
                  $TT_AVMAJ="US";
                  $LIBELLE="MAJ par";
+                 }
+	       elseif (stristr ($NM_CHAMP,$uscrea)) 
+                 {$TYPEAFF="STAL"; // affichage statique lié (non modifiable)
+                 $TYPAFF_L=""; // pas d'affichage ds la liste
+                 $VALEURS=$chpperlie;
+                 $TT_AVMAJ="USSN";
+                 $LIBELLE="Créé par";
                  }
             } // fin si VALAUTO
             $val=$j; // force ordre d'aff sur 2 car

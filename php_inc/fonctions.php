@@ -208,14 +208,15 @@ function db_qr_rass($req) {
 function tbset2insert($set) {
 foreach ($set as $chp=>$val) {
 	$lchp[]=$chp;
-	$vchp[]="'$val'";
+	$vchp[]=$val;
+	//$vchp[]="'$val'";
 	}
 return("(".implode(",",$lchp).") VALUES (".implode(",",$vchp).")");
 }
 // fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL SET 
 function tbset2set($set) {
 foreach ($set as $chp=>$val) {
-	$lchp[]=$chp."='$val'";
+	$lchp[]=$chp."=$val";
 	}
 return(" ".implode(",",$lchp)." ");
 }

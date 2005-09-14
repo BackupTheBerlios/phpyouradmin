@@ -21,10 +21,11 @@ $tb_dbtype=array("mysql"=>"#SEL#mysql","pgsql"=>"postGresql");
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)
 $dtmaj="DTMAJ"; // morceau de nom de champ, tel qu'à la creation de la definition des tables, le traitement de ce champ est affecté à une mise a jour automatique en fonction de la date
+$usmaj="USMAJ";// idem, avec nom user effectuant la mise à jour
 $dtcrea="DTCREA"; // idem, date de creation
-$usmaj="COOPE";// idem, avec nom user effectuant la mise à jour
+$uscrea="USCREA";// idem, avec nom user effectuant la creation
 // table et champ personne pour affichage correct de l'usmaj
-$chpperlie="USERS,USE_ID,USE_PRENOM, !@USE_NOM";
+$chpperlie="users,login,name, (!login";
 // ceci ci-dessous utilisé tout le temps
 // A POSITIONNER TOUT LE TEMPS
 $VarNomUserMAJ="CO_USMAJ"; //nom de la variable contenant le code user

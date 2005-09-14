@@ -112,7 +112,6 @@ else // Si on vient de nv enregistrement
   // Ajout dans la table Mysql
   $strqaj="INSERT INTO $CSpIC$NM_TABLE$CSpIC ".tbset2insert($tbset);
   }
-
 //echo "requete sql: $strqaj";
 msq($strqaj);
 header ("location:".ret_adrr("edit_table.php")."?cfp=amact");
