@@ -29,6 +29,7 @@ $key=stripslashes($key);
 include ("header.php");
 
 if ($debug) DispDebug();?>
+
 <div align="center">
 <H1><?=$lbtitre; ?></H1>
 <? if (!$ss_parenv[noinfos]) { ?>

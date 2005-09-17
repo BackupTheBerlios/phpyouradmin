@@ -805,10 +805,11 @@ if ($this->TypeAff=="FICFOT") {
     else {
           $ChemImg="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";}
 
+	//print_r($this);
     if ($this->TypEdit==1) { // gestion effacement anciens fichiers attachés
       // test decoche ou changement en modif
     // pour effacement de l'ancien fichier attaché
-       if ($this->OFN!="" && ($this->Fok=="" || ($this->ValChp!="none" && $keycopy.$this->Fname!= $keycopy.$this->OFN)))
+       if ($this->OFN!="" && ($this->Fok=="" || ( $this->ValChp!="none" && $this->ValChp!="" && $keycopy.$this->Fname!= $keycopy.$this->OFN)))
        // condition: ancien fichier attaché existe ($$VarOldFichImg!="")
        // ET
           // la case a été décochée  ($$VarFok$FichImg=="")
