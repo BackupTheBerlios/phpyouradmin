@@ -223,9 +223,10 @@ else // si nbrésultat>0
           $tbCIL[$NomChamp]->NmChamp=$NomChamp;
           $tbCIL[$NomChamp]->InitPO();
      } // fin boucle sur les champs
-     
-   
-    $reqcust="select *".($_SESSION[db_type]=="pgsql" ? ",oid" : "")." from $CSpIC$NM_TABLE$CSpIC";
+    
+	$lctd=implode(",",$tbobjCC);
+
+    $reqcust="select ".$lctd.($_SESSION[db_type]=="pgsql" ? ",oid" : "")." from $CSpIC$NM_TABLE$CSpIC";
 
   }
 

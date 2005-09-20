@@ -51,17 +51,30 @@ function ConfReset() {
 <INPUT TYPE="hidden" NAME="modif" value="<? echo $modif ?>">
 <INPUT TYPE="hidden" NAME="key" value="<? echo ($modif!=2 ? $key :"") ?>">
 <?
+
+$reqLChp="SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE";
+
 if ($modif==1 || $modif==2) { // recup des valeurs de l'enregistrement
     $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
-    if ($NM_TABLE!="__reqcust") $reqcust="SELECT * FROM $CSpIC$NM_TABLE$CSpIC";
-    $req=msq("$reqcust $where");
-    $tbValChp=db_fetch_array($req);
+    if ($NM_TABLE!="__reqcust") {
+	//$reqcust="SELECT * FROM $CSpIC$NM_TABLE$CSpIC";
+	// on ne fait plus ça, car ça charge les champs blobs qui sont cachés pour rien...
+	
+	$rq1=db_query($reqLChp) or die ("req 2 invalide");
+	while ($rw=db_fetch_row($rq1)) {
+		$tbc[]=$rw[0];
+		}
+	$lctd=implode(",",$tbc);
+	$reqcust="SELECT $lctd FROM $CSpIC$NM_TABLE$CSpIC";
+	}
+    $req=msq($reqcust." ".$where);
+    $tbValChp=db_fetch_assoc($req);
   }
 
 
 if ($NM_TABLE!="__reqcust") {
    // Création et Initialisation des propriétés des objets PYAobj
-   $rq1=db_query("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE") or die ("req 2 invalide");
+   $rq1=db_query($reqLChp) or die ("req 2 invalide");
    while ($CcChp=db_fetch_row($rq1)) { // boucles sur les champs
    
      $NM_CHAMP=$CcChp[0];
@@ -85,7 +98,7 @@ if ($poplex) JSpopup(); // s'il existe au moins une edition en popup liée colle 
 foreach ($ECT as $PYAObj) {
   if ($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq spéciale
   $NM_CHAMP=$PYAObj->NmChamp;
-  if ($modif!="") $PYAObj->ValChp=$tbValChp[$NM_CHAMP];
+  if ($modif!="") $PYAObj->ValChp=$tbValChp[$NM_CHAMP]; // si pas création (edit ou copy recup la val)
 
   // ICI les traitements avant Mise à Jour
   if ($modif==2) { // en cas de COPIE on annule la valeur auto incrémentée

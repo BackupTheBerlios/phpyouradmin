@@ -862,8 +862,8 @@ if ($this->TypeAff=="FICFOT") {
 
  // fonction qui retourné eventuellement ' fonction du type de champ
 // avec PostGres, le ' autour des champs num fout la merde
-// $cpstr=rt_carpstr($this->TTC);
-$cpstr="'";
+$cpstr=rt_carpstr($this->TTC);
+//$cpstr="'";
 
   if ($this->ValChp !="") {
 	$this->ValChp=$cpstr.$this->ValChp.$cpstr;

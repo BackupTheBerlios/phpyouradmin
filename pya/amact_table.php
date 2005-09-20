@@ -51,7 +51,7 @@ if (db_num_rows($rpfl)>0) {
 
   
 // construction du set, necessite uniquement le nom du champ ..
-$rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE");
+$rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPEAFF!='HID' ORDER BY ORDAFF, LIBELLE");
 
 $PYAoMAJ=new PYAobj();
 
@@ -94,8 +94,6 @@ $key=stripslashes($key);
 //echo "Clé: $key <BR>";
 
 // GROS BUG  $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
-//echo "puutain". tbset2insert($tbset);
-//echo "booordel". tbset2set($tbset);
 
 $where=" where ".$key;
 if ($modif==1) // Si on vient d'une édition
