@@ -95,7 +95,7 @@ function echspan($style,$text,$DirEcho=true) {
 }
 
 // fonction qui echoise un champ n
-function echochphid($NmC,$ValC) {
+function echochphid($NmC,$ValC,$DirEcho=true) {
     $retVal.= "<input type=\"hidden\" name=\"$NmC\" value=\"$ValC\">\n";
     if ($DirEcho) {
     	echo $retVal;
