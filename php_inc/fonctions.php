@@ -129,9 +129,9 @@ function DispCustHT($Val2Af) {
       $Val2Af="<A HREF=\"http://".$Val2Af."\" target=\"_blank\">".$Val2Af."</a>";
       }
   else {  // sinon traitement divers
-      $Val2Af=ereg_replace("\n","<br>", $Val2Af);
       $Val2Af=ereg_replace("<","&lt;", $Val2Af);
       $Val2Af=ereg_replace(">","&gt;", $Val2Af);
+      $Val2Af=ereg_replace("\n","<br/>", $Val2Af);
       $Val2Af=($Val2Af=="" ? "&nbsp;" : $Val2Af);
       }
 return ($Val2Af);
@@ -139,7 +139,7 @@ return ($Val2Af);
 
 // fonction d'effacement d'un fichier s'il existe
 function delfich($ChemFich) {
-  // echo "Chemin complet du fichier a effacer :$ChemFich<BR>";
+  // echo "Chemin complet du fichier a effacer :$ChemFich<br/>";
   if (file_exists($ChemFich)) unlink ($ChemFich);
   }
 
@@ -357,7 +357,7 @@ if ($cppid && $valc=="") { //on a une structure héiarchique et plus d'une valeur
 else 	{ // pas hiérarchique => normal     
 	$rql=msq("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby");
 	// constitution du tableau associatif à 2 dim de corresp code ->lib
-	//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <BR>-->";
+	//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <br/>-->";
 	$tabCorlb=array();
 	while ($resl=db_fetch_row($rql)) {
 		//$cle=strtoupper($resl[0]);
@@ -478,7 +478,7 @@ return (mysql_fetch_array($table_def));
 function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true) {
 global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
 if (count($tbval)==0) {
-   $retVal.= "Aucune liste de valeurs disponible <BR>";
+   $retVal.= "Aucune liste de valeurs disponible <br/>";
    $retVal.= "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
@@ -496,7 +496,7 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
     $retVal.= $sel.">$val</OPTION>";
     } // fin boucle sur les valeurs
   $retVal.= "</SELECT>";
-  $retVal.= (($Mult!="no" && $DispMsg) ? "<br><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
+  $retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour sélectionner plusieurs valeurs</small>" : "");} // fin liste déroulante
 else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases à cocher si multiple ou pas de forçage en radio
   { 
   foreach ($tbval as $key =>$val) {
@@ -508,7 +508,7 @@ else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases à cocher si multiple ou
         }
       else $sel="";
       $retVal.= $sel.">".$val;
-      $retVal.= (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
+      $retVal.= (stristr($Fccr,"BR") ? "<br/>" : " &nbsp;&nbsp;");
       } // fin si valeur non nulle    
     } // fin boucle sur les valeurs
   } // fin cases à cocher
@@ -521,7 +521,7 @@ else {// boutons radio
       }
     else $sel="";
     $retVal.= $sel.">".$val;
-    $retVal.= (stristr($Fccr,"BR") ? "<BR>" : " &nbsp;&nbsp;");
+    $retVal.= (stristr($Fccr,"BR") ? "<br/>" : " &nbsp;&nbsp;");
     } // fin boucle sur les valeurs
   }// fin boutons radio
   if ($DirEcho) {
@@ -617,7 +617,7 @@ $doc_root_vm=($_SERVER["DOCUMENT_ROOT"]=="" ? "/home/httpd/html" : $_SERVER["DOC
 // on calcule le chemin du fichier appeleant pour pouvoir utiliser des liens relatifs
 // i.e. on enlève du chemin absolu (getcwd) la racine du serveur
 $chemcour=str_replace ( $doc_root_vm,"" , getcwd());
-//echo "test chemin:".getcwd()."<br>";
+//echo "test chemin:".getcwd()."<br/>";
 ?>
 <SCRIPT>
 // ouverture d'une Popup Loupe auto redimensionnante
@@ -646,9 +646,9 @@ function poploup(image,titre,commentaire) {
 	if (titre=="") {titre="Loupe";}
 	oPopupWin.document.write("<HTML><HEAD><TITLE>"+titre+"</TITLE></HEAD>\n<BODY>\n");
 	oPopupWin.document.write("<CENTER>\n");
-	oPopupWin.document.write("<IMG SRC=\"<?=$chemcour?>/" + image+"\"><br>\n");
-	if (commentaire!="") {oPopupWin.document.write("<small><I>"+commentaire+"</I></small><br>\n");}
-	oPopupWin.document.write("<br><a href=\"javascript:self.close()\" ><IMG SRC=\"/hn0700/partage/IMAGES/fermer.gif\" border=\"0\"></a>\n");
+	oPopupWin.document.write("<IMG SRC=\"<?=$chemcour?>/" + image+"\"><br/>\n");
+	if (commentaire!="") {oPopupWin.document.write("<small><I>"+commentaire+"</I></small><br/>\n");}
+	oPopupWin.document.write("<br/><a href=\"javascript:self.close()\" ><IMG SRC=\"/hn0700/partage/IMAGES/fermer.gif\" border=\"0\"></a>\n");
 	oPopupWin.document.write("</CENTER>\n"); 
 	oPopupWin.document.write("<script language=\"JavaScript\">\n");
 	// la fonction d'ajustement n'est pas appelée directement, mais toutes les 5 sec pour laisser
@@ -689,7 +689,7 @@ if (is_array($var2ret)) {
   $strres="Tableau".($ass!="no" ? " associatif":"")." \$var2ret: ";
   if ($ass!="no") { //tableau associatif 
     foreach ($var2ret as $key=>$val) {
-      $strres.= $key."=>".retvar($val,$ass,$echov)."<br>";
+      $strres.= $key."=>".retvar($val,$ass,$echov)."<br/>";
       }
     } // fin si associatif
   else {
@@ -703,7 +703,7 @@ else { // pas tableau
   $strres="Variable \$var2ret:".$var2ret." (".gettype($var2ret).")";
 }
 if ($echov) 
-	{echo $strres."<BR>\n";}
+	{echo $strres."<br/>\n";}
 	else return($strres);
 } 
 
@@ -799,7 +799,7 @@ global $debug, $DBName;
       $CIL[$NmChamp]->InitPO();
 	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du résultat
-  if ($debug) echo("Champs traités par la fct InitPOReq :".$strdbgIPOR."<br>\n");
+  if ($debug) echo("Champs traités par la fct InitPOReq :".$strdbgIPOR."<br/>\n");
   return($CIL);
 }
 
@@ -823,7 +823,7 @@ $texte_simple .= "------=$limite\n";
 $texte_simple .= "Content-Type: text/plain; charset=\"iso-8859-1\"\r\n";
 $texte_simple .= "Content-Transfer-Encoding: 8bit\n\n";
 //$texte_simple .=  "Procurez-vous un client de messagerie qui sait afficher le HTML !!";
-$texte_simple .=  strip_tags(eregi_replace("<br>", "\n", $messhtml)) ;
+$texte_simple .=  strip_tags(eregi_replace("<br/>", "\n", $messhtml)) ;
 $texte_simple .= "\n\n";
 
 //le message en html original

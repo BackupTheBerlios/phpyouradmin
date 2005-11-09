@@ -109,21 +109,21 @@ function db_close($lnk) {
 }
 
 function db_query($req,$lnkid="",$mserridrq=""){
-	$messret="<BR><BR><a href=\"javascript:history.back()\">RETOUR</A> à la page précédente";
+	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> à la page précédente";
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 	  if ($lnkid=="") { // connection par la connexion courante
-    $ret=pg_query($req) or die("<PRE><U>Requete PgSql invalide</U> : <I>$req</I><BR>$mserridrq<BR><U>Erreur PgSql</U>:     <I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);}  
+    $ret=pg_query($req) or die("<PRE><U>Requete PgSql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:     <I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);}  
 		else
-    $ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><BR>$mserridrq<BR><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
+    $ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
 		break;
 		
 	case "mysql":
 	default:	
 		if ($lnkid=="") { // connection par la connexion courante
-			$ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  
+			$ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  
 			else
-			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><BR>$mserridrq<BR><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
+			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
 		break;
 	}
 	return $ret;

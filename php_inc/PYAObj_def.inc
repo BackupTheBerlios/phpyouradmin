@@ -192,7 +192,7 @@ $retVal="";
       case "DATAP": // criteres sur date antérieure ET postérieure
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br>postérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et antérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>postérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et antérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
              }
         else {
              $retVal.= "$this->Libelle post <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> & ante <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
@@ -217,7 +217,7 @@ $retVal="";
 //
 // Méthode qui affiche la case de négation
 function DispNeg($DE2=true) {
-        $retVal.= "<BR><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> Négation</span>";
+        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> Négation</span>";
    if ($this->DirEcho && $DE2) {
     	echo $retVal;
     } else {
@@ -580,13 +580,13 @@ function EchoEdit($DH=true) {
           { $retVal.= "<P><IMG SRC=\"".$NCF."\"></P>";
           }
         else
-          { $retVal.= "Lien vers le fichier associé <A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><BR>";}
+          { $retVal.= "Lien vers le fichier associé <A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
 
         if ($this->TypEdit!="C") $retVal.= "<INPUT TYPE=\"checkbox\" NAME=\"Fok".$this->NmChamp."\" VALUE=\"".$this->ValChp."\" CHECKED>".$this->ValChp."&nbsp;";
         }// Fin si il y a un fichier associe
         if ($this->TypEdit!="C") { // saisie que si pas en édition
            $retVal.= "</B><INPUT TYPE=\"file\" NAME=\"".$this->NmChamp."\" SIZE=\"30\" MAXLENGTH=\"200\">";
-           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br>Pour désactiver l'image ou le fichier, décocher la case, ou choisissez-en un(e) autre. Sinon ne touchez à rien ...</font>";
+           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour désactiver l'image ou le fichier, décocher la case, ou choisissez-en un(e) autre. Sinon ne touchez à rien ...</font>";
       }
       break; // fin champ de type fichier-photo
 
@@ -790,7 +790,7 @@ if ($MaxFSize==0 || $MaxFSize=="") $MaxFSize=$MaxFSizeDef ;
       // encore rien de fait
       break;
     }
-
+TypEdit
 // gestion des champs type fichier joint
 if ($this->TypeAff=="FICFOT") {
 
@@ -832,21 +832,21 @@ if ($this->TypeAff=="FICFOT") {
     $ChemFich=$ChemImg.$keycopy.$this->Fname;
 
 /*    $retVal.= "debug:";
-    $retVal.= "valeur (ftemp): $this->ValChp<br>";
-    $retVal.= "Chemin : $ChemImg<br>";
-    $retVal.= "nom fichier: $this->Fname<br>";
-    $retVal.= "Fok: $this->Fok<br>";
-    $retVal.= "Ancien nom: $this->OFN<br>";
-    $retVal.= "taille: $this->Fsize<br>"; */
+    $retVal.= "valeur (ftemp): $this->ValChp<br/>";
+    $retVal.= "Chemin : $ChemImg<br/>";
+    $retVal.= "nom fichier: $this->Fname<br/>";
+    $retVal.= "Fok: $this->Fok<br/>";
+    $retVal.= "Ancien nom: $this->OFN<br/>";
+    $retVal.= "taille: $this->Fsize<br/>"; */
 
     // test taille du fichier attaché     
     if (($this->Fsize>$MaxFSize) && ($this->ValChp<>"none")) {
-      $retVal.= "<B>Impossible de joindre le fichier !</B><BR>La taille des fichiers attachés est limitée à $MaxFSize, ";
+      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attachés est limitée à $MaxFSize, ";
       unlink ($this->ValChp);
-      die ($retVal." et le fichier attaché $this->Fname a une taille de $this->Fsize octets. <BR>Appuyez sur la touche retour arrière de votre navigateur");
+      die ($retVal." et le fichier attaché $this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arrière de votre navigateur");
       } // fin si fichier trop gros
 
-      copy($this->ValChp,$ChemFich) or die("Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<BR>");
+      copy($this->ValChp,$ChemFich) or die("Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>");
       delfich ($this->ValChp);
       // affecte le nouveau nom de la variable à stocker
       $value=$keycopy.$this->Fname;
