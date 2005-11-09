@@ -366,7 +366,7 @@ function EchoEdit($DH=true) {
   global $VSLD,$nbrtxa,$nbctxa;
   
   if (!strstr($this->FieldType,'date')) { 
-    if ($this>TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); }
+    if ($this->TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); }
   else $this->ValChp=DateF($this->ValChp);
 
   if ($this->TypEdit=="C") { // si on est en consultation, on passe tout en STA ou STAL ou rien
@@ -790,7 +790,6 @@ if ($MaxFSize==0 || $MaxFSize=="") $MaxFSize=$MaxFSizeDef ;
       // encore rien de fait
       break;
     }
-TypEdit
 // gestion des champs type fichier joint
 if ($this->TypeAff=="FICFOT") {
 
