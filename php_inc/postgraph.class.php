@@ -318,10 +318,15 @@ class PostGraph
     * @param null
     * @returns nothing
     */
-    function printImage()
+    function printImage($filetogen="")
     {
-        header("Content-type: image/jpeg");
-        ImagePNG($this->img);
+        if ($filetogen=="") { 
+		header("Content-type: image/jpeg");
+		ImagePNG($this->img);
+		}
+	else {
+        	ImagePNG($this->img,$filetogen);
+	}
     }
 
     //------------------------------------------------------------------------

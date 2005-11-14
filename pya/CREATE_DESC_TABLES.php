@@ -170,7 +170,7 @@ if (count($TableName)>0 ) {
         } 
       }
 
-    if ($tbtoregen) { // table a regï¿½ï¿½er
+    if ($tbtoregen) { // table a regï¿½ï¿½er ou afficher
          $rqlibt=db_query("SELECT LIBELLE, COMMENT from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'");
          if (db_num_rows($rqlibt) >0) {
 	     $rwlibt=db_fetch_assoc($rqlibt);
@@ -178,22 +178,34 @@ if (count($TableName)>0 ) {
 	 } else {
 	     $table0cexists=false;
 	 }
-	 echo "<H3>Table <I>".$NM_TABLE."</I> ($rwlibt[LIBELLE] <small>$rwlibt[COMMENT]</small>)</H3>";
+	 $ult=rtb_ultchp();
+	 echo "<H3>Table <I>".$NM_TABLE."</I> (".$rwlibt[$ult[LIBELLE]].")</H3>";
 	 
+	 if ($rwlibt[$ult[COMMENT]]) echo "<small>".$rwlibt[$ult[COMMENT]]."</small><br/>";
+	 if ($CREATION=="false") { // on affiche les champ dans l'ordre dédition
+		$resf= db_query("SELECT NM_CHAMP FROM $TBDname WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF");
+		while ($rf=db_fetch_row($resf)) $tbLCHP[]=$rf[0];
+	}		
          $resf=db_query("select * from $CSpIC$NM_TABLE$CSpIC LIMIT 0"); // uniquement pour avoir la liste des champs
-      	// DU au fait que la fonction mysql_field_flags ne fonctionne correctement qu'avec un resultat "NORMAL" et pas avec une requete du type SHOW FIELDS
+	 $nfields=db_num_fields($resf);
+      	
+	if ($AFFALL=="vrai") echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".$nfields." champs :<BR><FONT SIZE=\"-1\">"; 	 
+	
+	echo '<TABLE BORDER="1"><THEAD><TH>NOM CHAMP</TH><TH>TYPE</TH><TH>LIBELLE</TH><TH>TYP. AFF</TH><TH>VALEURS</TH><TH>COMMENTAIRE</TH></THEAD>';
+	
+	// DU au fait que la fonction mysql_field_flags ne fonctionne correctement qu'avec un resultat "NORMAL" et pas avec une requete du type SHOW FIELDS
          if ($_SESSION[db_type]=="mysql") $table_def = mysql_query("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC");
         //$resf=mysql_list_fields ($DBName, $CSpIC$NM_TABLE$CSpIC);
-         if ($AFFALL=="vrai") echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".db_num_fields($resf)." champs :<BR><FONT SIZE=\"-1\">"; 
         // insï¿½e un champ commun de description de la table s'il n'existe pas
 
 	$rpct=db_query("SELECT NM_CHAMP FROM $TBDname WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'");
         if (db_num_rows($rpct)==0) db_query("INSERT INTO $TBDname (NM_TABLE, NM_CHAMP,LIBELLE, ORDAFF, ORDAFF_L) values
 	  ('$NM_TABLE','$NmChDT','$NM_TABLE', '$i', '$i')");
 
-        for ($j = 0; $j < db_num_fields($resf); $j++) {
+        for ($j = 0; $j < $nfields; $j++) {
+	  echo "<TR><TD>";
           if ($_SESSION[db_type]=="mysql") $row_table_def = mysql_fetch_array($table_def);
-          $NM_CHAMP=db_field_name ($resf, $j);
+          $NM_CHAMP=($CREATION!="false" ? db_field_name ($resf, $j) : $tbLCHP[$j]);
           //$NM_CHAMP=$row_table_def['Field'];
           $tbNM_CHAMP[$j]=$NM_CHAMP;
           $TYP_CHAMP="";
@@ -250,7 +262,8 @@ if (count($TableName)>0 ) {
 		if (stristr(mysql_field_flags ($resf, $j),"auto_increment")) {
 		$TYPEAFF="STA";
 		$COMMENT=addslashes("Valeur auto incrï¿½entï¿½, impossible ï¿½changer par l'utilisateur");
-		} // fin si champ auto incrï¿½entï¿½	    } elseif ($_SESSION[db_type]=="pgsql") {
+		} // fin si champ auto incrï¿½entï¿½	    
+	    } elseif ($_SESSION[db_type]=="pgsql") {
 	    	if (strstr(db_field_type ($resf, $j),"geometry")) {
 			$TYPEAFF="TXA";
 			$TYPAFF_L="";
@@ -264,18 +277,11 @@ if (count($TableName)>0 ) {
 	     values
 	      ('$NM_TABLE', '$NM_CHAMP', '$LIBELLE', '$TYPEAFF', '$VALEURS', '$val', '$val','$TYPAFF_L', '$TYP_CHAMP', '$TT_AVMAJ','$TT_PDTMAJ','$TT_APRMAJ', '$COMMENT')");
             }  // fin si champ crï¿½ dans la liste
-      echo "<B>".$NM_CHAMP."</B>, ";
+      echo "<B>".$NM_CHAMP."</B> </TD>";
       if ($_SESSION[db_type]!="mysql") $row_table_def['Type']=db_field_type($resf,$j);
-      echo" de type ".$row_table_def['Type'];
-      $LIBELLE=RecupLib($TBDname,"NM_CHAMP","LIBELLE",$NM_CHAMP);
-      if ($LIBELLE!=$NM_CHAMP) echo " - <I>$LIBELLE</I>";
-      $TYPEAFF=RecupLib($TBDname,"NM_CHAMP","TYPEAFF",$NM_CHAMP);
-      if ($TYPEAFF!="") echo "<small> Type aff.: $TYPEAFF</small>";
-      $VALEURS=RecupLib($TBDname,"NM_CHAMP","VALEURS",$NM_CHAMP);
-      if ($VALEURS!="") echo "<small> Valeurs: $VALEURS</small>";
-      echo "<BR>";
+      echo "<TD>".$row_table_def['Type'];
       $row_table_def['True_Type'] = ereg_replace('\\(.*', '', $row_table_def['Type']);
-         if ($AFFALL=="vrai") echo "Type epurï¿½ ".$row_table_def['True_Type']."<BR>";
+      if ($AFFALL=="vrai") echo " ;epuré: ".$row_table_def['True_Type']."<BR>";
       if (strstr($row_table_def['True_Type'], 'enum')) {
             $enum        = str_replace('enum(', '', $row_table_def['Type']);
             $enum        = ereg_replace('\\)$', '', $enum);
@@ -288,9 +294,22 @@ if (count($TableName)>0 ) {
              }
            echo "<BR>";
            }
-        } // fin si ï¿½um
-         if ($AFFALL=="vrai" && $_SESSION[db_type]=="mysql") echo "Flags MySql:".mysql_field_flags ($resf, $j)."<BR>";
+        } // fin si énum
+      if ($AFFALL=="vrai" && $_SESSION[db_type]=="mysql") echo "Flags MySql:".mysql_field_flags ($resf, $j)."<BR>";
+      echo "</TD>";
+      
+      $LIBELLE=RecupLib($TBDname,"NM_CHAMP","LIBELLE",$NM_CHAMP);
+      echo "<TD>".($LIBELLE!="" ? $LIBELLE : "&nbsp;")."</TD>";
+      $TYPEAFF=RecupLib($TBDname,"NM_CHAMP","TYPEAFF",$NM_CHAMP);
+      echo "<TD>".$TYPEAFF."</TD>";
+      $VALEURS=RecupLib($TBDname,"NM_CHAMP","VALEURS",$NM_CHAMP);
+      echo "<TD>".($VALEURS!="" ? $VALEURS : "&nbsp;")."</TD>";      
+      $COMMENT=RecupLib($TBDname,"NM_CHAMP","COMMENT",$NM_CHAMP);
+      echo "<TD>".($COMMENT!="" ? $COMMENT : "&nbsp;")."</TD>";      
+      
+      echo "</TR>";
       } // fin boucle sur les champs de la table
+    echo "</TABLE>";
     
     // en MAJ on enlï¿½e les champs plus existants
     if ($CREATION=="MAJ") {
@@ -316,7 +335,7 @@ else echo "<H3> Vous devez sï¿½ectionner au moins une table !</H3>";
 
 } // fin tests sur step
 ?>
-<br><a href="javascipt:history.back()" class="fxbutton"> << RETOUR</A>
+<br><a href="javascript:history.back()" class="fxbutton"> << RETOUR</A>
 <H3>Infos Serveur <?=pinfserv()?></H3>
 </body>
 </html>

@@ -6,52 +6,57 @@ DBconnect();
 if ($debug) echovar("_FILES");
 // s'il existe au moins 1 champ fichier-photo,
 // on calcule la CLE POUR LE NOM DE STOCKAGE DES FICHIERS ATTACHES EVENTUELS
-$rpfl=msq("SELECT TYPEAFF from $TBDname where NM_TABLE='$NM_TABLE' AND TYPEAFF='FICFOT'");
-if (db_num_rows($rpfl)>0) { 
-//echovar("_FILES");
-  // détermination champ cle pour stockage fichier ou image
-  // on prend oid + 1; si c'est pas le bon, pas très grave
-  if ($_SESSION[db_type]=="pgsql") {
-  	$rp1=msq("SELECT oid from $CSpIC$NM_TABLE$CSpIC order by oid DESC LIMIT 1");
-		$rp2=db_fetch_row($rp1);
-		$keycopy=$rp2[0]+1;
-		$keycopy=$keycopy."_";
- 	 }
-  else {
-	// on recupere les noms des 2 1er champs (idem aux variables)
-	$rqkc=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE LIMIT 2");
-	$nmchp=db_fetch_row($rqkc); 
-	$chp=$nmchp[0];
-	$mff=mysqff ($chp,$NM_TABLE);
-	// dans mff on a les caract. de cle primaire, auto_increment, etc ... du 1er champ
-	if (stristr($mff,"primary_key")) { // si 1er champ est une clé primaire
-		// on regarde si c'est un auto incrément
-		if (stristr($mff,"auto_increment") && (($modif==0) || ($modif==2))) 
-			{ // si auto increment et nouvel enregistrement ou copie
-			$rp1=msq("SELECT $chp from $CSpIC$NM_TABLE$CSpIC order by $chp DESC LIMIT 1");
-			$rp2=mysql_fetch_row($rp1);
+// uniquement en cas autre que modif: ds ce cas c'est pas la peine, $keycopy=$key
+if ($modif=="1" && $key!="") {
+	$keycopy=$key;
+} else {
+	$rpfl=msq("SELECT TYPEAFF from $TBDname where NM_TABLE='$NM_TABLE' AND TYPEAFF='FICFOT'");
+	if (db_num_rows($rpfl)>0) { 
+	//echovar("_FILES");
+	// détermination champ cle pour stockage fichier ou image
+	// on prend oid + 1; si c'est pas le bon, pas très grave
+	if ($_SESSION[db_type]=="pgsql") {
+		$rp1=msq("SELECT oid from $CSpIC$NM_TABLE$CSpIC order by oid DESC LIMIT 1");
+			$rp2=db_fetch_row($rp1);
 			$keycopy=$rp2[0]+1;
 			$keycopy=$keycopy."_";
-			}
-		else 
-			{ // si pas auto increment ou modif, on recup la valeur
-			$keycopy=$$nmchp[0]."_"; // VALEUR du premier champ  
-			}
-		
 		}
-	else // si 1er champ pas cle primaire, elle est forcement constituee des 2 autres
-		{ 
-		$keycopy=$$nmchp[0]; // VALEUR du premier champ
-		$nmchp=mysql_fetch_row($rqkc);
-		$keycopy=$keycopy."_".$$nmchp[0]."_";// VALEUR du deuxieme champ
-		}
-  }
-  // echo "Keycopy: $keycopy <BR>";
-} // fin s'il y a au moins un champ fichier attaché
-
+	else {
+		// on recupere les noms des 2 1er champs (idem aux variables)
+		$rqkc=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE LIMIT 2");
+		$nmchp=db_fetch_row($rqkc); 
+		$chp=$nmchp[0];
+		$mff=mysqff ($chp,$NM_TABLE);
+		// dans mff on a les caract. de cle primaire, auto_increment, etc ... du 1er champ
+		if (stristr($mff,"primary_key")) { // si 1er champ est une clé primaire
+			// on regarde si c'est un auto incrément
+			if (stristr($mff,"auto_increment") && (($modif==0) || ($modif==2))) 
+				{ // si auto increment et nouvel enregistrement ou copie
+				$rp1=msq("SELECT $chp from $CSpIC$NM_TABLE$CSpIC order by $chp DESC LIMIT 1");
+				$rp2=mysql_fetch_row($rp1);
+				$keycopy=$rp2[0]+1;
+				$keycopy=$keycopy."_";
+				}
+			else 
+				{ // si pas auto increment ou modif, on recup la valeur
+				$keycopy=$$nmchp[0]."_"; // VALEUR du premier champ  
+				}
+			
+			}
+		else // si 1er champ pas cle primaire, elle est forcement constituee des 2 autres
+			{ 
+			$keycopy=$$nmchp[0]; // VALEUR du premier champ
+			$nmchp=mysql_fetch_row($rqkc);
+			$keycopy=$keycopy."_".$$nmchp[0]."_";// VALEUR du deuxieme champ
+			}
+		} // fin si pas session pgsql
+	// echo "Keycopy: $keycopy <BR>";
+	} // fin s'il y a au moins un champ fichier attaché
+} // fin si autre que modif
   
 // construction du set, necessite uniquement le nom du champ ..
-$rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPEAFF!='HID' ORDER BY ORDAFF, LIBELLE");
+$rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
+
 
 $PYAoMAJ=new PYAobj();
 
@@ -94,7 +99,6 @@ $key=stripslashes($key);
 //echo "Clé: $key <BR>";
 
 // GROS BUG  $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
-
 $where=" where ".$key;
 if ($modif==1) // Si on vient d'une édition
   {
@@ -112,5 +116,5 @@ else // Si on vient de nv enregistrement
   }
 //echo "requete sql: $strqaj";
 msq($strqaj);
-header ("location:".ret_adrr("edit_table.php")."?cfp=amact");
+header ("location:".($lc_adrramact ? $lc_adrramact : ret_adrr("edit_table.php")."?cfp=amact")); // lc_adrramact=spécial e-toil
 ?>

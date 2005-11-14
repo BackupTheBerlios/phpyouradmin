@@ -114,7 +114,7 @@ foreach ($ECT as $PYAObj) {
     if ($PYAObj->Comment!="") echo "<BR><span class=\"legendes9px\">".$PYAObj->Comment."</span>";
      echo "</TD>\n<TD>";
 
-    $PYAObj->EchoEditAll(false); // !!!!!!!!!!!!!!!! //
+    $PYAObj->EchoEditAll(false); // n'affiche pas les champs cachés!!!!!!!!!!!!!!!! //
 
      echo "</TD>\n</TR>"; //finit la ligne du tableau
    } else
