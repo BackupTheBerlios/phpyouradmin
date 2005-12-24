@@ -488,6 +488,8 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
   $retVal.= ($Mult!="no" ? "[]\" MULTIPLE SIZE=\"$SizeLDM\">" : "\">");
   foreach ($tbval as $key =>$val) {
     $retVal.= "<OPTION VALUE=\"$key\" ";
+    $niv=count(explode("|",$val));
+    $retVal.=' class="optld'.$niv.'" ';
     if (strstr($val,$VSLD)) {
       $sel="SELECTED";
       $val=str_replace ($VSLD, "", $val); // retourne la chaine ss le car de sélection
