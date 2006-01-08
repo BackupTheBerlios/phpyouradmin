@@ -183,8 +183,13 @@ function echDL3TJStbChilds($dbscr=true) {
 if (count($this->tbChilds)==0) return("Error: tbChilds est vide !");
 //print_r($this->tbChilds);
 foreach ($this->tbChilds as $pid=>$tboneChilds) {
-	$str2ret.="tbChilds[".$pid."]=Array(".implode(",",$tboneChilds).");\n";
-	if (count($tboneChilds)==1) $str2ret.="tbChilds[".$pid."]=Array('".$tboneChilds[0]."');\n"; // le fait d'avoir un tableau avec une seule valeur meme numérique sans '' fout la zone (???)
+	//$str2ret.="tbChilds['".$pid."']=Array(".implode(",",$tboneChilds).");\n"; ne marche pas avec les clé textuelles
+	$str2ret.="tbChilds['".$pid."']=Array(";
+	foreach ($tboneChilds as $Childs) {
+		$str2ret.="'".$Childs."',";
+		}
+	$str2ret=vdc($str2ret,1).");\n"; // enlève la dernière virgule
+	//if (count($tboneChilds)==1) $str2ret.="tbChilds[".$pid."]=Array('".$tboneChilds[0]."');\n"; // le fait d'avoir un tableau avec une seule valeur meme numérique sans '' fout la zone (???)
 	}
 return (($dbscr ? "<script>" : "")."
 	"
@@ -195,8 +200,8 @@ return (($dbscr ? "<script>" : "")."
 
 
 
-// méthode qui echoise 1 (UNE) ligne de l'arbre.
-function echDL3T1line ($id,$pid,$label,$cur_depth,$title="",$href="",$onclickJSAction="",$disp=true,$leafimg="",$dispfoldplus=false,$ckbcheked=false) {
+// méthode qui echoise ou plutot retourne 1 (UNE) ligne de l'arbre.
+function echDL3T1line ($id,$pid,$label,$cur_depth,$title="",$href="",$onclickJSAction="",$disp=true,$leafimg="",$dispfoldplus=false,$ckbcheked=false,$nodeopen="false",$cdckbox=true) {
 /* ARGUMENTS
 $id= id du noeud, 
 $pid= id parent du noeud; sert uniquement à remplir la propriété-tableau tbChilds
@@ -209,20 +214,26 @@ $disp=ligne affichée (vraie par défaut)
 $leafimg=image du noeud, si non spécifiée, affiche celle spécifiée par les propriétés $this->imgfcloseplus et $this->imgfclose
 $dispfoldplus=unuquement si leafimg non spécifiée
 $ckbcheked=case à cocher cochée; NB: l'affichage des cases à cocher est conditionnée par la propriété $this->dispckbox
+$nodeopen=indique si noeud ouvert
+$cdckbox=permet de ne pas afficher une case a cocher meme si elles sont OK via la propriété $this->dispckbox
 */
 	//global $this->tbChilds;
 	$this->tbChilds[$pid][]=$id;
 	if ($title=="") $title=$this->mesg1; // si title non défini, prend celui par défaut
 	if ($href=="") $href="#";
 	if ($leafimg=="") $leafimg=($dispfoldplus ? $this->imgfcloseplus : $this->imgfclose);
-	if ($this->dispckbox) $strckbox= '<input type="checkbox" onchange="togckb(this)" id="c3k'.$id.'" name="c3k'.$id.'[]" checked="'.($ckbcheked ? "checked" : "").'"/>';
-	
+	if ($onclickJSAction!="") $onclickJSAction=' "onclick='.$onclickJSAction.'" ';
+	if ($nodeopen=="false" || $nodeopen=="") {$nodeopen="false";} else $nodeopen="true";
+	if ($this->dispckbox && $cdckbox) $strckbox= '<input type="checkbox" onchange="togckb(this)" id="c3k'.$id.'" name="c3k'.$id.'" '.($ckbcheked ? "checked" : "").'/>';
+	if ($href=="#" && $onclickJSAction=="") 
+		{$a=$label;}
+	else $a='<a title="'.$title.'" href="'.$href.'" '.$onclickJSAction.'>'.$label.'</a>';
 	return ('
 		<div id="l3i'.$id.'" class="'.($disp ? "stDL3Tdisp" : "stDL3Thidd").'" style="margin-left : '.(($cur_depth) * $this->indentpx).'px;" >
 		<img src="'.$leafimg.'" id="i3m'.$id.'" onclick="togdisp(this)">
-		<input type="hidden" name="n3o'.$id.'[]" id="n3o'.$id.'" value="false">'.
+		<input type="hidden" name="n3o'.$id.'" id="n3o'.$id.'" value="'.$nodeopen.'">'.
 		$strckbox
-		.'<a title="'.$title.'" href="'.$href.'" onclick="'.$onclickJSAction.'">'.$label.'</a></div>
+		.$a.'</div>
 	');
-	} // fi méthode
+	} // fin méthode
 } // fin objet
