@@ -19,7 +19,7 @@ var $tbChilds;
 function echDL3TStyles($dbsty=true) {
 return ("
 ".($dbsty ? "<style>" : ""). "
-.stDL3Tdisp a, a:hover, a:visited {
+.stDL3Tdisp a, .stDL3Tdisp a:hover, .stDL3Tdisp a:visited {
 	font-size:11px;
 	text-decoration:none;
 	color:black;
