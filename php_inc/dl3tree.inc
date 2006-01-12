@@ -222,7 +222,7 @@ $cdckbox=permet de ne pas afficher une case a cocher meme si elles sont OK via l
 	if ($title=="") $title=$this->mesg1; // si title non défini, prend celui par défaut
 	if ($href=="") $href="#";
 	if ($leafimg=="") $leafimg=($dispfoldplus ? $this->imgfcloseplus : $this->imgfclose);
-	if ($onclickJSAction!="") $onclickJSAction=' "onclick='.$onclickJSAction.'" ';
+	if ($onclickJSAction!="") $onclickJSAction=' onclick="'.$onclickJSAction.'" ';
 	if ($nodeopen=="false" || $nodeopen=="") {$nodeopen="false";} else $nodeopen="true";
 	if ($this->dispckbox && $cdckbox) $strckbox= '<input type="checkbox" onchange="togckb(this)" id="c3k'.$id.'" name="c3k'.$id.'" '.($ckbcheked ? "checked" : "").'/>';
 	if ($href=="#" && $onclickJSAction=="") 
