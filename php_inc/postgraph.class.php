@@ -494,7 +494,7 @@ class PostGraph
     {
         $this->yTicks = $ticks;
         
-        if($this->data != null && $this->$yNumberFormat == 'integer')
+        if($this->data != null && $this->yNumberFormat == 'integer')
         {
             if($this->yTicks > $this->maxData)
                 $this->yTicks = $this->maxData;
@@ -514,7 +514,7 @@ class PostGraph
     */
     function setYNumberFormat($format)
     {
-        $this->$yNumberFormat = $format;
+        $this->yNumberFormat = $format;
     }
 
     //------------------------------------------------------------------------
@@ -537,7 +537,7 @@ class PostGraph
         
         $this->countData = count($data);
 
-        if($this->yTicks > $this->maxData && $this->$yNumberFormat == 'integer')
+        if($this->yTicks > $this->maxData && $this->yNumberFormat == 'integer')
             $this->yTicks = $this->maxData;
 
         if($this->yTicks == 0)

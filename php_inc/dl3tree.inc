@@ -54,7 +54,7 @@ return ("
 function echDL3TJSVarsInit($dbscr=true) {
 return ("
 
-".($dbscr ? "<script>" : ""). "
+".($dbscr ? '<script language="javascript">' : ""). "
 
 var imgfopen='".$this->imgfopen."';
 var imgfcloseplus ='".$this->imgfcloseplus."';
@@ -67,7 +67,7 @@ var imgfclose ='".$this->imgfcloseplus."';
 // fonction qui echoise les FONCTIONS JAVASCRIPT a initialiser
 function echDL3TJSFunctions($dbscr=true) {
 return ("
-".($dbscr ? "<script>" : ""). "
+".($dbscr ? '<script language="javascript">' : ""). "
 
 // fonction de cochage/ decochage des cases
 function togckb(obj) {
@@ -191,7 +191,7 @@ foreach ($this->tbChilds as $pid=>$tboneChilds) {
 	$str2ret=vdc($str2ret,1).");\n"; // enlève la dernière virgule
 	//if (count($tboneChilds)==1) $str2ret.="tbChilds[".$pid."]=Array('".$tboneChilds[0]."');\n"; // le fait d'avoir un tableau avec une seule valeur meme numérique sans '' fout la zone (???)
 	}
-return (($dbscr ? "<script>" : "")."
+return (($dbscr ? '<script language="javascript">' : "")."
 	"
 	.$str2ret."
 	".
@@ -217,7 +217,7 @@ $ckbcheked=case à cocher cochée; NB: l'affichage des cases à cocher est condi
 $nodeopen=indique si noeud ouvert
 $cdckbox=permet de ne pas afficher une case a cocher meme si elles sont OK via la propriété $this->dispckbox
 */
-	//global $this->tbChilds;
+	//if (count($this->tbChilds) < 10) { // si on en met bcp cela fait planter IE
 	$this->tbChilds[$pid][]=$id;
 	if ($title=="") $title=$this->mesg1; // si title non défini, prend celui par défaut
 	if ($href=="") $href="#";
@@ -230,10 +230,10 @@ $cdckbox=permet de ne pas afficher une case a cocher meme si elles sont OK via l
 	else $a='<a title="'.$title.'" href="'.$href.'" '.$onclickJSAction.'>'.$label.'</a>';
 	return ('
 		<div id="l3i'.$id.'" class="'.($disp ? "stDL3Tdisp" : "stDL3Thidd").'" style="margin-left : '.(($cur_depth) * $this->indentpx).'px;" >
-		<img src="'.$leafimg.'" id="i3m'.$id.'" onclick="togdisp(this)">
+		<img src="'.$leafimg.'" id="i3m'.$id.'" onclick="togdisp(this)" />
 		<input type="hidden" name="n3o'.$id.'" id="n3o'.$id.'" value="'.$nodeopen.'">'.
 		$strckbox
 		.$a.'</div>
 	');
-	} // fin méthode
+	}//} // fin méthode
 } // fin objet
