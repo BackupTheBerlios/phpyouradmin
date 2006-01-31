@@ -1,4 +1,4 @@
-<?// objet PYA, permettant l'affichage de filtres, de champ dans les listes et de controle d'édition
+<?// objet PYA, permettant l'affichage de filtres, de champ dans les listes et de controle d'ï¿½ition
 class PYAobj {
   var $NbCarMxCust=0;
   var $NmBase;
@@ -11,36 +11,36 @@ class PYAobj {
   var $FieldValDef;
   var $ValChp;
   var $FieldNullOk; // YES ou rien
-  var $FieldKey; // clé=PRI, index=MUL, unique=UNI
+  var $FieldKey; // clï¿½PRI, index=MUL, unique=UNI
   var $FieldExtra; // auto_increment
   var $TypeAff;
-  var $Fccr=""; // force cases à cocher/radio en place des LD. rien ou
+  var $Fccr=""; // force cases ï¿½cocher/radio en place des LD. rien ou
                 // si qqchose, force. Si contient 'BR' force avec retour de lignes
                 // si contient RAD force boutons radios
   var $Valeurs;
-  var $Val2=""; // valeurs en plus, évaluées en fonction de l'enregistrement
-  var $adpopl="popl.php"; // url par défaut de la popup d'édition
+  var $Val2=""; // valeurs en plus, ï¿½aluï¿½s en fonction de l'enregistrement
+  var $adpopl="popl.php"; // url par dï¿½aut de la popup d'ï¿½ition
   var $TypFilt;
   var $TypCSA;
   var $Tt_AvMaj;
   var $Tt_PdtMaj;
   var $Tt_AprMaj;
-  var $TypEdit; // important de savoir si on est en création ("" ou N), copie(2), édition(1) ou consultation (C)
+  var $TypEdit; // important de savoir si on est en crï¿½tion ("" ou N), copie(2), ï¿½ition(1) ou consultation (C)
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
 
-// méthode qui initialise toutes les propriétés de l'objet pour un champ
-// simplement à partir de la définition du nom du champ, de la table et de la base
+// mï¿½hode qui initialise toutes les propriï¿½ï¿½ de l'objet pour un champ
+// simplement ï¿½partir de la dï¿½inition du nom du champ, de la table et de la base
 function InitPO()  {
 // Nom de la table de description des autres
-// nom du champ contenant les caractéristiques globales à la table
+// nom du champ contenant les caractï¿½istiques globales ï¿½la table
 // morceua de chaine identifiant une table virtuelle
 global $TBDname,$NmChDT,$id_vtb;
 $retVal="";
     if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
-    	$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
-    	// normallement on est déjà connecté
-        //mysql_select_db($this->NmBase) or die ("Impossible d'ouvrir la base de données $this->NmBase.");
+    	$ult=rtb_ultchp(); // tableau des noms de champs sensibles ï¿½la casse (ï¿½cause de pgsql...)
+    	// normallement on est dï¿½ï¿½connectï¿½
+        //mysql_select_db($this->NmBase) or die ("Impossible d'ouvrir la base de donnï¿½s $this->NmBase.");
         $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
         if (db_num_rows($rpDF)>0) {
               $CcChp=db_fetch_assoc($rpDF);
@@ -48,7 +48,7 @@ $retVal="";
               $this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
               $this->TypeAff=$CcChp[$ult['TYPEAFF']];
               $this->Valeurs=$CcChp[$ult['VALEURS']];
-	      if (substr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hiérarchique, force les listes déroulante
+	      if (substr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hiï¿½archique, force les listes dï¿½oulante
               $this->Tt_AvMaj=$CcChp[$ult['TT_AVMAJ']];
               $this->Tt_PdtMaj=$CcChp[$ult['TT_PDTMAJ']];
               $this->Tt_AprMaj=$CcChp[$ult['TT_APRMAJ']];
@@ -56,58 +56,58 @@ $retVal="";
               $this->TypCSA=$CcChp[$ult['TYP_CHP']];
               $this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
 	      
-	      if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caractériser le champ que s'il n'est pas dans une table virtuelle
+	      if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caractï¿½iser le champ que s'il n'est pas dans une table virtuelle
 	      
 		$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
 		$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
-		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
+		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ ï¿½urï¿½sans les valeurs (enum, varchar, etc ...)
 		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
 		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
-		// si nouvel enregistrement, affecte la valeur par défaut
+		// si nouvel enregistrement, affecte la valeur par dï¿½aut
 		if ($this->TypEdit=="" || $this->TypEdit=="N") $this->ValChp=$this->FieldValDef; 
 		$this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
-		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clé=PRI, index=MUL, unique=UNI
+		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // clï¿½PRI, index=MUL, unique=UNI
 		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
-		// si champ auto increment et pas caché, on le met en statique
+		// si champ auto increment et pas cachï¿½ on le met en statique
 		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
 		/*
-					$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
-					// si nouvel enregistrement, affecte la valeur par défaut
+					$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "" );
+					// si nouvel enregistrement, affecte la valeur par dï¿½aut
 					$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-					$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+					$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : ""); // clï¿½PRI, index=MUL, unique=UNI
 					$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
 		
 		$TbDescChp=ShowField($this->NmChamp,$this->NmTable);
 		$this->FieldType=$TbDescChp['Type'];
-		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ épuré sans les valeurs (enum, varchar, etc ...)
+		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ ï¿½urï¿½sans les valeurs (enum, varchar, etc ...)
 		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
 		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp['Default'];
-		// si nouvel enregistrement, affecte la valeur par défaut
+		// si nouvel enregistrement, affecte la valeur par dï¿½aut
 		if ($this->TypEdit=="") { $this->ValChp=$TbDescChp['Default']; }
 		$this->FieldNullOk=$TbDescChp['Null']; // YES ou rien
-		$this->FieldKey=$TbDescChp['Key']; // clé=PRI, index=MUL, unique=UNI
+		$this->FieldKey=$TbDescChp['Key']; // clï¿½PRI, index=MUL, unique=UNI
 		$this->FieldExtra=$TbDescChp['Extra']; // auto_increment
-		// si champ auto increment et pas caché, on le met en statique
+		// si champ auto increment et pas cachï¿½ on le met en statique
 		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
 		*/
 	      } // fin si pas champ dans une table virtuelle
-            } // fin si champ trouvé
-        else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouvé dans la table de description";
+            } // fin si champ trouvï¿½
+        else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouvï¿½dans la table de description";
         }
-    else $retVal = "Appel de la méthode InitPO de l'objet PYAObj incorrecte: au moins une des propriétés de base n'a pas été définie"; 
+    else $retVal = "Appel de la mï¿½hode InitPO de l'objet PYAObj incorrecte: au moins une des propriï¿½ï¿½ de base n'a pas ï¿½ï¿½dï¿½inie"; 
     if ($this->DirEcho) {
     	echo $retVal;
     } else {
     	return($retVal);
     }
-} // fin méthode d'initialisation$DH
+} // fin mï¿½hode d'initialisation$DH
 
-// méthode d'affichage de filtre de requete
-  function EchoFilt($bDN=true,$bDL=true) { // booleens affiche négation et affiche libellé ie baratins sur les dates e
+// mï¿½hode d'affichage de filtre de requete
+  function EchoFilt($bDN=true,$bDL=true) { // booleens affiche nï¿½ation et affiche libellï¿½ie baratins sur les dates e
    global $VSLD;
     switch ($this->TypFilt) {
       case "INPLIKE":
@@ -115,8 +115,8 @@ $retVal="";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
   
-  //! ttes les listes sont à choix multiple (condition OR sur les valeurs)
-      case "LDC": // Liste déroulante affichant les différentes valeurs du champ  
+  //! ttes les listes sont ï¿½choix multiple (condition OR sur les valeurs)
+      case "LDC": // Liste dï¿½oulante affichant les diffï¿½entes valeurs du champ  
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
         $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
@@ -128,9 +128,9 @@ $retVal="";
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
         break;
   
-      case "LDF": // Liste déroulante affichant les différentes valeurs fixes listées dans le champ valeur, ou les valeurs du set ou enum
+      case "LDF": // Liste dï¿½oulante affichant les diffï¿½entes valeurs fixes listï¿½s dans le champ valeur, ou les valeurs du set ou enum
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
-        // $tbval["%"]=$VSLD."%"; fait après
+        // $tbval["%"]=$VSLD."%"; fait aprï¿½
         if ($this->TTC=="enum" || $this->TTC=="set") {
             $tabval = str_replace('set(', '', $this->FieldType);
             $tabval = str_replace('enum(', '', $tabval);
@@ -150,16 +150,16 @@ $retVal="";
            }
         asort($tbval); // tri de la liste
         //$tbval=array_merge(array("%"=>$VSLD."(tous)"),$tbval);
-				// ci-dessus ça reconstruit les indices...
+				// ci-dessus ï¿½ reconstruit les indices...
 				$tbval=array("%"=>$VSLD."(tous)")+$tbval;
 
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
         break;
   
-      case "LDL": // Liste déroulante affichant les différentes valeurs liées par le champ valeurs
+      case "LDL": // Liste dï¿½oulante affichant les diffï¿½entes valeurs liï¿½s par le champ valeurs
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
         $tbval=ttChpLink($this->Valeurs);
-	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,clé,%
+	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,clï¿½%
             {
             foreach ($tbval as $key=>$val)
                {
@@ -168,31 +168,31 @@ $retVal="";
                }
             }
         else $tabval=$tbval;
-				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait ça le % se retrouve à la fin ..
-        $tbjok[000]=$VSLD."(tous)"; // on fait ça pour ne pas décaler les indices dans le cas où le champ est num
+				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait ï¿½ le % se retrouve ï¿½la fin ..
+        $tbjok[000]=$VSLD."(tous)"; // on fait ï¿½ pour ne pas dï¿½aler les indices dans le cas o le champ est num
                               // quand c'est un champ num, on a 0, sinon 000
         //$tabval=array_merge($tbjok,$tabval);
 				// mais cette fonction reindexe le tableau et donc fout une merdre pas croyable!!
-				//astuce ci-dessous trouvée et mise par un anonyme sur internet !!!
+				//astuce ci-dessous trouvï¿½ et mise par un anonyme sur internet !!!
 				$tabval=$tbjok+$tabval;
 				$retVal.= "<!-- desbog";
 				$retVal.= $tabval[103];
 				$retVal.= "-->";
-//        asort($tbval); // pas de tri de la liste (spécifié dans la liaison)
+//        asort($tbval); // pas de tri de la liste (spï¿½ifiï¿½dans la liaison)
         $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fcrr,false);
         break;
         
-      case "DANT": // criteres sur date antérieure ou postérieure
+      case "DANT": // criteres sur date antï¿½ieure ou postï¿½ieure
       case "DPOST":
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
-        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est ". ($this->TypFilt=="DANT" ? "antérieure" : "postérieure") ." à ";
+        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est ". ($this->TypFilt=="DANT" ? "antï¿½ieure" : "postï¿½ieure") ." ï¿½";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
         
-      case "DATAP": // criteres sur date antérieure ET postérieure
+      case "DATAP": // criteres sur date antï¿½ieure ET postï¿½ieure
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>postérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et antérieure à <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>postï¿½ieure ï¿½<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et antï¿½ieure ï¿½<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
              }
         else {
              $retVal.= "$this->Libelle post <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> & ante <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
@@ -213,11 +213,11 @@ $retVal="";
     } else {
     	return($retVal);
     }
-  } // fin méthode EchoFilt
+  } // fin mï¿½hode EchoFilt
 //
-// Méthode qui affiche la case de négation
+// Mï¿½hode qui affiche la case de nï¿½ation
 function DispNeg($DE2=true) {
-        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> Négation</span>";
+        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> Nï¿½ation</span>";
    if ($this->DirEcho && $DE2) {
     	echo $retVal;
     } else {
@@ -226,15 +226,15 @@ function DispNeg($DE2=true) {
 
         }
 
-// méthode d'affichage de case à cocher pour affichage optionnel du champ
+// mï¿½hode d'affichage de case ï¿½cocher pour affichage optionnel du champ
   function EchoCSA() {
-    switch ($this->TypCSA) { // type d'affichage sélectionnable
+    switch ($this->TypCSA) { // type d'affichage sï¿½ectionnable
       case "OCD":
       case "ONCD":
         $nmvarAfC="AfC_".$this->NmChamp;
         $retVal.= "<input type=\"hidden\" name=\"$nmvarAfC\" value=\"no\">"; // obligatoire
         $cs=($this->TypCSA=="OCD" ? "checked" : "");
-        $retVal.= "<input type=\"checkbox\" name=\"$nmvarAfC\" value=\"yes\" $cs> Affiché";
+        $retVal.= "<input type=\"checkbox\" name=\"$nmvarAfC\" value=\"yes\" $cs>";
          
       default: 
         $retVal.= "&nbsp;";
@@ -246,11 +246,11 @@ function DispNeg($DE2=true) {
     } else {
     	return($retVal);
     }
-  } // fin méthode EchoCSA
+  } // fin mï¿½hode EchoCSA
 
 
 
-// méthode affichage champ dans liste
+// mï¿½hode affichage champ dans liste
   function EchoVCL() {
      if ($this->DirEcho) {
     	echo $this->RetVCL()."\n";
@@ -260,16 +260,16 @@ function DispNeg($DE2=true) {
   }
 
   function RetVCL($HT=true) {  // affiche valeur champ dans Liste
-      // le param HT indique si l'on génère du HTML ou du texte brut (telechargement)
+      // le param HT indique si l'on gï¿½ï¿½e du HTML ou du texte brut (telechargement)
       global $nbcarmxlist;
-      $EiS=($HT ? "&nbsp;" : ""); // espace insécable  HTML ou rien
+      $EiS=($HT ? "&nbsp;" : ""); // espace insï¿½able  HTML ou rien
 
       if ($this->TTC=="date") $this->ValChp=DateF($this->ValChp); // convertit dates
 
       switch ($this->Typaff_l) {
 
-      case "LNK": // si champ lié a une autre table, ou liste composée
-        return $this->RVLS($EiS);  // méthode qui retourne valeur statique (non éditable) liée externe ou pas
+      case "LNK": // si champ liï¿½a une autre table, ou liste composï¿½
+        return $this->RVLS($EiS);  // mï¿½hode qui retourne valeur statique (non ï¿½itable) liï¿½ externe ou pas
         break;
         
       case "AHREF": // si lien HTML
@@ -284,16 +284,16 @@ function DispNeg($DE2=true) {
           if ($HT) {
                return "<A HREF=\"".$ChemFF.$this->ValChp."\" target=\"_blank\">".$this->ValChp."</A>";}
           else
-              {return "Fichier attaché:".$ChemFF.$this->ValChp;}
+              {return "Fichier attachï¿½".$ChemFF.$this->ValChp;}
   
           }
         break;
         
       default: 
-        // nbre de car max par défaut, ou passé en propriété
+        // nbre de car max par dï¿½aut, ou passï¿½en propriï¿½ï¿½
         $NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust>0 : $nbcarmxlist);
         $Val2Af=stripslashes($this->ValChp);
-        $Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caractères
+        $Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caractï¿½es
         if ($HT) { 
             $Val2Af=DispCustHT($Val2Af);
               if ($this->DirEcho) {
@@ -308,9 +308,9 @@ function DispNeg($DE2=true) {
        } // fin du switch
   } // fin methode EchoVCL
 
-// méthode commune aux 2 méthodes liste et édition, qui affiche les valeurs liées en statique
+// mï¿½hode commune aux 2 mï¿½hodes liste et ï¿½ition, qui affiche les valeurs liï¿½s en statique
 function RVLS($EiS) {
-        // LnkTb=true si liste liée à une table, false si liste de valeurs fixes
+        // LnkTb=true si liste liï¿½ ï¿½une table, false si liste de valeurs fixes
         $LnkTb=!($this->TypeAff=="LD" || $this->TypeAff=="LDM");
         if (!$LnkTb) { // si liste de valeurs, construit directement un tableau de hachage cle=>valeurs
            $defl=explode(',',$this->Valeurs);
@@ -327,23 +327,23 @@ function RVLS($EiS) {
         $cle=$this->ValChp;
         $valaff="";
         if ($cle!=""){
-          if (strstr($cle,",")) { // plusieurs valeurs séparées par des virgules (type pseudo-set multiple)
+          if (strstr($cle,",")) { // plusieurs valeurs sï¿½arï¿½s par des virgules (type pseudo-set multiple)
             $tabcle=explode(",",$cle);
             foreach ($tabcle as $cle) {
                 if ($cle!="") { // ignore valeurs vides
                    if ($LnkTb) {
                       $valsuiv=ttChpLink($this->Valeurs,"",$cle); }
                    else $valsuiv=$tbval[$cle];
-                   $valaff.=($valsuiv ? "$valsuiv, ": "NC[$cle], "); // affiche si trouvée, ou erreur
+                   $valaff.=($valsuiv ? "$valsuiv, ": "NC[$cle], "); // affiche si trouvï¿½, ou erreur
                 } // fin si valeur bnon vide
               }
-            $valaff=vdc($valaff,2); // vire la dernière virgule et esp
+            $valaff=vdc($valaff,2); // vire la derniï¿½e virgule et esp
             }
           else { 
               if ($LnkTb) {
                  $valsuiv=ttChpLink($this->Valeurs,"",$cle); }
               else $valsuiv=$tbval[$cle];
-            $valaff=($valsuiv ? "$valsuiv": "NC[$cle]"); // n'affiche si trouvée
+            $valaff=($valsuiv ? "$valsuiv": "NC[$cle]"); // n'affiche si trouvï¿½
             }
           } // fin si $cle!=""
         $valaff=($valaff!=""? $valaff : "$EiS");
@@ -352,15 +352,15 @@ function RVLS($EiS) {
 
 
 
-// méthode qui affiche le controle
-// on a séparé les auto et manuels
+// mï¿½hode qui affiche le controle
+// on a sï¿½arï¿½les auto et manuels
 function EchoEditAll($DH=true) {
   if ($this->TypeAff!="AUT") {
     return($this->EchoEdit($DH));}
   else return($this->EchoEditAuto());
   }
 
-// méthode qui affiche le controle dédition
+// mï¿½hode qui affiche le controle dï¿½ition
 // pour tes les type d'aff <> de AUT  
 function EchoEdit($DH=true) {
   global $VSLD,$nbrtxa,$nbctxa;
@@ -379,25 +379,25 @@ function EchoEdit($DH=true) {
            $this->TypeAff="STA";
            break;
 
-   //chgt en statique normale forcée (on recherche les paires clés: valeurs dans this->Valeurs
-        case "LD": // liste déroulante non liée
-        case "LDM": // liste déroulante non liée MULTIPLE
+   //chgt en statique normale forcï¿½ (on recherche les paires clï¿½: valeurs dans this->Valeurs
+        case "LD": // liste dï¿½oulante non liï¿½
+        case "LDM": // liste dï¿½oulante non liï¿½ MULTIPLE
         case "LDL":
         case "LDLM":
 	case "POPL":
-        // on est en consultation forcée.
-        // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur à afficher
-        // est certainement à piocher dans une liste clé-valeurs et non à afficher telle quelle
+        // on est en consultation forcï¿½.
+        // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur ï¿½afficher
+        // est certainement ï¿½piocher dans une liste clï¿½valeurs et non ï¿½afficher telle quelle
            $Val2Af=DispCustHT($this->RVLS("&nbsp"));
            $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
            $this->TypeAff="STAF"; // pour ne plus rien faire ...
            break;
 
-     // le reste on change pas, les photos sont traitées dans la proc elle-meme
+     // le reste on change pas, les photos sont traitï¿½s dans la proc elle-meme
      } // fin switch
    }   // fin si on est en consultation
 
-   // traitement Evènements pendant mise à jour
+   // traitement Evï¿½ements pendant mise ï¿½jour
    if ($this->Tt_PdtMaj!="") {
       $tbeven=explode(":",$this->Tt_PdtMaj);
       $evJS=" ".$tbeven[0]."=\"".$tbeven[1]."\"";
@@ -408,15 +408,15 @@ function EchoEdit($DH=true) {
     case "": // on affiche rien
       break;
       
-    case "HID": // on affiche un champ caché que si $DH=true, sinon rien
+    case "HID": // on affiche un champ cachï¿½que si $DH=true, sinon rien
       if ($DH) $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
   
-    // pour indiquer qu'in élément est sélectionné, met VSLD devant (#SEL#)
-    case "LD": // liste déroulante non liée
+    // pour indiquer qu'in ï¿½ï¿½ent est sï¿½ectionnï¿½ met VSLD devant (#SEL#)
+    case "LD": // liste dï¿½oulante non liï¿½
       $defl=explode(',',$this->Valeurs);
       if ($this->FieldNullOk=="YES")   
-        {  // si null autorisé
+        {  // si null autorisï¿½
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
         $tbval["NULL"]="vide(null)";
         }
@@ -436,12 +436,12 @@ function EchoEdit($DH=true) {
       $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false); // lise der. non multiple
       break;
 
-    case "LDM": // liste déroulante non liée MULTIPLE
+    case "LDM": // liste dï¿½oulante non liï¿½ MULTIPLE
       $defl=explode(',',$this->Valeurs);
       $tbvalm=explode(',',$this->ValChp);
       
       $tbval["NULL"]="Aucun(e)"; // valeur vide
-      $Am1S=false; // Init au moins une valeur sélectionnée
+      $Am1S=false; // Init au moins une valeur sï¿½ectionnï¿½
       foreach ($defl as $val) {
         if (strstr($val,":")) {
            $valtb=explode(":",$val);
@@ -450,15 +450,15 @@ function EchoEdit($DH=true) {
            }
         else $key=$val;
         if (in_array($key, $tbvalm)) {
-              $val=$VSLD.$val; // indique les sélectionnés
-              $Am1S=true; // Init au moins une valeur sélectionnée
+              $val=$VSLD.$val; // indique les sï¿½ectionnï¿½
+              $Am1S=true; // Init au moins une valeur sï¿½ectionnï¿½
               }
         $tbval[$key]=$val;
         $tbkey[]=$key;
           }
       // controle d'erreur
 
-      // si aucun de sélectionné ...
+      // si aucun de sï¿½ectionnï¿½...
       if (!$Am1S) $tbval["NULL"]=$VSLD."Aucun(e)";
 
       unset($err);
@@ -466,15 +466,15 @@ function EchoEdit($DH=true) {
         if (!in_array($valm,$tbkey) && $valm!="") $err.=$valm.", ";
         }
       if ($err!="") {
-        $err=vdc($err,2); // enlève dernier", ";
-        $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) non présente(s) dans la liste ! </h6>";
+        $err=vdc($err,2); // enlï¿½e dernier", ";
+        $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) non prï¿½ente(s) dans la liste ! </h6>";
         }
       $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false);
       break;
       
-    case "LDL": // liste déroulante liée
+    case "LDL": // liste dï¿½oulante liï¿½
       /* Syntaxe
-      (base,user,passwd);table,chpclé,chp_aff1,chpaff2,...,chpaffn)
+      (base,user,passwd);table,chpclï¿½chp_aff1,chpaff2,...,chpaffn)
       */
       $tabCorlb=ttChpLink($this->Valeurs,$this->Val2);
       if (strstr($this->Valeurs,"@@")) {  // si hierachique
@@ -482,7 +482,7 @@ function EchoEdit($DH=true) {
         $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
         $tbval[$valnul]="Aucun, Elle-meme(self)";
         }
-      elseif ($this->FieldNullOk=="YES") {  // si null autorisé
+      elseif ($this->FieldNullOk=="YES") {  // si null autorisï¿½
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
         $tbval["NULL"]="Aucun(e)";
         }
@@ -497,12 +497,12 @@ function EchoEdit($DH=true) {
       $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false);
       break;
 
-    case "LDLM": // liste déroulante liée MULTIPLE
+    case "LDLM": // liste dï¿½oulante liï¿½ MULTIPLE
       /* Syntaxe de TYPA_VAL
-      (base,user,passwd);table,chpclé,chp_aff1,chpaff2,...,chpaffn)
+      (base,user,passwd);table,chpclï¿½chp_aff1,chpaff2,...,chpaffn)
       */
       $tabCorlb=ttChpLink($this->Valeurs,$this->Val2);
-      //dans le champ lui même, les valeurs clés sont stockées séparées par des virgules
+      //dans le champ lui mï¿½e, les valeurs clï¿½ sont stockï¿½s sï¿½arï¿½s par des virgules
       $tbvalm=explode(',',$this->ValChp);
 
      if (strstr($this->Valeurs,"@@")) $valsh=" ou elle-meme";
@@ -511,17 +511,17 @@ function EchoEdit($DH=true) {
 
 
       $tberrck=array(); // clear tableau de controle d'erreur
-      $Am1S=false; // Init au moins une valeur sélectionnée
+      $Am1S=false; // Init au moins une valeur sï¿½ectionnï¿½
       foreach ($tabCorlb as $key=>$val) {
         $tberrck[]=$key;
         if (in_array($key, $tbvalm))
-           { $val=$VSLD.$val; // raj les caract indiquant la sélection
-           $Am1S=true; // au mis une valeur sélectionnée
+           { $val=$VSLD.$val; // raj les caract indiquant la sï¿½ection
+           $Am1S=true; // au mis une valeur sï¿½ectionnï¿½
            }
         $tbval[$key]=$val;        
         }
 
-      // si aucun de sélectionné ...
+      // si aucun de sï¿½ectionnï¿½...
       if (!$Am1S) $tbval[$valnul]=$VSLD."Aucun(e)".$valsh;
       // controle d'erreur
       if (is_array($tbvalm)) {
@@ -530,17 +530,17 @@ function EchoEdit($DH=true) {
           if (!in_array($valm,$tberrck) && $valm!="") $err.=$valm.", ";
           }
         if ($err!="") {
-          $err=vdc($err,2); // enlève dernier", ";
-          $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) dans le champ non présente(s) dans la liste ! </h6>";
+          $err=vdc($err,2); // enlï¿½e dernier", ";
+          $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) dans le champ non prï¿½ente(s) dans la liste ! </h6>";
           }
         }        
-      $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false); // liste déroulante, multiple
+      $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false); // liste dï¿½oulante, multiple
       break;
     
     $Mult=false;
-    case "POPLM": // popup de sélection
+    case "POPLM": // popup de sï¿½ection
     $Mult=true;
-    case "POPL": // popup de sélection
+    case "POPL": // popup de sï¿½ection
 		$retVal.= "Valeur du lien : ".$this->Valeurs.", valeur du champ : ".$this->ValChp;
 	
 	$retVal.='<SELECT ID="'.$this->NmChamp.'" NAME="'.$this->NmChamp.($Mult ? "[]" : "").'" SIZE="'.(($Mult ? 10 : 1)).'" MULTIPLE>';
@@ -569,7 +569,7 @@ function EchoEdit($DH=true) {
     case "FICFOT":
       if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
       $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\"><B>";
-        if ($this->ValChp!="") {  // regarde si chemin paramétré correctement
+        if ($this->ValChp!="") {  // regarde si chemin paramï¿½rï¿½correctement
           if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
               $ChemFF=$this->Valeurs;}
           else {
@@ -580,27 +580,27 @@ function EchoEdit($DH=true) {
           { $retVal.= "<P><IMG SRC=\"".$NCF."\"></P>";
           }
         else
-          { $retVal.= "Lien vers le fichier associé <A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
+          { $retVal.= "Lien vers le fichier associï¿½<A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
 
         if ($this->TypEdit!="C") $retVal.= "<INPUT TYPE=\"checkbox\" NAME=\"Fok".$this->NmChamp."\" VALUE=\"".$this->ValChp."\" CHECKED>".$this->ValChp."&nbsp;";
         }// Fin si il y a un fichier associe
-        if ($this->TypEdit!="C") { // saisie que si pas en édition
+        if ($this->TypEdit!="C") { // saisie que si pas en ï¿½ition
            $retVal.= "</B><INPUT TYPE=\"file\" NAME=\"".$this->NmChamp."\" SIZE=\"30\" MAXLENGTH=\"200\">";
-           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour désactiver l'image ou le fichier, décocher la case, ou choisissez-en un(e) autre. Sinon ne touchez à rien ...</font>";
+           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour dï¿½activer l'image ou le fichier, dï¿½ocher la case, ou choisissez-en un(e) autre. Sinon ne touchez ï¿½rien ...</font>";
       }
       break; // fin champ de type fichier-photo
 
-      case "STAF": // statique forcée
-           // on ne fait rien, on l'a déjà fait en haut
+      case "STAF": // statique forcï¿½
+           // on ne fait rien, on l'a dï¿½ï¿½fait en haut
       break;
 
       case "STA": // statique  simple
-     // remplace caractère merdiques et converti adresses mail en cliquables pour le HTML
+     // remplace caractï¿½e merdiques et converti adresses mail en cliquables pour le HTML
       $Val2Af=DispCustHT($this->ValChp);
       $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
 
-    case "STAL": // statique liée
+    case "STAL": // statique liï¿½
       $retVal.= (ttChpLink($this->Valeurs,"",$this->ValChp));
       $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
 
@@ -630,9 +630,9 @@ function EchoEdit($DH=true) {
     	return($retVal);
     }
 
-  } // fin méthode EchoEdit
+  } // fin mï¿½hode EchoEdit
 
-// méthode qui affiche le controle dédition
+// mï¿½hode qui affiche le controle dï¿½ition
 // pour le type d'aff AUTOMATIQUE uniquement
 function EchoEditAuto() {
   global $VSLD,$nbrtxa,$nbctxa;
@@ -653,18 +653,18 @@ function EchoEditAuto() {
 	break;
 
      case "enum" : // liste de valeurs
-       // la juste dessous pompé de phpMyAdmin sans tout bien comprendre
+       // la juste dessous pompï¿½de phpMyAdmin sans tout bien comprendre
        $enum = str_replace('enum(', '', $this->FieldType);
             $enum = ereg_replace('\\)$', '', $enum);
             $enum = explode('\',\'', substr($enum, 1, -1));
             $enum_cnt = count($enum);
-       if ($enum_cnt<=$nValRadLd || $this->Fccr) { // si - de 3, cases à option
+       if ($enum_cnt<=$nValRadLd || $this->Fccr) { // si - de 3, cases ï¿½option
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=($enum[$l]==$this->ValChp ? "checked" : "");
            $retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" value=\"$enum[$l]\" $ck>$enum[$l]\n";
                }
-         } // fin si cases à options 
-       else { // si + de 3, liste déroulante
+         } // fin si cases ï¿½options 
+       else { // si + de 3, liste dï¿½oulante
          $retVal.= "<select name=\"$this->NmChamp\">";
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=($enum[$l]==$this->ValChp ? "selected" : "");
@@ -679,13 +679,13 @@ function EchoEditAuto() {
             $enum = ereg_replace('\\)$', '', $enum);
             $enum = explode('\',\'', substr($enum, 1, -1));
             $enum_cnt = count($enum);
-       if ($enum_cnt<=$nValRadLd || $this->Fccr) { // si - de 3, cases à cocher
+       if ($enum_cnt<=$nValRadLd || $this->Fccr) { // si - de 3, cases ï¿½cocher
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=(stristr($this->ValChp,$enum[$l]) ? "checked" : "");
            $retVal.= "<input type=\"checkbox\" name=\"".$this->NmChamp."[]\" value=\"".$enum[$l]."\" $ck>".$enum[$l]."&nbsp;&nbsp;&nbsp;";
                }
          }
-       else { // liste déroulante à choix multiples (variable tableau)
+       else { // liste dï¿½oulante ï¿½choix multiples (variable tableau)
          $retVal.= "<select name=\"".$this->NmChamp."[]\" multiple size=\"".min($enum_cnt ,4)."\">";
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=(stristr($this->ValChp,$enum[$l]) ? "selected" : "");
@@ -695,7 +695,7 @@ function EchoEditAuto() {
          }
        break;
 
-     case "date" : // on passe la date en français
+     case "date" : // on passe la date en franï¿½is
          $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".DateF($this->ValChp)."\" size=\"10\" maxlength=\"10\">";
        break;
 
@@ -706,7 +706,7 @@ function EchoEditAuto() {
      case "char" : // char ou varchar
 
        $lg=strrchr($this->FieldType, "(");
-       $lg= substr($lg,1,-1); // ne récupère que l'entier
+       $lg= substr($lg,1,-1); // ne rï¿½upï¿½e que l'entier
        $size=min(intval($lg*1.5),100);
          $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" ".($lg > 0 ? "maxlength=\"$lg\" size=\"$size\"": "").">";
        break;
@@ -761,10 +761,10 @@ Function InitAvMaj($User="") {
     default :
       break;
     } // fin switch sur type de MAJ avant
-  } // fin méthode d'init ava MAJ
+  } // fin mï¿½hode d'init ava MAJ
 
-// méthode retourne un set pour les mises à jour
-// et gère aussi les fichiers joints (!)
+// mï¿½hode retourne un set pour les mises ï¿½jour
+// et gï¿½e aussi les fichiers joints (!)
 
 function RetSet($keycopy,$rttb=false) {
 global $MaxFSize,$MaxFSizeDef; // taille max des fichiers joints !!
@@ -773,13 +773,13 @@ if ($MaxFSize==0 || $MaxFSize=="") $MaxFSize=$MaxFSizeDef ;
   if ($this->TTC=="date") // date
     {$this->ValChp=DateA($this->ValChp);}
   else if  (is_array($this->ValChp))  // tableau
-    { // on vient d'un set ou d'une liste déroulante multiple (liée ou pas) et la var est un tableau
+    { // on vient d'un set ou d'une liste dï¿½oulante multiple (liï¿½ ou pas) et la var est un tableau
 		if($this->TTC!="set") $valset=","; // Nouveau: avant rien
 		foreach($this->ValChp as $val){
 			if ($val!="NULL" && $val!="") $valset.=addslashes($val).",";
 			}
-		if($this->TTC=="set")	$valset=substr($valset,0,-1); // enlève la dernière virgule à la fin
-				$this->ValChp=$valset; // laisse la dernière virgule à la fin
+		if($this->TTC=="set")	$valset=substr($valset,0,-1); // enlï¿½e la derniï¿½e virgule ï¿½la fin
+				$this->ValChp=$valset; // laisse la derniï¿½e virgule ï¿½la fin
     } // fin si valeur est un tableau
   else { // pas tableau ni date
     $this->ValChp=addslashes($this->ValChp);
@@ -797,7 +797,7 @@ if ($this->TypeAff=="FICFOT") {
     // Le champ valeur s'il est correct (commence pas par # et non vide
     // sion: NomBase_NomTable_NomChamp
     //print_r($_FILES);
-    $value=$this->OFN; // valeur du set par défaut
+    $value=$this->OFN; // valeur du set par dï¿½aut
 
     if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
           $ChemImg=$this->Valeurs;}
@@ -805,27 +805,27 @@ if ($this->TypeAff=="FICFOT") {
           $ChemImg="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";}
 
 	//print_r($this);
-    if ($this->TypEdit==1) { // gestion effacement anciens fichiers attachés
+    if ($this->TypEdit==1) { // gestion effacement anciens fichiers attachï¿½
       // test decoche ou changement en modif
-    // pour effacement de l'ancien fichier attaché
+    // pour effacement de l'ancien fichier attachï¿½
        if ($this->OFN!="" && ($this->Fok=="" || ( $this->ValChp!="none" && $this->ValChp!="" && $keycopy.$this->Fname!= $keycopy.$this->OFN)))
-       // condition: ancien fichier attaché existe ($$VarOldFichImg!="")
+       // condition: ancien fichier attachï¿½existe ($$VarOldFichImg!="")
        // ET
-          // la case a été décochée  ($$VarFok$FichImg=="")
+          // la case a ï¿½ï¿½dï¿½ochï¿½  ($$VarFok$FichImg=="")
        // OU
-           // un nouveau fichié a été entré ($FichImg!="none")
+           // un nouveau fichiï¿½a ï¿½ï¿½entrï¿½($FichImg!="none")
             // ET
-            // le nom de ce fichier n'est pas le même que l'ancien
+            // le nom de ce fichier n'est pas le mï¿½e que l'ancien
           {
            delfich($ChemImg.$this->OFN);
            $value="";
           }
-    }   // fin gestion effacement anciens fichiers attachés
+    }   // fin gestion effacement anciens fichiers attachï¿½
     
-    // si nouveau ou modif avec fichier attaché
+    // si nouveau ou modif avec fichier attachï¿½
     if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
     // remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-    $this->Fname=strtr($this->Fname," àéèùêçïüûîâ","_aeeueciuuia");
+    $this->Fname=strtr($this->Fname," ï¿½ï¿½ï¿½ï¿½ï¿½","_aeeueciuuia");
 
     // variable determinant fichier avec son chemin complet
     $ChemFich=$ChemImg.$keycopy.$this->Fname;
@@ -838,28 +838,28 @@ if ($this->TypeAff=="FICFOT") {
     $retVal.= "Ancien nom: $this->OFN<br/>";
     $retVal.= "taille: $this->Fsize<br/>"; */
 
-    // test taille du fichier attaché     
+    // test taille du fichier attachï¿½    
     if (($this->Fsize>$MaxFSize) && ($this->ValChp<>"none")) {
-      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attachés est limitée à $MaxFSize, ";
+      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attachï¿½ est limitï¿½ ï¿½$MaxFSize, ";
       unlink ($this->ValChp);
-      die ($retVal." et le fichier attaché $this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arrière de votre navigateur");
+      die ($retVal." et le fichier attachï¿½$this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arriï¿½e de votre navigateur");
       } // fin si fichier trop gros
 
       copy($this->ValChp,$ChemFich) or die("Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>");
       delfich ($this->ValChp);
-      // affecte le nouveau nom de la variable à stocker
+      // affecte le nouveau nom de la variable ï¿½stocker
       $value=$keycopy.$this->Fname;
-      // la valeur à stocker dans la base de donnée est (à priori) le fichier précédé de la clé_
-      } // fin si nouveau ou modif avec fichier attaché
+      // la valeur ï¿½stocker dans la base de donnï¿½ est (ï¿½priori) le fichier prï¿½ï¿½ï¿½de la clï¿½
+      } // fin si nouveau ou modif avec fichier attachï¿½
     if ($this->TypEdit==-1 && $this->Fname!="")
       {// si suppression d'enregistrement on efface tous les fichiers eventuels
       $ChemFich=$ChemImg.$this->Fname;
       delfich($ChemFich);
       } // fin si suppression enregistrement
     $this->ValChp=$value;
-    } // fin si type de champ=fichier attaché
+    } // fin si type de champ=fichier attachï¿½
 
- // fonction qui retourné eventuellement ' fonction du type de champ
+ // fonction qui retournï¿½eventuellement ' fonction du type de champ
 // avec PostGres, le ' autour des champs num fout la merde
 $cpstr=rt_carpstr($this->TTC);
 //$cpstr="'";
@@ -870,7 +870,7 @@ $cpstr=rt_carpstr($this->TTC);
   else	$this->ValChp="DEFAULT";
 	
   return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
-} // fin méthode RetSet
+} // fin mï¿½hode RetSet
 
 
 } // fin objet PYAobj

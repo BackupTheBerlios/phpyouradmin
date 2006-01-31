@@ -141,38 +141,6 @@ function hidenodeandsubs(i3d) {
 	}
 }
 
-function ahah(url,target) {
-   // native XMLHttpRequest object
-   document.getElementById(target).innerHTML = 'envoi de la requete au serveur...';
-   if (window.XMLHttpRequest) {
-       req = new XMLHttpRequest();
-       req.onreadystatechange = function() {ahahDone(target);};
-       req.open(\"GET\", url, true);
-       req.send(null);
-   // IE/Windows ActiveX version
-   } else if (window.ActiveXObject) {
-       req = new ActiveXObject(\"Microsoft.XMLHTTP\");
-       if (req) {
-           req.onreadystatechange = function() {ahahDone(target);};
-           req.open(\"GET\", url, true);
-           req.send();
-       }
-   }
-}
-function ahahDone(target) {
-   // only if req is loaded
-   if (req.readyState == 4) {
-       // only if OK
-       if (req.status == 200 || req.status == 304) {
-           results = req.responseText;
-           document.getElementById(target).innerHTML = results;
-       } else {
-           document.getElementById(target).innerHTML=\"ahah error:\" + req.statusText;
-       }
-   }
-}
-
-
 
 tbChilds=new Array();
 ".($dbscr ? "</script>" : ""). "
@@ -221,7 +189,7 @@ $cdckbox=permet de ne pas afficher une case a cocher meme si elles sont OK via l
 	$this->tbChilds[$pid][]=$id;
 	if ($title=="") $title=$this->mesg1; // si title non défini, prend celui par défaut
 	if ($href=="") $href="#";
-	if ($leafimg=="") $leafimg=($dispfoldplus ? $this->imgfcloseplus : $this->imgfclose);
+	if ($leafimg=="") $leafimg=($nodeopen=="true" ? $this->imgfopen : ($dispfoldplus ? $this->imgfcloseplus : $this->imgfclose));
 	if ($onclickJSAction!="") $onclickJSAction=' onclick="'.$onclickJSAction.'" ';
 	if ($nodeopen=="false" || $nodeopen=="") {$nodeopen="false";} else $nodeopen="true";
 	if ($this->dispckbox && $cdckbox) $strckbox= '<input type="checkbox" onchange="togckb(this)" id="c3k'.$id.'" name="c3k'.$id.'" '.($ckbcheked ? "checked" : "").'/>';
