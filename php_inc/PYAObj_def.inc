@@ -568,7 +568,7 @@ function EchoEdit($DH=true) {
     		
     case "FICFOT":
       if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
-      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\"><B>";
+      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
         if ($this->ValChp!="") {  // regarde si chemin param�r�correctement
           if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
               $ChemFF=$this->Valeurs;}
@@ -580,12 +580,12 @@ function EchoEdit($DH=true) {
           { $retVal.= "<P><IMG SRC=\"".$NCF."\"></P>";
           }
         else
-          { $retVal.= "Lien vers le fichier associ�<A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
+          { $retVal.= "Lien vers le fichier associe�<A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
 
         if ($this->TypEdit!="C") $retVal.= "<INPUT TYPE=\"checkbox\" NAME=\"Fok".$this->NmChamp."\" VALUE=\"".$this->ValChp."\" CHECKED>".$this->ValChp."&nbsp;";
         }// Fin si il y a un fichier associe
         if ($this->TypEdit!="C") { // saisie que si pas en �ition
-           $retVal.= "</B><INPUT TYPE=\"file\" NAME=\"".$this->NmChamp."\" SIZE=\"30\" MAXLENGTH=\"200\">";
+           $retVal.= "<INPUT TYPE=\"file\" NAME=\"".$this->NmChamp."\" SIZE=\"30\" MAXLENGTH=\"200\">";
            if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour d�activer l'image ou le fichier, d�ocher la case, ou choisissez-en un(e) autre. Sinon ne touchez �rien ...</font>";
       }
       break; // fin champ de type fichier-photo
