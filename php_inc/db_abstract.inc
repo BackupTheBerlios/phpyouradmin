@@ -1,6 +1,6 @@
 <?
 // fonction qui renvoie le tableau des champs de PYA
-// en fonction de la sensibilité à la casse du sgbd
+// en fonction de la sensibilitï¿½ï¿½la casse du sgbd
 function rtb_ultchp() {
 if (db_case_sens()) {
 	return array(
@@ -35,8 +35,8 @@ else return array(
 	"TYP_CHP"=>"typ_chp",
 	"COMMENT"=>"comment");
 }
-// fonction qui renvoie ou non le caractère de protection
-// des strings: avec pgsql si on le met avec des entiers ou des numériques, ça merde
+// fonction qui renvoie ou non le caractï¿½e de protection
+// des strings: avec pgsql si on le met avec des entiers ou des numï¿½iques, ï¿½ merde
 
 function rt_carpstr($ttc) {
 switch($_SESSION['db_type']) {
@@ -62,8 +62,8 @@ switch($_SESSION['db_type']) {
 	}
 }
 
-// fonctions d'accès aux BDD
-// fonctions qui renvoie true si la bdd est sensible à la case sur les noms de champs/tables
+// fonctions d'accï¿½ aux BDD
+// fonctions qui renvoie true si la bdd est sensible ï¿½la case sur les noms de champs/tables
 function db_case_sens() {
 switch($_SESSION['db_type']) {
 	case "pgsql":
@@ -89,7 +89,7 @@ function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
 	default:
 		if ($portIP=="") $portIP=3306;
 		$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
-		if ($DB!="") {mysql_select_db($DB) or die ("Impossible d'ouvrir la base de données $DB.");}
+		if ($DB!="") {mysql_select_db($DB) or die ("Impossible d'ouvrir la base de donnï¿½s $DB.");}
 		break;
 	}
 	return($link);
@@ -109,13 +109,13 @@ function db_close($lnk) {
 }
 
 function db_query($req,$lnkid="",$mserridrq=""){
-	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> à la page précédente";
+	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> ï¿½la page prï¿½ï¿½ente";
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 	  if ($lnkid=="") { // connection par la connexion courante
     $ret=pg_query($req) or die("<PRE><U>Requete PgSql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:     <I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);}  
 		else
-    $ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
+    $ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requï¿½e= <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
 		break;
 		
 	case "mysql":
@@ -123,12 +123,12 @@ function db_query($req,$lnkid="",$mserridrq=""){
 		if ($lnkid=="") { // connection par la connexion courante
 			$ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  
 			else
-			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requête= <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
+			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requï¿½e= <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
 		break;
 	}
 	return $ret;
 }
-// fonction qui renvoie un tableau à 2 dim des caractéristiques du ou des champs d'une table
+// fonction qui renvoie un tableau ï¿½2 dim des caractï¿½istiques du ou des champs d'une table
 
 function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 	switch($_SESSION['db_type']) {
@@ -140,7 +140,7 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 			// non encore fait pour postgresql
 			$ret[$NM_CHAMP]['FieldValDef']="";
 			$ret[$NM_CHAMP]['FieldNullOk']="YES"; // YES ou rien
-			$ret[$NM_CHAMP]['FieldKey']=""; // clé=PRI, index=MUL, unique=UNI
+			$ret[$NM_CHAMP]['FieldKey']=""; // clï¿½PRI, index=MUL, unique=UNI
 			$ret[$NM_CHAMP]['FieldExtra']=""; // auto_increment 
 			
 			}
@@ -153,10 +153,10 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
 				$NM_CHAMP=$row_table_def['Field'];
 				$ret[$NM_CHAMP]['FieldType']=$row_table_def['Type'];
-				//$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "ø" );
+				//$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "" );
 				$ret[$NM_CHAMP]['FieldValDef']=$row_table_def['Default'];
 				$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : "ø"); // clé=PRI, index=MUL, unique=UNI
+				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : ""); // clï¿½PRI, index=MUL, unique=UNI
 				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
 			}
 		} 
@@ -300,12 +300,12 @@ function db_field_type($res,$i) {
 	}
 }
 
-// renvoie les tables d'un champ lors d'une requête
+// renvoie les tables d'un champ lors d'une requï¿½e
 function db_field_table($res,$i) { // !! attention pas d'equivalent en postgresql !!
 	switch($_SESSION['db_type']) {
-	case "pgsql": // dur dur à déterminer
+	case "pgsql": // dur dur ï¿½dï¿½erminer
 	
-	// !! cette fonction de fonctionne que s'il n'existe pas 2 champs portant le même nom dans la base !!
+	// !! cette fonction de fonctionne que s'il n'existe pas 2 champs portant le mï¿½e nom dans la base !!
 
 		$rep=db_qr_res("select pg_class.relname from pg_class,pg_attribute where pg_class.oid=pg_attribute.attrelid and pg_attribute.attname='".db_field_name($res,$i)."' and pg_class.relkind='r'");
 		return($rep[0]);
