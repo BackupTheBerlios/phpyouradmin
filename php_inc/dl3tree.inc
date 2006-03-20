@@ -19,11 +19,9 @@ var $tbChilds;
 function echDL3TStyles($dbsty=true) {
 return ("
 ".($dbsty ? "<style>" : ""). "
+/* special styles for DL3Tree menu */
 .stDL3Tdisp a, .stDL3Tdisp a:hover, .stDL3Tdisp a:visited {
-	font-size:11px;
 	text-decoration:none;
-	color:black;
-	font-family:sans-serif;
 	}
 
 .stDL3Tdisp a:hover {
@@ -44,6 +42,7 @@ return ("
     background-color : #d0d0d0;
     background-image : url('grey.gif');
   }
+/* end of special styles for DL3Tree menu */
 
 
 ".($dbsty ? "</style>" : ""). "
@@ -56,9 +55,14 @@ return ("
 
 ".($dbscr ? '<script language="javascript">' : ""). "
 
+/* special JS Vars declarations for DL3Tree menu */
+
 var imgfopen='".$this->imgfopen."';
 var imgfcloseplus ='".$this->imgfcloseplus."';
 var imgfclose ='".$this->imgfcloseplus."';
+
+/* end of special JS Vars declarations for DL3Tree menu */
+
 ".($dbscr ? "</script>" : ""). "
 
 ");
@@ -68,6 +72,15 @@ var imgfclose ='".$this->imgfcloseplus."';
 function echDL3TJSFunctions($dbscr=true) {
 return ("
 ".($dbscr ? '<script language="javascript">' : ""). "
+
+/* hack car undefined n'existe pas dans IE 5.5 */
+   NavVer=navigator.appVersion;
+    if (NavVer.indexOf('MSIE 5.5',0) == -1 && NavVer.indexOf('MSIE 6.',0) == -1) {
+        var undefined;
+        undefined='';
+        }
+
+/* JS Functions for DL3Tree menu */
 
 // fonction de cochage/ decochage des cases
 function togckb(obj) {
@@ -90,7 +103,20 @@ function togckb(obj) {
 	}
 }
 
-function forcedisp (id) {
+function fdisp3t(ipid) { // force affichage 
+	if (tbChilds[ipid]!=undefined) { // si ce dossier a des enfants
+
+		if (document.getElementById('n3o' + ipid).value!='true') { // si noeud fermé, on l'ouvre
+			var vis2set='stDL3Tdisp';
+			document.getElementById('n3o' + ipid).value='true';
+			document.getElementById('i3m' + ipid).src=imgfopen;
+		}
+		
+		for(var icid=0;icid<tbChilds[ipid].length;icid++) {
+			var cid=tbChilds[ipid][icid];
+			document.getElementById('l3i' + cid).className=vis2set;
+		}
+	}
 }
 
 function togdisp(obj) {
@@ -141,8 +167,10 @@ function hidenodeandsubs(i3d) {
 	}
 }
 
-
 tbChilds=new Array();
+
+/* End of JS Functions for DL3Tree menu */
+
 ".($dbscr ? "</script>" : ""). "
 ");
 }
@@ -160,8 +188,13 @@ foreach ($this->tbChilds as $pid=>$tboneChilds) {
 	//if (count($tboneChilds)==1) $str2ret.="tbChilds[".$pid."]=Array('".$tboneChilds[0]."');\n"; // le fait d'avoir un tableau avec une seule valeur meme numÃ©rique sans '' fout la zone (???)
 	}
 return (($dbscr ? '<script language="javascript">' : "")."
+/* special JS Array (calculated by PHP ...) for DL3Tree menu */
+
 	"
 	.$str2ret."
+
+/* special JS Array (calculated by PHP ...) for DL3Tree menu */
+
 	".
 	($dbscr ? "</script>" : ""));
 }
@@ -195,7 +228,7 @@ $cdckbox=permet de ne pas afficher une case a cocher meme si elles sont OK via l
 	if ($this->dispckbox && $cdckbox) $strckbox= '<input type="checkbox" onchange="togckb(this)" id="c3k'.$id.'" name="c3k'.$id.'" '.($ckbcheked ? "checked" : "").'/>';
 	if ($href=="#" && $onclickJSAction=="") 
 		{$a=$label;}
-	else $a='<a title="'.$title.'" href="'.$href.'" '.$onclickJSAction.'>'.$label.'</a>';
+	else $a='<a title="'.$title.'" href="'.$href.'" '.$onclickJSAction.' id="ahr'.$id.'" >'.$label.'</a>';
 	return ('
 		<div id="l3i'.$id.'" class="'.($disp ? "stDL3Tdisp" : "stDL3Thidd").'" style="margin-left : '.(($cur_depth) * $this->indentpx).'px;" >
 		<img src="'.$leafimg.'" id="i3m'.$id.'" onclick="togdisp(this)" />
