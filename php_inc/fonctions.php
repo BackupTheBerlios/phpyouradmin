@@ -786,6 +786,18 @@ if ($echov)
   return($cond);
 } // fin fonction SteCond
 
+// fonction qui renvoie un tableau de chaine contenant des couples Libellé."|:".valeurs
+// si valeur significative
+// fonction d'une requete, le tout étant dépendant de PYA biensur..
+function RTbVChPO($req,$dbname="") {
+	$TbObj=InitPOReq($req,$dbname);
+	foreach ($TbObj as $PO) {
+		$PO->TypEdit="C";
+		if ($PO->ValChp !="" && $PO->ValChp !="NULL") $TbVO[$PO->NmChamp]=$PO->Libelle.":|".$PO->EchoEditAll(false);
+	}
+	return($TbVO);
+}
+
 // fonction renvoyant un tableau d'objets PYA initialisés en fonction d'une simple requêt SQL
 // les objets sont initialisés à partir des noms de champs et des noms de base du resultat
 function InitPOReq($req,$Base="") {
@@ -801,7 +813,8 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->InitPO();
-	$strdbgIPOR.=$NmChamp.", ";
+      $strdbgIPOR.=$NmChamp.", ";
+      $CIL[$NmChamp]->ValChp=$tbValChp[$i];// rempli la valeur avec le premier enregistrement
     } // fin boucle sur les champs du résultat
   if ($debug) echo("Champs traités par la fct InitPOReq :".$strdbgIPOR."<br/>\n");
   return($CIL);
