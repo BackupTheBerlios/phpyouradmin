@@ -10,7 +10,8 @@ Entrez ci-dessous : ",
 "IND_bddpasswd"=>"Le mot de passe du serveur de base de données",
 "IND_pyauser"=>"L'identifiant servant à tracer les mises à jour",
 "IND_choilang"=>"Langue utilisée",
-"IND_bddtype"=>"Type de serveur de base de donn�es",
+"IND_bddtype"=>"Type de serveur de base de donnees",
+"IND_encoding"=>"Choix de l'encodage",
 
 "LB_title"=>"Edition des bases du serveur ",
 "LB_txtacc"=>"L'&eacute;dition du contenu des tables n'est accessible que si la base a &eacute;t&eacute; param&eacute;tr&eacute;e &agrave; cet effet.<BR>
@@ -75,8 +76,8 @@ Merci<br><br>",
 
 "ER_record_of_table"=>" d'un enregistrement de la table ",
 "ER_record_details"=>"Details d'un enregistrement ",
-"ER_record_car"=>"Caract�ristiques de l'enregistrement ",
-"ER_raz_confirm"=>"Etes-vous certain de vouloir remettre � leur valeur d\'origine tous les champs de cette page ? ",
+"ER_record_car"=>"Caract�istiques de l'enregistrement ",
+"ER_raz_confirm"=>"Etes-vous certain de vouloir remettre �leur valeur d\'origine tous les champs de cette page ? ",
 
 
 "BT_retour"=>" << Retour ",
@@ -102,6 +103,6 @@ Merci<br><br>",
 "com_vers_enhaut_bulle"=>"vers le haut de cette page",
 "com_enter_password"=>"Entrez un mot de passe pour accéder à la partie admin",
 );
-return ($loc_message[$mess]!="" ?  utf8_decode($loc_message[$mess]) : $mess);
+return ($loc_message[$mess]!="" ?  $loc_message[$mess] : "{".$mess."}");
 }
 ?>

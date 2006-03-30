@@ -2,34 +2,35 @@
 $debug=false;
 $dbgn2=false;
 include ("infos_conn_MySql.inc");
-$infosparsed=true; // pour savoir si ce fichier a été parsé
-//include("fonctions.php"); ceci est appelé en bas ...
+$infosparsed=true; // pour savoir si ce fichier a ï¿½ï¿½parsï¿½//include("fonctions.php"); ceci est appelï¿½en bas ...
 $VerNum="0.895";
-$MaxFSize=1000000; //taille max des fichiers téléchargés
-$jsppwd="toto"; // mot de passe pour accéder aux pages protégées
-// ceci est spécifié dans le fichier fonctions.php
+$MaxFSize=1000000; //taille max des fichiers tï¿½ï¿½hargï¿½
+$jsppwd="toto"; // mot de passe pour accï¿½er aux pages protï¿½ï¿½s
+// ceci est spï¿½ifiï¿½dans le fichier fonctions.php
 //$CSpIC="`";
-//$CSpIC=""; // caractère pour "isoler" les noms de champs merdiques
-// ne fonctionne qu'avec des versions récentes de MySql
+//$CSpIC=""; // caractï¿½e pour "isoler" les noms de champs merdiques
+// ne fonctionne qu'avec des versions rï¿½entes de MySql
 include_once("fonctions.php");
 
 $def_lang="fr";
 $tb_langs=array("fr"=>"#SEL#francais","en"=>"anglais");
+$tb_encodes=array("utf-8"=>"#SEL#utf8","iso-8859-1"=>"iso-8859-1");
+
 
 $tb_dbtype=array("mysql"=>"#SEL#mysql","pgsql"=>"postGresql");
 
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)
-$dtmaj="DTMAJ"; // morceau de nom de champ, tel qu'à la creation de la definition des tables, le traitement de ce champ est affecté à une mise a jour automatique en fonction de la date
-$usmaj="USMAJ";// idem, avec nom user effectuant la mise à jour
+$dtmaj="DTMAJ"; // morceau de nom de champ, tel qu'ï¿½la creation de la definition des tables, le traitement de ce champ est affectï¿½ï¿½une mise a jour automatique en fonction de la date
+$usmaj="USMAJ";// idem, avec nom user effectuant la mise ï¿½jour
 $dtcrea="DTCREA"; // idem, date de creation
 $uscrea="USCREA";// idem, avec nom user effectuant la creation
 // table et champ personne pour affichage correct de l'usmaj
 $chpperlie="users,login,name, (!login";
-// ceci ci-dessous utilisé tout le temps
+// ceci ci-dessous utilisï¿½tout le temps
 // A POSITIONNER TOUT LE TEMPS
 $VarNomUserMAJ="CO_USMAJ"; //nom de la variable contenant le code user
-// définition du tableau de hachage des adresses de retour de chaque page par défaut
+// dï¿½inition du tableau de hachage des adresses de retour de chaque page par dï¿½aut
 $def_adrr["LIST_BASES.php"]="index.php";
 $def_adrr["LIST_TABLES.php"]="LIST_BASES.php";
 $def_adrr["req_table.php"]="LIST_TABLES.php";
@@ -38,21 +39,22 @@ $def_adrr["edit_table.php"]="list_table.php";
 
 
 // fonction qui renvoie l'adresse de retour d'une page
-// si la variable de session correspondante est définie
-// la renvoie, sinon renvoie celle par défaut.
+// si la variable de session correspondante est dï¿½inie
+// la renvoie, sinon renvoie celle par dï¿½aut.
 function ret_adrr($adr,$echImg=false,$lb_butt="BT_retour") {
-global $ss_adrr,$def_adrr;
-       // l'adresse vient de $PHP_SELF qui peut contenir le chemin : on l'enlève
+global $def_adrr;
+ 	print_r($_SESSION['ss_adrr']);
+       // l'adresse vient de $PHP_SELF qui peut contenir le chemin : on l'enlï¿½e
        if (strrchr($adr,"/")) $adr=substr(strrchr($adr,"/"),1);
        if (strrchr($adr,"\\")) $adr=substr(strrchr($adr,"\\"),1);
        if (!$echImg) { // 1=true ie si on ne doit pas renvoyer le lien mais seulement une URL
-          return (isset($ss_adrr[$adr]) ? $ss_adrr[$adr] : $def_adrr[$adr]);}
+          return (isset($_SESSION['ss_adrr'][$adr]) ? $_SESSION['ss_adrr'][$adr] : $def_adrr[$adr]);}
        else {
-            if ($ss_adrr[$adr]!="0") return ("<a class=\"fxbutton\" href=\"".(isset($ss_adrr[$adr]) ? $ss_adrr[$adr] : $def_adrr[$adr])."\">".trad($lb_butt)."</A>");
+            if ($_SESSION['ss_adrr'][$adr]!="0") return ("<a class=\"fxbutton\" href=\"".(isset($_SESSION['ss_adrr'][$adr]) ? $_SESSION['ss_adrr'][$adr] : $def_adrr[$adr])."\">".trad($lb_butt)."</A>");
             }
 }
 
-//fonction qui connecte à la base de données
+//fonction qui connecte ï¿½la base de donnï¿½s
 function DBconnect($DB=false) {
 include ("globvar.inc");
 if ($DB) $DBName=$DB;
@@ -61,7 +63,7 @@ if (isset($ss_parenv[MySqlPasswd])) $DBPass=$ss_parenv[MySqlPasswd];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
 $ret=db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ($mesdb);
-if (!db_case_sens()) { // si base de données insensible à la casse sur les noms de tables et champ
+if (!db_case_sens()) { // si base de donnï¿½s insensible ï¿½la casse sur les noms de tables et champ
 	$TBDname=strtolower($TBDname);
 	$NM_TABLE=strtolower($NM_TABLE);
 	}
@@ -69,7 +71,7 @@ if (!db_case_sens()) { // si base de données insensible à la casse sur les noms 
 return($ret);
 }
 
-// fonction qui démarre la session, et qui regarde si certainses variables sont OK
+// fonction qui dï¿½arre la session, et qui regarde si certainses variables sont OK
 function sess_start() {
 session_start();
 include ("globvar.inc");
@@ -92,20 +94,19 @@ $$a = $b;
 if ($lc_clean==1)
   {
   $_SESSION=array();
-  //session_destroy(); // détruit la session
+  //session_destroy(); // dï¿½ruit la session
   //session_unset();
-  } //détruit toutes les variables de session couramment enregistrées
+  } //dï¿½ruit toutes les variables de session couramment enregistrï¿½s
 
 if (isset($lc_adrr)) { // tableau des adresses de retour de page
-   // l'adresse de retour au sommaire générale de la liste des forcémment la meme que celle de la grille de requete
+   // l'adresse de retour au sommaire gï¿½ï¿½ale de la liste des forcï¿½ment la meme que celle de la grille de requete
    if (isset($lc_adrr["req_table.php"])) $lc_adrr["list_table.php"]=$lc_adrr["req_table.php"];
-   $ss_adrr=$lc_adrr;
-   $_SESSION["ss_adrr"]=$ss_addr; //session_register("ss_adrr");
+   $_SESSION['ss_adrr']=$lc_adrr;
 }
 
-if (isset($lc_parenv)) { // tableau des paramètres d'environnement passés en get ou formulaire
+if (isset($lc_parenv)) { // tableau des paramï¿½res d'environnement passï¿½ en get ou formulaire
    foreach ($lc_parenv as $key=>$val) {
-      // ne maj que ceux qui sont passés
+      // ne maj que ceux qui sont passï¿½
       $ss_parenv[$key]=$val;
       //echovar("ss_parenv");
       }
@@ -120,12 +121,12 @@ if (!isset($ss_parenv[lang])) {
 
 require "lang_".$ss_parenv[lang].".inc";
 
-if (!isset($ss_parenv[db_type])) {
-	$ss_parenv[db_type]="mysql";
+if (!isset($ss_parenv['db_type'])) {
+	$ss_parenv['db_type']="mysql";
 	$_SESSION["ss_parenv"]["db_type"]=$ss_parenv[db_type];
 	//session_register("ss_parenv[lang]");
 	}
-$_SESSION[db_type]=$ss_parenv[db_type];
+$_SESSION['db_type']=$ss_parenv['db_type'];
 
 if ($lc_CO_USMAJ!=""){
   $$VarNomUserMAJ=$lc_CO_USMAJ;
@@ -144,19 +145,18 @@ if ($lc_where_sup!="" || $lc_NM_TABLE!="") {
   $_SESSION["NM_TABLE"]=$NM_TABLE; //session_register("where_sup", "NM_TABLE");
   }
 
-if ($$VarNomUserMAJ=="") { // verifie que util déclaré
-  header ("location: ./index.php?lc_clean=1"); // sinon renvoie en page d'accueil et détruit la session
+if ($$VarNomUserMAJ=="") { // verifie que util dï¿½larï¿½  header ("location: ./index.php?lc_clean=1"); // sinon renvoie en page d'accueil et dï¿½ruit la session
   }
 }
 
-// fonction qui transforme les *clés* d'un tableau qui ne sont pas en majuscule en majuscule
+// fonction qui transforme les *clï¿½* d'un tableau qui ne sont pas en majuscule en majuscule
 function case_kup($tb) {
 	foreach ($tb as $cle=>$val) {
 		$ret[strtoupper($cle)]=$val;
 	}
 	return($ret);
 }
-// fonction d'affichage de débogage
+// fonction d'affichage de dï¿½ogage
 function DispDebug() {
   global $where_sup, $tbchptri,$tbordtri,$FirstEnr,$tbAfC;
   echo "<B>! MODE DEBOGGAGE ! - </b> <a href=\"./phpinfo.php\" target=\"blank\">phpinfo</a><BR>";

@@ -29,6 +29,8 @@ DispLD($tb_dbtype,"lc_parenv[db_type]")?></H4>
 <input type="text" name="lc_CO_USMAJ" value="<?=$$VarNomUserMAJ;?>"></H4>
 <H4><? echo trad("IND_choilang")."<br/>";
 DispLD($tb_langs,"lc_parenv[lang]")?></H4>
+<H4><? echo trad("IND_encoding")."<br/>";
+DispLD($tb_encodes,"lc_parenv[encoding]")?></H4>
 <br><br>
 <input class="fxbutton" type="submit" value="<?=trad("BT_valider")?>">
 </form>
