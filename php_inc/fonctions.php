@@ -83,6 +83,12 @@ function nbsp($i=1){
 return(str_repeat("&nbsp;",$i));
 }
 
+// fonction qui coupe une chaine �la longueur d�ir�, sans couper les mots
+function tronqstrww ($strac,$long=50,$strsuite=" [...]") {
+         if (strlen($strac)<=$long) return $strac;
+         return strtok(wordwrap($strac,$long,"\n"),"\n").$strsuite;
+}
+
 // fonction qui echoise un texte dans un style
 function echspan($style,$text,$DirEcho=true) {
     $retVal.= "<span class=\"$style\">$text</span>";
@@ -112,7 +118,16 @@ function VerifAdMail($admail) {
                   { return (true) ;}
          else return(false);
 }
-
+// fonction qui encrypte les mails en JS
+function encJSmail ($admail,$DirEcho=true) {
+	$retVal='
+<script language="javascript">document.write(\'<a href="mailto:'.$admail.'">'.$admail.'</a>\');</script><noscript>'.str_replace("@","[/at\]",$admail).'</noscript>';
+ if ($DirEcho) {
+    	echo $retVal;
+    } else {
+    	return($retVal);
+    }
+}
 // fonction qui affiche du HTML customis�fonction d'une chaine de car
 function DispCustHT($Val2Af) {
    // si dans la chaine il y a un @, pas d'espaces ni de retour chariot, alors c'est une adressemail 

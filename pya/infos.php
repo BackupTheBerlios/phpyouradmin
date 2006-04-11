@@ -43,7 +43,7 @@ $def_adrr["edit_table.php"]="list_table.php";
 // la renvoie, sinon renvoie celle par d�aut.
 function ret_adrr($adr,$echImg=false,$lb_butt="BT_retour") {
 global $def_adrr;
- 	print_r($_SESSION['ss_adrr']);
+ 	//print_r($_SESSION['ss_adrr']);
        // l'adresse vient de $PHP_SELF qui peut contenir le chemin : on l'enl�e
        if (strrchr($adr,"/")) $adr=substr(strrchr($adr,"/"),1);
        if (strrchr($adr,"\\")) $adr=substr(strrchr($adr,"\\"),1);

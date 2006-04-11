@@ -75,7 +75,7 @@ return ("
 
 /* hack car undefined n'existe pas dans IE 5.5 */
    NavVer=navigator.appVersion;
-    if (NavVer.indexOf('MSIE 5.5',0) == -1 && NavVer.indexOf('MSIE 6.',0) == -1) {
+    if (NavVer.indexOf('MSIE 5.5',0) >0  || NavVer.indexOf('MSIE 6.',0) >0) {
         var undefined;
         undefined='';
         }
@@ -106,7 +106,7 @@ function togckb(obj) {
 function fdisp3t(ipid) { // force affichage 
 	if (tbChilds[ipid]!=undefined) { // si ce dossier a des enfants
 
-		if (document.getElementById('n3o' + ipid).value!='true') { // si noeud fermé, on l'ouvre
+		if (document.getElementById('n3o' + ipid).value!='true') { // si noeud fermï¿½ on l'ouvre
 			var vis2set='stDL3Tdisp';
 			document.getElementById('n3o' + ipid).value='true';
 			document.getElementById('i3m' + ipid).src=imgfopen;
