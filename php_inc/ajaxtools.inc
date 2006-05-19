@@ -4,6 +4,8 @@
 function echAjaxJSFunctions($dbscr=true) {
 return ("
 ".($dbscr ? '<script language="javascript">' : ""). "
+/* JS Functions for Ajax/XMLHttpRequest dynamic content (made by DLCube ;) */
+
 function ahah(url,target) {
    // native XMLHttpRequest object
    document.getElementById(target).innerHTML = 'envoi de la requete au serveur...';
@@ -34,6 +36,8 @@ function ahahDone(target) {
        }
    }
 }
+/* End of JS Functions for Ajax/XMLHttpRequest dynamic content (made by DLCube ;) */
+
 ".($dbscr ? "</script>" : ""). "
 ");
 }

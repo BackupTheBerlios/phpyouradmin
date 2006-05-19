@@ -73,14 +73,13 @@ function echDL3TJSFunctions($dbscr=true) {
 return ("
 ".($dbscr ? '<script language="javascript">' : ""). "
 
+/* JS Functions for DL3Tree menu */
 /* hack car undefined n'existe pas dans IE 5.5 */
    NavVer=navigator.appVersion;
-    if (NavVer.indexOf('MSIE 5.5',0) >0  || NavVer.indexOf('MSIE 6.',0) >0) {
+    if (NavVer.indexOf('MSIE 5.5',0) >0) {
         var undefined;
         undefined='';
         }
-
-/* JS Functions for DL3Tree menu */
 
 // fonction de cochage/ decochage des cases
 function togckb(obj) {

@@ -19,7 +19,8 @@ class PYAobj {
                 // si contient RAD force boutons radios
   var $Valeurs;
   var $Val2=""; // valeurs en plus, �alu�s en fonction de l'enregistrement
-  var $adpopl="popl.php"; // url par d�aut de la popup d'�ition
+  var $nmfpopl="popl.php"; // nom du fichier popup
+  var $chempopl=""; // chemin par défaut pour la popup, incluant les /
   var $TypFilt;
   var $TypCSA;
   var $Tt_AvMaj;
@@ -541,28 +542,30 @@ function EchoEdit($DH=true) {
     case "POPLM": // popup de s�ection
     $Mult=true;
     case "POPL": // popup de s�ection
-		$retVal.= "Valeur du lien : ".$this->Valeurs.", valeur du champ : ".$this->ValChp;
+		//$retVal.= "Valeur du lien : ".$this->Valeurs.", valeur du champ : ".$this->ValChp;
 	
-	$retVal.='<SELECT ID="'.$this->NmChamp.'" NAME="'.$this->NmChamp.($Mult ? "[]" : "").'" SIZE="'.(($Mult ? 10 : 1)).'" MULTIPLE>';
 	if ($this->ValChp) { // si valeur existe
 		if (strstr($this->ValChp,",")) {
 			$tabk=explode(",",$this->ValChp);
+//			print_r ($tabk);
 			foreach($tabk as $k) {
-				$tabVS[$k]=ttChpLink($this->Valeurs,"",$this->ValChp);
+				if ($k !="") $tabVS[$k]=ttChpLink($this->Valeurs,"",$k);
 			}
 		} else {
 		$tabVS[$this->ValChp]=ttChpLink($this->Valeurs,"",$this->ValChp);
 		}
 	}
+	
+	$retVal.='<SELECT ID="'.$this->NmChamp.'" NAME="'.$this->NmChamp.($Mult ? "[]" : "").'" SIZE="'.(($Mult ? max(1,count($tabVS)) : 1)).'" MULTIPLE=\"MULTIPLE\" >';
 
 	if ($tabVS) {
 		foreach ($tabVS as $k=>$v) {
-		$retVal.="<OPTION VALUE=\"$k\">$v</OPTION>";
+		$retVal.="<OPTION VALUE=\"$k\" SELECTED=\"SELECTED\">$v</OPTION>";
 		}
-	}
+	} else $tabVS=Array();
 	$retVal.='</SELECT>';
 	
-	$retVal.= '<a href="#" onclick="popup(\''.$this->adpopl.'?Valeurs='.urlencode($this->Valeurs).'&ValChp='.urlencode($this->ValChp).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)">Test Popup</a>';
+	$retVal.= '<input type="button" class="fxbutton" onclick="popup(\''.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&ValChp='.urlencode(serialize($tabVS)).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)" value=" M " />';
 
 	break;
     		
@@ -867,7 +870,7 @@ $cpstr=rt_carpstr($this->TTC);
   if ($this->ValChp !="") {
 	$this->ValChp=$cpstr.$this->ValChp.$cpstr;
 	}
-  else	$this->ValChp="DEFAULT";
+  else	$this->ValChp=($_SESSION['db_type']!="mysql" ? "DEFAULT" : "NULL");
 	
   return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
 } // fin m�hode RetSet

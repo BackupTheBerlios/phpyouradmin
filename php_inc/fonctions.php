@@ -11,6 +11,7 @@ $nValRadLd=4; // nbre de valeurs passage liste dï¿½oulante/boutons radio case ï¿
 $SzLDM=6; // parmetre size pour les listes dï¿½oulantes multiples
 $DispMsg=true; // affichage par dï¿½aut du message "appuyez sur control pour sï¿½ectionner plusieurs valeurs
 $VSLD="#SEL#"; // caractï¿½es insï¿½ï¿½en dï¿½ut de valeur de listes indiquant la sï¿½ection
+$maxrepld=200;
 $carsepldef="-"; // caractï¿½e par dï¿½aut sï¿½arant les valeur dans les listes dï¿½oulantes
 $maxprof=10; // prof max des hiï¿½archies
 $CSpIC=""; // caractï¿½e pour "isoler" les noms de champs merdiques
@@ -266,7 +267,7 @@ retourne un tableau associatif si valc="", une valeur sinon
 A priori, $reqsup avait ï¿½ï¿½implï¿½entï¿½pour la gestion de projet, mais n'est plus utilisï¿½SISI*/
 
 function ttChpLink($valb0,$reqsup="",$valc=""){
-global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname;
+global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname,$maxrepld;
 //$valb0=str_replace (' ','',$valb0); // enlï¿½e espaces indï¿½irables
 $valbrut=explode(';',$valb0);
 if (count($valbrut)>1) { // connection ï¿½une base diffï¿½ente
@@ -276,7 +277,7 @@ if (count($valbrut)>1) { // connection ï¿½une base diffï¿½ente
  // si user et/ou hote d'accï¿½ ï¿½la Bdd est diffï¿½ent, on etablit une nvlle connexion
  // on fait une nouvelle connection systï¿½atiquement pourt etre compatioble avec pg_sql
    //if (($defdb[1]!="" && $defdb[1]!=$DBHost)||($defdb[2]!="" && $defdb[2]!=$DBUser)) {
-     $lnc=db_connect($defdb[1],$defdb[2],$defdb[3],$defdb[0]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: ***** ");
+     $lnc=db_connect($defdb[1],$defdb[2],$defdb[3],$defdb[0]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: $defdb[3]");
 	 $newconnect=true;
      //}
    //mysql_select_db($defdb[0]) or die ("Impossible d'ouvrir la base de donnï¿½s $defdb[0].");
@@ -323,6 +324,7 @@ else {
 	 
        if ($c2aff) {	 
        	  $rcaf=$rcaf.",".$nmchp;
+       	  $tbc2a[]=$nmchp; // tableau des champs ou chercher
 	  }
        $nbca++;
        } // fin boucle
@@ -335,9 +337,17 @@ if  ($valc!="") {
 		$whsl.=" $defl[1]='$uval' OR ";
 	}
 	$whsl=" where ".vdc($whsl,3);
+    } elseif (strstr($valc,'__str2f__')) { // on cherche une chaine parmi les champs
+    	$val2s=str_replace('__str2f__','',$valc);
+    	foreach($tbc2a as $chp) {
+    		$whsl.=" $chp LIKE '%$val2s%' OR ";
+    	}
+    	$whsl=" where ".vdc($whsl,3);
+    	
     } else {
     	$whsl=" where $defl[1]='$valc'";
     }
+    if ($reqsup!="") $whsl="(".$whsl.") AND ".$reqsup;
 }
 // soit la liste est limitï¿½ par une clause where supplï¿½entaire
 else {
@@ -368,7 +378,9 @@ if ($cppid && $valc=="") { //on a une structure hï¿½archique et plus d'une valeu
 	
 	}	
 else 	{ // pas hiï¿½archique => normal     
-	$rql=msq("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby");
+	$sqln="SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby LIMIT $maxrepld";
+	//echo $sqln;
+	$rql=msq($sqln);
 	// constitution du tableau associatif ï¿½2 dim de corresp code ->lib
 	//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <br/>-->";
 	$tabCorlb=array();
@@ -398,7 +410,7 @@ if ($newconnect || $newbase) {
 	db_connect($DBHost,$DBUser,$DBPass,$DBName);// rï¿½uvre la session normale
 	}
 //if ($newbase) mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de donnï¿½s $DBName.");
-if ($valc!="") {
+if ($valc!="" && !strstr($valc,'__str2f__')) {
   if ($resaf=="") $resaf="N.C.";
   return ($resaf);
   }
@@ -486,15 +498,16 @@ return (mysql_fetch_array($table_def));
 // - le nom du controle
 // - s'il est multiple ou non (non par dï¿½aut)
 // - 4ï¿½e argument (optionel) force  les cases ï¿½cocher ou boutons radio ou liste dï¿½oulante qqsoit le nbre de valeur
-function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true) {
+function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true,$idC="") {
 global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
+if ($idC=="") $idC=$nmC;
 if (count($tbval)==0) {
    $retVal.= "Aucune liste de valeurs disponible <br/>";
-   $retVal.= "<INPUT TYPE=\"hidden\" name=\"".$nmC."[]\" value=\"\">";
+   $retVal.= "<INPUT TYPE=\"hidden\" ID=\"".$idC."\"  name=\"".$nmC."[]\" value=\"\">";
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
 // liste dï¿½oulante: nbre val suffisantes et pas de forcage 
-  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" NAME=\"".$nmC;
+  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" ID=\"".$idC."\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));
   $retVal.= ($Mult!="no" ? "[]\" MULTIPLE SIZE=\"$SizeLDM\">" : "\">");
   foreach ($tbval as $key =>$val) {
@@ -583,7 +596,8 @@ var oPopupWin; // stockage du handle de la popup
 function popup(page, width, height) {
     NavVer=navigator.appVersion;
 	HostName='<?=$HostName?>' // sert au debogage;
-    if (NavVer.indexOf("MSIE 5.5",0) == -1 && NavVer.indexOf("MSIE 6.",0) == -1) {
+    NavVer=navigator.appVersion;
+    if (NavVer.indexOf('MSIE 5.5',0) >0  ) {
         var undefined;
         undefined='';
         }
@@ -613,7 +627,8 @@ function closepop() {
         oPopupWin = null;
         // Only works in IE...  Netscape crashes
         // if you have previously closed it by hand
-        if (navigator.appName != "Netscape") tmp.close();
+        tmp.close();
+        //if (navigator.appName != "Netscape") tmp.close();
       }
 
 }
