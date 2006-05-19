@@ -80,7 +80,6 @@ return ("
         var undefined;
         undefined='';
         }
-
 // fonction de cochage/ decochage des cases
 function togckb(obj) {
 	//alert(obj.className);

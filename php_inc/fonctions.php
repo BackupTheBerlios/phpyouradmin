@@ -119,6 +119,7 @@ function VerifAdMail($admail) {
                   { return (true) ;}
          else return(false);
 }
+
 // fonction qui encrypte les mails en JS
 function encJSmail ($admail,$DirEcho=true) {
 	$retVal='
@@ -570,6 +571,24 @@ if (isset($var)) {
   }
 }
 
+// fonction JAVASCRIPT qui remplace un caractère a par b dans une chaine
+// le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'état
+function JSstr_replace() {
+?>
+<SCRIPT>
+function str_replace(a,b,expr) {
+      var i=0
+      while (i!=-1) {
+         i=expr.indexOf(a,i);
+         if (i>=0) {
+            expr=expr.substring(0,i)+b+expr.substring(i+a.length);
+            i+=b.length;
+         }
+      }
+      return expr
+   }</SCRIPT>
+<?
+}
 
 // fonction qui permet de rentrer de protï¿½er un lien par une boite JS ou il faut rentrer un mot de passe
 // le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'ï¿½at
@@ -825,11 +844,12 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 
 // fonction renvoyant un tableau d'objets PYA initialisï¿½ en fonction d'une simple requï¿½ SQL
 // les objets sont initialisï¿½ ï¿½partir des noms de champs et des noms de base du resultat
-function InitPOReq($req,$Base="") {
+function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="") {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
   $resreq=msq($req." limit 1");
-  $tbValChp=db_fetch_row($resreq); // tableau des valeurs de l'enregistrement
+  $tbValChp=db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
+//  print_r($tbValChp);
   for ($i=0;$i<db_num_fields($resreq);$i++) {
       $NmChamp=db_field_name($resreq,$i);
       $NTBL=db_field_table($resreq,$i);
@@ -838,8 +858,10 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->InitPO();
-      $strdbgIPOR.=$NmChamp.", ";
-      $CIL[$NmChamp]->ValChp=$tbValChp[$i];// rempli la valeur avec le premier enregistrement
+      if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
+      if ($TypEdit!="") $CIL[$NmChamp]->TypEdit=$TypEdit;
+      $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du rï¿½ultat
   if ($debug) echo("Champs traitï¿½ par la fct InitPOReq :".$strdbgIPOR."<br/>\n");
   return($CIL);
