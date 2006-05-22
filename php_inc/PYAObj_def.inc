@@ -870,7 +870,7 @@ $cpstr=rt_carpstr($this->TTC);
   if ($this->ValChp !="") {
 	$this->ValChp=$cpstr.$this->ValChp.$cpstr;
 	}
-  else	$this->ValChp=($_SESSION['db_type']!="mysql" ? "DEFAULT" : "NULL");
+  else	$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : "NULL");
 	
   return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
 } // fin m�hode RetSet
