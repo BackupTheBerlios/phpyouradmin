@@ -58,11 +58,24 @@ return(strstr(strtolower($Nmf),".gif") or
      strstr(strtolower($Nmf),".jpeg"));
 }
 
+// remise en forme d'une date en franï¿½is j/m
+function rmfDateF($DateOr){
+$tab=explode("/",$DateOr);
+$tab[0]=$tab[0]+0;
+$tab[1]=$tab[1]+0;
+if ($tab[2]=="") $tab[2]=date("Y");
+if ($tab[2]<70) $tab[2]+=2000;
+if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
+return(implode("/",$tab));
+}
 // conversion d'une date en franï¿½is jj/mm/aa vers anglais aa-mm-jj
 function DateA($DateOr){
 $tab=explode("/",$DateOr);
 $tab[0]=$tab[0]+0;
 $tab[1]=$tab[1]+0;
+if ($tab[2]=="") $tab[2]=date("Y");
+if ($tab[2]<70) $tab[2]+=2000;
+if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
 $DateOr=$tab[2]."-".$tab[1]."-".$tab[0];
 return($DateOr);
 }
@@ -74,6 +87,18 @@ $tab[1]=$tab[1]+0;
 $DateOr=$tab[2]."/".$tab[1]."/".$tab[0];
 return($DateOr);
 }
+function DateF2tstamp($DateStr) {
+if (trim($DateStr)=="" || !strstr($DateStr,"/")) return (0);
+$tab=explode("/",$DateStr);
+$tab[0]=$tab[0]+0;
+$tab[1]=$tab[1]+0;
+$tab[2]=$tab[2]+0;
+if ($tab[2]=="") $tab[2]=date("Y");
+if ($tab[2]<70) $tab[2]+=2000;
+if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
+return(mktime(0,0,0,$tab[1],$tab[0],$tab[2]));
+}
+
 // fonction qui vire les x derniers car d'une chaine
 function vdc($strap,$nbcar) {
 return (substr($strap,0,strlen($strap)-$nbcar));
@@ -523,7 +548,7 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
     $retVal.= $sel.">$val</OPTION>";
     } // fin boucle sur les valeurs
   $retVal.= "</SELECT>";
-  $retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour sï¿½ectionner plusieurs valeurs</small>" : "");} // fin liste dï¿½oulante
+  $retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour s&eacute;lectionner plusieurs valeurs</small>" : "");} // fin liste dï¿½oulante
 else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases ï¿½cocher si multiple ou pas de forï¿½ge en radio
   { 
   foreach ($tbval as $key =>$val) {
@@ -571,8 +596,8 @@ if (isset($var)) {
   }
 }
 
-// fonction JAVASCRIPT qui remplace un caractère a par b dans une chaine
-// le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'état
+// fonction JAVASCRIPT qui remplace un caractï¿½e a par b dans une chaine
+// le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'ï¿½at
 function JSstr_replace() {
 ?>
 <SCRIPT>

@@ -771,6 +771,7 @@ Function InitAvMaj($User="") {
 
 function RetSet($keycopy,$rttb=false) {
 global $MaxFSize,$MaxFSizeDef; // taille max des fichiers joints !!
+$keycopy=str_replace("'","",$keycopy);
 if ($MaxFSize==0 || $MaxFSize=="") $MaxFSize=$MaxFSizeDef ;
 
   if ($this->TTC=="date") // date
