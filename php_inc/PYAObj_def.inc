@@ -60,6 +60,7 @@ $retVal="";
 	      if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caract�iser le champ que s'il n'est pas dans une table virtuelle
 	      
 		$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
+//		print_r($TbDescChp);
 		$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
 		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ �ur�sans les valeurs (enum, varchar, etc ...)
 		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
@@ -871,7 +872,7 @@ $cpstr=rt_carpstr($this->TTC);
   if ($this->ValChp !="") {
 	$this->ValChp=$cpstr.$this->ValChp.$cpstr;
 	}
-  else	$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : "NULL");
+  else	$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : ($this->FieldNullOk!="no" ? "NULL" : "''"));
 	
   return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
 } // fin m�hode RetSet
