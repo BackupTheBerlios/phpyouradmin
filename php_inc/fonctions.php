@@ -61,11 +61,12 @@ return(strstr(strtolower($Nmf),".gif") or
 // remise en forme d'une date en fran�is j/m
 function rmfDateF($DateOr){
 $tab=explode("/",$DateOr);
-$tab[0]=$tab[0]+0;
+$tab[0]=$tab[0]+0; // conversions de type
 $tab[1]=$tab[1]+0;
 if ($tab[2]=="") $tab[2]=date("Y");
 if ($tab[2]<70) $tab[2]+=2000;
 if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
+if ($tab[1]<10) $tab[1]="0".$tab[1];
 return(implode("/",$tab));
 }
 // conversion d'une date en fran�is jj/mm/aa vers anglais aa-mm-jj
@@ -84,6 +85,7 @@ function DateF($DateOr){
 $tab=explode("-",$DateOr);
 $tab[0]=$tab[0]+0;
 $tab[1]=$tab[1]+0;
+if ($tab[1]<10) $tab[1]="0".$tab[1];
 $DateOr=$tab[2]."/".$tab[1]."/".$tab[0];
 return($DateOr);
 }
@@ -212,7 +214,7 @@ else return (false);
 
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
 // les lignes sont index�s num�iquement
-// les colonnes aussi
+// les colonnes sont indexe par les noms des colonnes
 function db_qr_comprass($req) {
 $res=db_query($req);
 $i=0;
@@ -869,11 +871,18 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 
 // fonction renvoyant un tableau d'objets PYA initialis� en fonction d'une simple requ� SQL
 // les objets sont initialis� �partir des noms de champs et des noms de base du resultat
-function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="") {
+function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1) {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
-  $resreq=msq($req." limit 1");
-  $tbValChp=db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
+  $resreq=msq($req.($limit==1 ? " limit 1" : ""));
+  if ($limit==1) {
+  	$tbValChp=db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
+  } else {
+  	$CIL['db_num_rows']=db_num_rows($resreq);
+  	$CIL['db_resreq']=$resreq;
+	if ( $CIL['db_num_rows']== 0) return (false);
+	}
+  
 //  print_r($tbValChp);
   for ($i=0;$i<db_num_fields($resreq);$i++) {
       $NmChamp=db_field_name($resreq,$i);
@@ -885,7 +894,7 @@ global $debug, $DBName;
       $CIL[$NmChamp]->InitPO();
       if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
       if ($TypEdit!="") $CIL[$NmChamp]->TypEdit=$TypEdit;
-      $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+      if ($TypEdit!="N") $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
 	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du r�ultat
   if ($debug) echo("Champs trait� par la fct InitPOReq :".$strdbgIPOR."<br/>\n");

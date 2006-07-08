@@ -286,25 +286,20 @@ function DispNeg($DE2=true) {
           if ($HT) {
                return "<A HREF=\"".$ChemFF.$this->ValChp."\" target=\"_blank\">".$this->ValChp."</A>";}
           else
-              {return "Fichier attach�".$ChemFF.$this->ValChp;}
+              {return "Fichier attache".$ChemFF.$this->ValChp;}
   
           }
         break;
         
       default: 
         // nbre de car max par d�aut, ou pass�en propri��
-        $NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust>0 : $nbcarmxlist);
+        $NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust : $nbcarmxlist);
         $Val2Af=stripslashes($this->ValChp);
         $Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caract�es
         if ($HT) { 
-            $Val2Af=DispCustHT($Val2Af);
-              if ($this->DirEcho) {
-    	echo $retVal;
-    } else {
-    	return($retVal);
-    }
-  $Val2Af=($Val2Af=="" ? "$EiS" : $Val2Af);
-            }
+        	$Val2Af=DispCustHT($Val2Af);
+	  	$Val2Af=($Val2Af=="" ? "$EiS" : $Val2Af);
+        }
         return ($Val2Af);
         break;
        } // fin du switch
@@ -373,6 +368,7 @@ function EchoEdit($DH=true) {
 
   if ($this->TypEdit=="C") { // si on est en consultation, on passe tout en STA ou STAL ou rien
 
+   if ($this->ValChp=="00/00/2000") $this->ValChp="-";
    switch ($this->TypeAff) {
    //chgt en statique normale
         case "AUT": // AUto
@@ -387,6 +383,7 @@ function EchoEdit($DH=true) {
         case "LDL":
         case "LDLM":
 	case "POPL":
+	case "POPLM":
         // on est en consultation forc�.
         // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur �afficher
         // est certainement �piocher dans une liste cl�valeurs et non �afficher telle quelle

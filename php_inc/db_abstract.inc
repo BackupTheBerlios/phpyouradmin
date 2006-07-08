@@ -178,6 +178,19 @@ function db_num_rows($res) {
 	}
 }
 
+function db_last_id($res) { 
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_last_oid($res));
+		break;
+		
+	case "mysql":
+	default:	
+		return(mysql_insert_id());
+		break;
+	}
+}
+
 // renvoie un tableau de la liste des bases
 function db_show_bases() {
 	switch($_SESSION['db_type']) {
