@@ -90,12 +90,12 @@ function MajClose() {
 Test: Valeurs=<?=$_REQUEST['Valeurs']?><br>
 Valeur Champ=<?=$_REQUEST['ValChp']?><br>
 <? }?>
-<table><TR><TD colspan="2">
-Entrez la chaine de caractères à rechercher :
-<input id="searchfield" name="searchfield" type="text" onkeyup="searchdb(this.value)"><br/>
-Résultat de la recherche : <br/>
+<B>Entrez la chaine de caractères à rechercher :</B>
+<input id="searchfield" name="searchfield" type="text" onkeyup="searchdb(this.value)" size="50"><br/>
+<div style="border: 1px solid"><small><I>Entrer des caractères ci-dessus pour actualiser la liste ci-dessous</I></small></div>
+<B>Résultat de la recherche : </B><br/>
 <div id="ajaxdblist">
-<div style="border: 1px solid"><I>Veuillez entrer des caractères ci-dessus pour actualiser la liste</I></div>
+<select size="<?=$ldajaxdynsize?>" style="width:<?=$ldajaxdynwidth?>px">></select>
 <!--<select name="srcList" id="srcList" multiple="multiple" size="10">
 </select>-->
 </div>
@@ -107,12 +107,8 @@ $SzLDM=20;
 $DispMsg=false;
 DispLD($tbv2c,"dbList","yes"); */
 ?>
-</TD><tr><TD colspan="2" align="center">
-<input type="button" value="   V   " onclick="AddItem();" alt="ajouter"><br>
-</TD></tr><tr><TD>
-<?
-?>
-<SELECT NAME="resList[]" id="resList" MULTIPLE SIZE="10" style="width:300px">
+<br><input type="button" value="   V   " onclick="AddItem();" alt="ajouter" style="font-weight:bold"> <small><I>Ajouter les &eacute;l&eacute;ments selectionn&eacute;s</i></small></br>
+<P><B>Selection :</B><br/><SELECT NAME="resList[]" id="resList" MULTIPLE SIZE="10" style="width:<?=$ldajaxdynwidth?>px; vertical-align:middle;">
 <?
 $tabVS=unserialize($_REQUEST['ValChp']);
 if (count($tabVS)>0) {
@@ -122,10 +118,12 @@ if (count($tabVS)>0) {
 	} 
 ?>
 
-</SELECT></TD>
-<td valign="middle"><input type="button" value=" - " onclick="DelItem();" alt="Effacer l'element selectionne">
-</td></tr></table>
-<input type="button" value="OK" onclick="MajClose();">
+</SELECT>
+<input type="button" value=" - " onclick="DelItem();" alt="Effacer l'element selectionne"  style="font-weight:bold"> <small><i>Effacer</i></small></p>
+<div align="center">
+<input type="button" value="Annuler" onclick="self.close();"  style="font-weight:bold">
+<input type="button" value="OK" onclick="MajClose();"  style="font-weight:bold">
+</div>
 </form>
 
 </body>

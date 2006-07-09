@@ -11,7 +11,8 @@ $jsppwd="toto"; // mot de passe pour acc�er aux pages prot��s
 //$CSpIC=""; // caract�e pour "isoler" les noms de champs merdiques
 // ne fonctionne qu'avec des versions r�entes de MySql
 include_once("fonctions.php");
-
+$ldajaxdynsize=10; //taille en nbre d'éléments des liste de sélection ajax dynamiques des popl
+$ldajaxdynwidth=250; //idem largeur en px
 $def_lang="fr";
 $tb_langs=array("fr"=>"#SEL#francais","en"=>"anglais");
 $tb_encodes=array("utf-8"=>"#SEL#utf8","iso-8859-1"=>"iso-8859-1");
@@ -22,7 +23,8 @@ $tb_dbtype=array("mysql"=>"#SEL#mysql","pgsql"=>"postGresql");
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)
 $dtmaj="DTMAJ"; // morceau de nom de champ, tel qu'�la creation de la definition des tables, le traitement de ce champ est affect��une mise a jour automatique en fonction de la date
-$usmaj="USMAJ";// idem, avec nom user effectuant la mise �jour
+//$usmaj="USMAJ";// idem, avec nom user effectuant la mise �jour
+$usmaj="COOPE"; 
 $dtcrea="DTCREA"; // idem, date de creation
 $uscrea="USCREA";// idem, avec nom user effectuant la creation
 // table et champ personne pour affichage correct de l'usmaj
@@ -58,8 +60,9 @@ global $def_adrr;
 function DBconnect($DB=false) {
 include ("globvar.inc");
 if ($DB) $DBName=$DB;
-if (isset($ss_parenv[MySqlUser])) $DBUser=$ss_parenv[MySqlUser];
-if (isset($ss_parenv[MySqlPasswd])) $DBPass=$ss_parenv[MySqlPasswd];
+if (isset($ss_parenv['MySqlDB'])) $DBName=$ss_parenv['MySqlDB'];
+if (isset($ss_parenv['MySqlUser'])) $DBUser=$ss_parenv['MySqlUser'];
+if (isset($ss_parenv['MySqlPasswd'])) $DBPass=$ss_parenv['MySqlPasswd'];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
 $ret=db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ($mesdb);
