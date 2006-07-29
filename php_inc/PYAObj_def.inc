@@ -187,17 +187,17 @@ $retVal="";
       case "DANT": // criteres sur date ant�ieure ou post�ieure
       case "DPOST":
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
-        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est ". ($this->TypFilt=="DANT" ? "ant�ieure" : "post�ieure") ." �";
+        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est ". ($this->TypFilt=="DANT" ? "ant&eacute;rieure" : "post&eacute;rieure") ." &agrave;";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
         
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>post�ieure �<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et ant�ieure �<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>post&eacute;rieure &agrave;<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et ant&eacute;ieure &agrave;<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
              }
         else {
-             $retVal.= "$this->Libelle post <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> & ante <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
+             $retVal.= "$this->Libelle > <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> && < <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
              }
         break;
   
@@ -219,7 +219,7 @@ $retVal="";
 //
 // M�hode qui affiche la case de n�ation
 function DispNeg($DE2=true) {
-        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> N�ation</span>";
+        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> N&eacute;gation</span>";
    if ($this->DirEcho && $DE2) {
     	echo $retVal;
     } else {
@@ -427,7 +427,7 @@ function EchoEdit($DH=true) {
            }
         else $key=$val;
         $val=(($key==$this->ValChp) ?  $VSLD.$val: $val);
-        $tbval[$key]=$val;
+        $tbval[$key]=stripslashes($val); // au cas ou ' dans les libelles
         $tbkey[]=$key;
       }
       if (!in_array($this->ValChp,$tbkey) && $this->ValChp!="")
@@ -563,7 +563,7 @@ function EchoEdit($DH=true) {
 	} else $tabVS=Array();
 	$retVal.='</SELECT>';
 	
-	$retVal.= '<input type="button" class="fxbutton" onclick="popup(\''.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&ValChp='.urlencode(serialize($tabVS)).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)" value=" M " />';
+	$retVal.= '<input type="button" class="fxbutton" onclick="popup(\''.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)" value=" M " />';
 
 	break;
     		

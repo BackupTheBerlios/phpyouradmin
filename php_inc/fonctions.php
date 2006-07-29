@@ -416,7 +416,7 @@ else 	{ // pas hi�archique => normal
 		//$cle=strtoupper($resl[0]);
 		$cle=$resl[0];
 		//echo "<!--debug2: $cle\n-->";
-		if (isset($valbchain)) { // champ li��nouveau
+		if (isset($valbchain)) { // champ lie nouveau
 			$resaf=ttChpLink($valbchain,"",$cle); // on r�ntre dans la fonction et on va chercher dans le champ 
 			}
 		else { // pas de liaison, on construit
@@ -426,7 +426,7 @@ else 	{ // pas hi�archique => normal
 				$resaf=$resaf.$cs.$resl[$k];
 				}
 			}
-		$tabCorlb[$cle]=$resaf; // tableau associatif de correspondance code -> libell�		
+		$tabCorlb[$cle]=stripslashes($resaf); // tableau associatif de correspondance code -> libell�		
 		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
 	} 
 	// fin boucle sur les r�ultats
@@ -636,7 +636,7 @@ $HostName=($HTTP_HOST=="" ? $_SERVER["HTTP_HOST"] : $HTTP_HOST); // because diff
 // on change le nom de target des popups internet (externes) pour ne pas foutre la merde dans les popups ouvertes sur l'intranet
 $nmtarget=(strstr($HostName,"haras-nationaux.fr")!=false ? "Ext".$nmtarget : $nmtarget);
 ?>
-<SCRIPT>
+<SCRIPT language="javascript">
 // ouverture d'une Popup
 var oPopupWin; // stockage du handle de la popup
 function popup(page, width, height) {
@@ -695,7 +695,7 @@ $doc_root_vm=($_SERVER["DOCUMENT_ROOT"]=="" ? "/home/httpd/html" : $_SERVER["DOC
 $chemcour=str_replace ( $doc_root_vm,"" , getcwd());
 //echo "test chemin:".getcwd()."<br/>";
 ?>
-<SCRIPT>
+<SCRIPT language="javascript">
 // ouverture d'une Popup Loupe auto redimensionnante
 var oPopupWin; // stockage du handle de la popup
 function poploup(image,titre,commentaire) {
