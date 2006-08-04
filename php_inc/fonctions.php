@@ -530,7 +530,7 @@ function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true,$idC="") {
 global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
 if ($idC=="") $idC=$nmC;
 if (count($tbval)==0) {
-   $retVal.= "Aucune liste de valeurs disponible <br/>";
+   if ($DispMsg) $retVal.= "<h6>Aucune liste de valeurs disponible <br/></h6>";
    $retVal.= "<INPUT TYPE=\"hidden\" ID=\"".$idC."\"  name=\"".$nmC."[]\" value=\"\">";
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
@@ -804,7 +804,7 @@ if ($echov)
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.="$NomChp LIKE '".$valf."' OR "; // avant on entourait de % la valeur
+                $cond.="$NomChp LIKE '%".$valf."%' OR "; // on av vire les % puis les a remis
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!

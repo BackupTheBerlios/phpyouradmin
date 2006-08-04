@@ -26,13 +26,13 @@ class PYAobj {
   var $Tt_AvMaj;
   var $Tt_PdtMaj;
   var $Tt_AprMaj;
-  var $TypEdit; // important de savoir si on est en cr�tion ("" ou N), copie(2), �ition(1) ou consultation (C)
+  var $TypEdit; // important de savoir si on est en cr�tion ("" ou N), copie(2), �ition(1) ou consultation (C), effacement (-1)
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
 
 // m�hode qui initialise toutes les propri�� de l'objet pour un champ
 // simplement �partir de la d�inition du nom du champ, de la table et de la base
-function InitPO()  {
+function InitPO($Val2assign="")  {
 // Nom de la table de description des autres
 // nom du champ contenant les caract�istiques globales �la table
 // morceua de chaine identifiant une table virtuelle
@@ -67,8 +67,10 @@ $retVal="";
 		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
-		// si nouvel enregistrement, affecte la valeur par d�aut
-		if ($this->TypEdit=="" || $this->TypEdit=="N") $this->ValChp=$this->FieldValDef; 
+		// si nouvel enregistrement, affecte la valeur par d�au
+		if ($this->TypEdit=="" || $this->TypEdit=="N") {
+			$this->ValChp=$this->FieldValDef; 
+		} else $this->ValChp=$Val2assign;
 		$this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
 		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // cl�PRI, index=MUL, unique=UNI
 		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
@@ -466,7 +468,7 @@ function EchoEdit($DH=true) {
         }
       if ($err!="") {
         $err=vdc($err,2); // enl�e dernier", ";
-        $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) non pr�ente(s) dans la liste ! </h6>";
+        $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) non presente(s) dans la liste ! </h6>";
         }
       $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false);
       break;
@@ -581,13 +583,13 @@ function EchoEdit($DH=true) {
           { $retVal.= "<P><IMG SRC=\"".$NCF."\"></P>";
           }
         else
-          { $retVal.= "Lien vers le fichier associe�<A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
+          { $retVal.= "Lien vers le fichier associe : <A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
 
         if ($this->TypEdit!="C") $retVal.= "<INPUT TYPE=\"checkbox\" NAME=\"Fok".$this->NmChamp."\" VALUE=\"".$this->ValChp."\" CHECKED>".$this->ValChp."&nbsp;";
         }// Fin si il y a un fichier associe
         if ($this->TypEdit!="C") { // saisie que si pas en �ition
            $retVal.= "<INPUT TYPE=\"file\" NAME=\"".$this->NmChamp."\" SIZE=\"30\" MAXLENGTH=\"200\">";
-           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour d�activer l'image ou le fichier, d�ocher la case, ou choisissez-en un(e) autre. Sinon ne touchez �rien ...</font>";
+           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour supprimer l'image ou le fichier, decocher la case, ou choisissez-en un(e) autre. Sinon ne touchez a rien ...</font>";
       }
       break; // fin champ de type fichier-photo
 
