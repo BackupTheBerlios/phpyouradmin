@@ -3,6 +3,7 @@ require("infos.php");
 sess_start();
 DBconnect();
 require ("ajaxtools.inc");
+
 ?>
 <html>
 <head>
@@ -82,14 +83,35 @@ function MajClose() {
   destList.size=lens;
   self.close();
 }
+
+function MajReslist() {
+/* mise a jour de la liste en javascript */
+  var destList  = document.getElementById("resList");
+  var srcList  = window.opener.document.getElementById("<?=$_REQUEST['NmChp']?>"); 
+  var lens = srcList.options.length;
+
+ 
+  for(var i = (lens-1); i >= 0; i--) {
+    if (srcList.options[i] != null) {
+        destList.options[destList.options.length] = new Option(srcList.options[i].text, srcList.options[i].value);
+	destList.options[destList.options.length-1].selected=true;
+	//destList.options[ -1].selected=true;
+    }
+  }
+}
 </script>
 </head>
 <body>
 <form>
-<? if ($debug) { ?>
+<? 
+$debug=false;
+if ($debug) { ?>
 Test: Valeurs=<?=$_REQUEST['Valeurs']?><br>
-Valeur Champ=<?=$_REQUEST['ValChp']?><br>
-<? }?>
+Valeur Champ=<?=urldecode($_REQUEST['ValChp'])?><br>
+<? }
+/* print_r($_REQUEST);
+print_r(urldecode(unserialize($_REQUEST['ValChp'])))*/;
+?>
 <B>Entrez la chaine de caractères à rechercher :</B>
 <input id="searchfield" name="searchfield" type="text" onkeyup="searchdb(this.value)" size="50"><br/>
 <div style="border: 1px solid"><small><I>Entrer des caractères ci-dessus pour actualiser la liste ci-dessous</I></small></div>
@@ -99,24 +121,17 @@ Valeur Champ=<?=$_REQUEST['ValChp']?><br>
 <!--<select name="srcList" id="srcList" multiple="multiple" size="10">
 </select>-->
 </div>
-<?
 
-/*
-$tbv2c=ttChpLink($_REQUEST['Valeurs']);
-$SzLDM=20;
-$DispMsg=false;
-DispLD($tbv2c,"dbList","yes"); */
-?>
 <br><input type="button" value="   V   " onclick="AddItem();" alt="ajouter" style="font-weight:bold"> <small><I>Ajouter les &eacute;l&eacute;ments selectionn&eacute;s</i></small></br>
-<P><B>Selection :</B><br/><SELECT NAME="resList[]" id="resList" MULTIPLE SIZE="10" style="width:<?=$ldajaxdynwidth?>px; vertical-align:middle;">
-<?
-$tabVS=unserialize($_REQUEST['ValChp']);
+<P><B>Selection :</B><br/><SELECT NAME="resList[]" id="resList" multiple="MULTIPLE" SIZE="10" style="width:<?=$ldajaxdynwidth?>px; vertical-align:middle;">
+<? /* on le fait en javascript maintenant
+$tabVS=urldecode(unserialize($_REQUEST['ValChp'])); // en plus le unserialize ne marchait pas
 if (count($tabVS)>0) {
 	foreach ($tabVS as $k=>$v) {
 		echo "<OPTION VALUE=\"$k\" SELECTED=\"SELECTED\">$v</OPTION>";
 		}
 	} 
-?>
+*/ ?>
 
 </SELECT>
 <input type="button" value=" - " onclick="DelItem();" alt="Effacer l'element selectionne"  style="font-weight:bold"> <small><i>Effacer</i></small></p>
@@ -125,6 +140,8 @@ if (count($tabVS)>0) {
 <input type="button" value="OK" onclick="MajClose();"  style="font-weight:bold">
 </div>
 </form>
-
+<script language="javascript">
+MajReslist();
+</script>
 </body>
 </html>

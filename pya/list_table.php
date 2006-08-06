@@ -1,18 +1,19 @@
 <?
 require("infos.php");
 sess_start();
+print_r($SESSION);
 include_once("reg_glob.inc");
 DBconnect();
 
-$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
-// On compte le nombre d'enregistrement total correspondant à la table
-// on realise la requête
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles ï¿½la casse (ï¿½cause de pgsql...)
+// On compte le nombre d'enregistrement total correspondant ï¿½la table
+// on realise la requï¿½e
 
 if ($lc_FirstEnr!="") {
   $FirstEnr=$lc_FirstEnr;
   $_SESSION["FirstEnr"]=$FirstEnr; //session_register("FirstEnr");
   }
-else if (!isset($FirstEnr) ) // && $cfp=="" on vient d'une autre page que de celle là ou des pages de consult
+else if (!isset($FirstEnr) ) // && $cfp=="" on vient d'une autre page que de celle lï¿½ou des pages de consult
   {$FirstEnr=0;
   unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
   unset($_SESSION["tbordtri"]); //unregvar ("tbordtri");
@@ -23,7 +24,7 @@ else if (!isset($FirstEnr) ) // && $cfp=="" on vient d'une autre page que de cel
   
 if ($chptri!="") {
   
-// test si champ existant déjà dans les tri secondaires
+// test si champ existant dï¿½ï¿½dans les tri secondaires
   if ($tbchptri[2]==$chptri) {
     $tbchptri[2]=$tbchptri[3];
     $tbordtri[2]=$tbordtri[3];
@@ -34,7 +35,7 @@ if ($chptri!="") {
     }
   
   if ($tbchptri[1]!=$chptri) {
-  // décale les ordres de tri si le champ de tri est différent  
+  // dï¿½ale les ordres de tri si le champ de tri est diffï¿½ent  
     if ($tbchptri[2]!="") {
       $tbchptri[3]=$tbchptri[2];
       $tbordtri[3]=$tbordtri[2];
@@ -78,24 +79,24 @@ else if(!isset($PgReq)) $PgReq=0;
 
 $limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr LIMIT $nbligpp");
 
-// on est pas en requête custom
+// on est pas en requï¿½e custom
 if ($NM_TABLE!="__reqcust") {
-   // recup libellé et commentaire de la table
+   // recup libellï¿½et commentaire de la table
    $LB_TABLE=RecLibTable($NM_TABLE,0);
    $COM_TABLE=RecLibTable($NM_TABLE,1);
 
-   // constitution du where et des colonnes à afficher en fonction des critères de requetes éventuels
+   // constitution du where et des colonnes ï¿½afficher en fonction des critï¿½es de requetes ï¿½entuels
    $rqrq=msq("select NM_CHAMP,TYPAFF_L from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT'");
    // on balaye les noms de champs de cette table
    $condexists=false;
    $afcexists=false;
 
    while ($rwrq=db_fetch_row($rqrq)) {
-     // reconstitution nom de la var du Type Requête
+     // reconstitution nom de la var du Type Requï¿½e
      $NomChp=$rwrq[0];
      $nmvarTR="tf_".$NomChp;
      $nmvarVR="rq_".$NomChp; // Valeur de la Requete
-     if (isset($$nmvarTR) && $$nmvarVR!="") {// si ces var non nulles, il y a forcément une condition
+     if (isset($$nmvarTR) && $$nmvarVR!="") {// si ces var non nulles, il y a forcï¿½ent une condition
        $condexists=true;
        $cond="";
        $nmvarNEG="neg_".$NomChp; // Negation
@@ -111,24 +112,22 @@ if ($NM_TABLE!="__reqcust") {
          if ($where_sup!="") $where_sup.=" AND ";
          $where_sup.=$cond;
          }
-       } // fin si il existe un critère sur ce champ
+       } // fin si il existe un critï¿½e sur ce champ
        
-     // on teste maintenant l'existence de variables de colonnes à afficher
-     //$tmp_tbAfC[$NomChp]=($rwrq[TYPAFF_L]!="" && $rwrq[TYPAFF_L]!="HID"); // initialise tabeau des colonnes affichées
-     $tmp_tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affichées
+     // on teste maintenant l'existence de variables de colonnes ï¿½afficher
+     $tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affichï¿½s
      $nmvarAfC="AfC_".$NomChp;
-     if (isset($$nmvarAfC)) {// si cette var existe, colonne sélectionnable
+     if (isset($$nmvarAfC)) {// si cette var existe, colonne sï¿½ectionnable
        $afcexists=true;
-       //if ($debug) echovar($nmvarAfC);  
-       $tmp_tbAfC[$NomChp]=($tmp_tbAfC[$NomChp] && $$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif     
+       // si affichage selectionnable ne tient pas compte de TYPAFF_L
+       $tbAfC[$NomChp]=($$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif     
        }
      } // fin boucle sur les champs
 
-   // ne réenregistre que si les variables ont été définies ou changées
+   // ne rï¿½nregistre que si les variables ont ï¿½ï¿½dï¿½inies ou changï¿½s
    if ($condexists) $_SESSION["where_sup"]=$where_sup; //session_register ("where_sup");
-   if ($afcexists || !(isset($tbAfC))) { // enregistre si tableau n'existait pas, ou si a changé
-     $tbAfC=$tmp_tbAfC;
-   //  setcookie("cktbAfC",implode(";",$tbAfC),(time()+604800)); // mémorise la config une semaine
+   if ($afcexists || !(isset($_SESSION["tbAfC"]))) { // enregistre si tableau n'existait pas, ou si a chang
+   //  setcookie("cktbAfC",implode(";",$tbAfC),(time()+604800)); // mï¿½orise la config une semaine
      $_SESSION["tbAfC"]=$tbAfC; //session_register ("tbAfC");
 	 }
    $where=($where_sup=="" ? "" : "where ".$where_sup);
@@ -141,13 +140,13 @@ if ($NM_TABLE!="__reqcust") {
 else { // req custom
    $result=msq($reqcust);
 
-   $LB_TABLE=$ss_parenv[lbreqcust];
+   $LB_TABLE=$ss_parenv['lbreqcust'];
    $COM_TABLE="";
    $TitreHP=$LB_TABLE;
    $EchWher="<br><small>$reqcust</small>";
 }
 
-// on compte le nombre de ligne renvoyée par la requête
+// on compte le nombre de ligne renvoyï¿½ par la requï¿½e
 $nbrows=db_num_rows($result);
 
 $title=trad(LR_title). $NM_TABLE." , ".trad(com_database)." ". $DBName;
@@ -172,13 +171,13 @@ if (!$ss_parenv[noinfos]) {
 <?
 if (($where!="" || $NM_TABLE=="__reqcust") && !$ss_parenv[noinfos]) echo $EchWher;
 // On affiche le resultat
-if ($nbrows==0)// Si nbrésultat = 0
+if ($nbrows==0)// Si nbrï¿½ultat = 0
     {
     ?>
     <H3><?=trad(LR_no_record)?></H3>
     <?
   }
-else // si nbrésultat>0
+else // si nbrï¿½ultat>0
     {
     $s=($nbrows>1 ? "s" : "");
     ?>
@@ -199,7 +198,7 @@ else // si nbrésultat>0
   <? if ($orderb!="" && !$ss_parenv[noinfos])
     echo "<small>".str_replace ("ORDER BY", trad(LR_orderby),$orderb)."</small><BR>";
     ?>
-    <!--On affiche les colonnes qui correspondent aux champs selectionnés-->
+    <!--On affiche les colonnes qui correspondent aux champs selectionnï¿½-->
     <TABLE>
     <TR class="THEAD" valign="top">
   <TD class="th" align="center">
@@ -207,11 +206,13 @@ else // si nbrésultat>0
   </TD>
   <?
   if ($NM_TABLE!="__reqcust") {
-     $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPAFF_L!='' ORDER BY ORDAFF_L, LIBELLE");
-     $nbcol=0; // n° de colonne
+     $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF_L, LIBELLE");
+     $nbcol=0; // n de colonne
      while ($res0=db_fetch_assoc($rq1)) {
-         $tbobjCC[$nbcol]=$res0[$ult[NM_CHAMP]];
-         if ($tbAfC[$res0[$ult[NM_CHAMP]]]) $nbcol++; // la condition n'est true que si champ à afficher et case cochée
+         $tbobjCC[$nbcol]=$res0[$ult['NM_CHAMP']];
+         if ($_SESSION["tbAfC"][$res0[$ult['NM_CHAMP']]]) {
+         	$nbcol++; // la condition n'est true que si champ ï¿½afficher et case cochï¿½
+         	}
          }
      $nbcol=($nbcol-1);
      
@@ -239,7 +240,7 @@ else // si nbrésultat>0
 
   foreach($tbCIL as $CIL) {
       $NomChamp=$CIL->NmChamp;
-      if ($CIL->Typaff_l!="" && $CIL->Typaff_l!="") { // rajouté à cause des req custom
+      if (($CIL->Typaff_l!="" && $CIL->Typaff_l!="HID") || $_SESSION["tbAfC"][$NomChamp]) { // rajoutï¿½ï¿½cause des req custom
          echo "<TD>";
          DispFlClasst($NomChamp); // affiche fleches de classement existant
          echo "<A HREF=\"list_table.php?chptri=$NomChamp&ordtri=asc\" title=\"$lb_orderasc\"><IMG SRC=\"flasc.gif\" border=\"0\"></A>&nbsp;";
@@ -248,23 +249,23 @@ else // si nbrésultat>0
          echo "</TD>\n";
          }
      else unset ($tbCIL[$NomChamp]); // sinon efface l'objet
-      } // fin boucle sur les colonnes affichées
+      } // fin boucle sur les colonnes affichï¿½s
   ?>
   </TR>
   <?
   $req=msq("$reqcust $where $orderb $limitc");
-  /* pour la clé :
-  - s'il y a une clé primaire, on la constitue;  ds ce cas $pk=true
-  - sinon, la clé est constituée de tous les champs
+  /* pour la clï¿½:
+  - s'il y a une clï¿½primaire, on la constitue;  ds ce cas $pk=true
+  - sinon, la clï¿½est constituï¿½ de tous les champs
   */
   if ($_SESSION[db_type]=="mysql") {
-	$nbpk=0;  // nbre de champs clés primaires
+	$nbpk=0;  // nbre de champs clï¿½ primaires
 	for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
 	//echo mysql_field_flags($req,$Idf)." <BR/>";
 	if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
 		$tbpk[$nbpk]=mysql_field_name($req,$Idf);
 		$nbpk++;
-		} // fin si champ est une clé primaire
+		} // fin si champ est une clï¿½primaire
 	}  // fin boucle sur les champs
   }
 //  $chp0=mysql_field_name($req,0);
@@ -278,25 +279,25 @@ else // si nbrésultat>0
 
   while ($tbValChp=db_fetch_assoc($req)) {
     $nolig++;
-    // première colonne: modifier / supprimer
+    // premiï¿½e colonne: modifier / supprimer
       echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD class=\"LRcoledit\" align=\"center\">";
-    // gestion clé
+    // gestion clï¿½    
     $key=""; // reinit
     if ($_SESSION[db_type]=="mysql") {
-	if ($nbpk>0) { // clé primaire existe : on la construit (elle peut être multiple)
+	if ($nbpk>0) { // clï¿½primaire existe : on la construit (elle peut ï¿½re multiple)
 	for ($Idf=0;$Idf<$nbpk;$Idf++)
 		$key.=$tbpk[$Idf]."='".$tbValChp[$tbpk[$Idf]]."' AND ";
 	}
-	else { // pas de clé primaire: on prend ts les champs
+	else { // pas de clï¿½primaire: on prend ts les champs
 	foreach ($tbValChp as $Chp=>$Val) // for ($Idf=0;$Idf<mysql_num_fields($req);$Idf++) $key.=mysql_field_name($req,$Idf)."='".$tbValChp[$Idf]."' AND ";
 		$key.="$Chp='$Val' AND ";          
 		}
-	$key=vdc($key,5); // enlève le dernier " AND "
+	$key=vdc($key,5); // enlï¿½e le dernier " AND "
     } elseif ($_SESSION[db_type]=="pgsql") 
     	$key="oid=".$tbValChp[oid];
 	
 //    $key=($pk ? $chp0."='".$tbValChp[0]."'" : $chp0."='".$tbValChp[0]."' AND ".$chp1."='".$tbValChp[1]."' ");
-    // si le 3ème existe, on le prend aussi
+    // si le 3ï¿½e existe, on le prend aussi
   //  if (!$pk && $chp2!="") $key.="AND ".$chp2."='".$tbValChp[2]."'";
     // onmouseover=\"self.status='Modifier l\'enregistrement';return true\"
 
@@ -308,7 +309,7 @@ else // si nbrésultat>0
         echo "<A HREF=\"edit_table.php?key=".$key."&modif=1\" TITLE=\"$lb_recedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"18\"></A>&nbsp;";
         echo "<A HREF=\"edit_table.php?key=".$key."&modif=2\" TITLE=\"$lb_reccopy\"><IMG SRC=\"copie.png\" border=\"0\" height=\"18\"></A>";
         }
-    else { // affichage en read only (loupe et détails de l'enregistrement)
+    else { // affichage en read only (loupe et dï¿½ails de l'enregistrement)
          echo "<A HREF=\"edit_table.php?key=".$key."&modif=1\"><IMG SRC=\"loupe.gif\" ALT=\"$lb_recshow\" border=\"0\"></A>";
     }
       echo "</TD>\n";
@@ -349,7 +350,7 @@ else // si nbrésultat>0
 <?  } if ($nbrows>0) {?>
   <img src="shim.gif" height="1" width="50"><a class="fxbutton" href="extraction.php?whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad(LR_download_bulle)?>"><img src="filesave.png"> <?=trad(LR_download)?></A>
   <? if ($MailATous!="") {
-	$MailATous=vdc($MailATous,1); // dégage la derniere virgule
+	$MailATous=vdc($MailATous,1); // dï¿½age la derniere virgule
   ?> &nbsp;&nbsp;&nbsp;<a href="mailto:<?=$MailATous?>" title="<?=trad(LR_mail_to_all_bulle)?>"><img src="mail_send.png"> <?=trad(LR_mail_to_all)?></A>
   <? 	} // fin MailATous
    } // fin nblig>0
@@ -362,7 +363,7 @@ function DispFlClasst($NmChamp) { // affiche fleches de classement
 global $tbchptri, $tbordtri;
 for ($l=1;$l<=3;$l++) {
   if ($tbchptri[$l]==$NmChamp) {
-    echo "<IMG SRC=\"fl".$l.$tbordtri[$l].".gif\" alt=\"la flèche indique le sens et le n° l'ordre de clé du classement de ce champ\">&nbsp;";
+    echo "<IMG SRC=\"fl".$l.$tbordtri[$l].".gif\" alt=\"la flï¿½he indique le sens et le n l'ordre de clï¿½du classement de ce champ\">&nbsp;";
     break;
     }
   }

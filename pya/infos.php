@@ -65,7 +65,7 @@ if (isset($ss_parenv['MySqlUser'])) $DBUser=$ss_parenv['MySqlUser'];
 if (isset($ss_parenv['MySqlPasswd'])) $DBPass=$ss_parenv['MySqlPasswd'];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
-$ret=db_connect($DBHost,$DBUser, $DBPass,$DBName) or die ($mesdb);
+$ret=db_connect($DBHost,$DBUser, $DBPass,$DBName);
 if (!db_case_sens()) { // si base de donn�s insensible �la casse sur les noms de tables et champ
 	$TBDname=strtolower($TBDname);
 	$NM_TABLE=strtolower($NM_TABLE);
@@ -148,7 +148,8 @@ if ($lc_where_sup!="" || $lc_NM_TABLE!="") {
   $_SESSION["NM_TABLE"]=$NM_TABLE; //session_register("where_sup", "NM_TABLE");
   }
 
-if ($$VarNomUserMAJ=="") { // verifie que util d�lar�  header ("location: ./index.php?lc_clean=1"); // sinon renvoie en page d'accueil et d�ruit la session
+if ($$VarNomUserMAJ=="") { // verifie que util d�lar�  
+	header ("location: ./index.php?lc_clean=1"); // sinon renvoie en page d'accueil et d�ruit la session
   }
 }
 

@@ -1,9 +1,9 @@
 <? 
 require("infos.php");
 sess_start();
-unset($_SESSION[where_sup]);
-unset($_SESSION[NM_TABLE]);
-unset($_SESSION[DBName]);
+unset($_SESSION['where_sup']);
+unset($_SESSION['NM_TABLE']);
+unset($_SESSION['DBName']);
 include_once("reg_glob.inc");
 $title=trad("LB_title"). $_SERVER["HTTP_HOST"] ."( IP=".gethostbyname($_SERVER["HTTP_HOST"]).")";
 include ("header.php");
@@ -24,7 +24,7 @@ foreach ($resb as $tresb) {
 	$dbg=db_show_tables($tresb);
 	//echovar ("dbg");
   	$admok=($dbg && in_array($TBDname,$dbg));
-  // n'affiche le lien pour édition que si la table d'admin existe dans la base
+  // n'affiche le lien pour ï¿½ition que si la table d'admin existe dans la base
   if ($admok) echo "<LI> <A HREF=\"LIST_TABLES.php?lc_DBName=$tresb&cfLB=vrai\">$tresb</A></LI>";
   }
 ?>

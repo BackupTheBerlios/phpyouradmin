@@ -3,19 +3,21 @@ require("infos.php");
 sess_start();
 DBconnect();
 
-$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles ï¿½la casse (ï¿½cause de pgsql...)
+include_once("reg_glob.inc");
 
 if (isset($lc_where_sup)) {
   $where_sup=$lc_where_sup;
   }
 else $where_sup="";
 
+//print_r($_REQUEST);
 $_SESSION["where_sup"]=$where_sup; //session_register("where_sup");
 
 $reqcust=$lc_reqcust;
 $_SESSION["reqcust"]=$reqcust; //session_register("reqcust");
 
-// reset des variables de session de tri, d'ordre, d'enregistrement de début et d'affichage des colonnes
+// reset des variables de session de tri, d'ordre, d'enregistrement de dï¿½ut et d'affichage des colonnes
 //unregvar ("where_sup");
 unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
 unset($_SESSION["tbordtri"]); //unregvar ("tbordtri");
@@ -23,7 +25,6 @@ unset($_SESSION["FirstEnr"]); //unregvar ("FirstEnr");
 unset($_SESSION["tbAfC"]); //unregvar ("tbAfC");
 $NoConfSuppr=$lc_NoConfSuppr;
 $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
-include_once("reg_glob.inc");
 
 // regarde s'il existe des filtres ou selection d'affichage de colonnes, que si pas de req custom
 if ($lc_NM_TABLE!="__reqcust") {
@@ -54,7 +55,7 @@ if ($admadm!="1") {
 ?> </h3>
 <TABLE>
 <THEAD>
-<TH width="30%">Champ</TH><TH width="50%">Critère</TH><TH width="20%">A Afficher</TH></THEAD>
+<TH width="30%">Champ</TH><TH width="50%">Critï¿½e</TH><TH width="20%">A Afficher</TH></THEAD>
 <?
 $FCobj=new PYAobj();
 $FCobj->NmTable=$lc_NM_TABLE;
@@ -81,6 +82,6 @@ while ($res=db_fetch_array($qr))
 </form>
 </div>
 <? include ("footer.php");
-} // fin si il y a des champs critères
+} // fin si il y a des champs critï¿½es
 ?>
 
