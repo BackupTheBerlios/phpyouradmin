@@ -196,6 +196,7 @@ function msq_conn_sel($Host,$User,$Pwd,$DB="") {
 function msq($req,$lnkid="",$mserridrq="") {
 	return (db_query($req,$lnkid="",$mserridrq=""));
 }
+
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
 // les lignes sont index�s num�iquement
 // les colonnes aussi
@@ -537,7 +538,7 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
 // liste d�oulante: nbre val suffisantes et pas de forcage 
   $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" ID=\"".$idC."\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));
-  $retVal.= ($Mult!="no" ? "[]\" MULTIPLE SIZE=\"$SizeLDM\">" : "\">");
+  $retVal.= ($Mult!="no" ? "[]\" MULTIPLE=\"MULTIPLE\" SIZE=\"$SizeLDM\">" : "\">");
   foreach ($tbval as $key =>$val) {
     $retVal.= "<OPTION VALUE=\"$key\" ";
     $niv=count(explode("|",$val));
