@@ -5,10 +5,10 @@ class PYAobj {
   var $NmTable;
   var $NmChamp;
   var $Libelle;
-  var $Typaff_l;
+  var $Typaff_l; // type affichage en mode liste (tableau de plusieurs enregistrements)
   var $FieldType;
   var $TTC; 
-  var $FieldValDef;
+  var $FieldValDef="";
   var $ValChp;
   var $FieldNullOk; // YES ou rien
   var $FieldKey; // cl�PRI, index=MUL, unique=UNI
@@ -68,9 +68,6 @@ $retVal="";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
 		// si nouvel enregistrement, affecte la valeur par d�au
-		if ($this->TypEdit=="" || $this->TypEdit=="N") {
-			$this->ValChp=$this->FieldValDef; 
-		} else $this->ValChp=$Val2assign;
 		$this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
 		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // cl�PRI, index=MUL, unique=UNI
 		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
@@ -99,6 +96,10 @@ $retVal="";
 		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
 		*/
 	      } // fin si pas champ dans une table virtuelle
+	    if ($this->TypEdit=="" || $this->TypEdit=="N") {
+		$this->ValChp=$this->FieldValDef; 
+	    } else $this->ValChp=$Val2assign;
+	      
             } // fin si champ trouv�
         else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouv�dans la table de description";
         }

@@ -518,15 +518,16 @@ $table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (mysql_fetch_array($table_def));
 }
 
-
-// fonction qui affiche une liste d�oulante, ou des boutons radio ou cases �cocher
+// DispLD fonction qui affiche une liste d�oulante, ou des boutons radio ou cases �cocher
 // ceci fonction du nombre de valeurs sp�ifi�s dans la variable globale $nValRadLd
 // les valeurs selectionn�s sont pr���s de la chaine $VSLD
 // arguments :
 // - un tableau associatif cl�>valeur
 // - le nom du controle
 // - s'il est multiple ou non (non par d�aut)
-// - 4�e argument (optionel) force  les cases �cocher ou boutons radio ou liste d�oulante qqsoit le nbre de valeur
+// - 4�e argument (optionel) force  les cases �cocher ou boutons radio (=RAD) ou liste d�oulante (=LDF) qqsoit le nbre de valeur
+// - DirEcho: true: echo la liste ;; sinon renvoie la chaine de caractere 
+// idc= valeur de l'id au sens du terme
 function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true,$idC="") {
 global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
 if ($idC=="") $idC=$nmC;
