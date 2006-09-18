@@ -832,7 +832,9 @@ if ($echov)
 
         break;
         
-      case "DANT" : // date ant�ieure �      case "DPOST" : // date ant�ieure �        if ($ValF=="%" || $ValF=="") break; // pas de condition
+      case "DANT" : // date ant�ieure �      
+      case "DPOST" : // date ant�ieure 
+      if ($ValF=="%" || $ValF=="") break; // pas de condition
         $oprq=($TypF=="DANT" ? "<=" : ">="); // calcul de l'op�ateur
         $cond="$NomChp $oprq '".DateA($ValF)."'";
         break;

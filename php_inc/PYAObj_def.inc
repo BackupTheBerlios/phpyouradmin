@@ -442,7 +442,7 @@ function EchoEdit($DH=true) {
       $defl=explode(',',$this->Valeurs);
       $tbvalm=explode(',',$this->ValChp);
       
-      $tbval["NULL"]="Aucun(e)"; // valeur vide
+      if ($this->Fccr=="" || $this->Fccr=="LDF") $tbval["NULL"]="Aucun(e)"; // valeur vide
       $Am1S=false; // Init au moins une valeur s�ectionn�
       foreach ($defl as $val) {
         if (strstr($val,":")) {
@@ -461,7 +461,7 @@ function EchoEdit($DH=true) {
       // controle d'erreur
 
       // si aucun de s�ectionn�...
-      if (!$Am1S) $tbval["NULL"]=$VSLD."Aucun(e)";
+      if (!$Am1S && ($this->Fccr=="" || $this->Fccr=="LDF")) $tbval["NULL"]=$VSLD."Aucun(e)";
 
       unset($err);
       foreach ($tbvalm as $valm) {
@@ -620,9 +620,9 @@ function EchoEdit($DH=true) {
 
     case "TXT":
         $defl=explode(',',$this->Valeurs);
-        // pour la size et maxsize , on prend les chiffres dans le champ valeurs (size,maxsize)
+        // pour la size et maxlength , on prend les chiffres dans le champ valeurs (size,maxlength)
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
-        $mxsize=(($defl[1]>0) ? " MAXSIZE=\"$defl[1]\" " : "");
+        $mxsize=(($defl[1]>0) ? " MAXLENGTH=\"$defl[1]\" " : "");
     default :
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
       break;

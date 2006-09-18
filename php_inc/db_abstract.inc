@@ -178,7 +178,7 @@ function db_num_rows($res) {
 	}
 }
 
-function db_last_id($res) { 
+function db_last_id($res="") { 
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		return(pg_last_oid($res));
