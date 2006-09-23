@@ -2,8 +2,11 @@
 require ("ajaxtools.inc");
 
 ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><html>
 <title>Selection</title>
 <?=echAjaxJSFunctions(); ?>
 
@@ -70,6 +73,7 @@ function MajClose() {
   for(var i = (lend-1); i >= 0; i--) {
       destList.options[i] = null;
     }
+    
   for(var i = (lens-1); i >= 0; i--) {
     if (srcList.options[i] != null) {
         destList.options[destList.options.length] = new Option(srcList.options[i].text, srcList.options[i].value);

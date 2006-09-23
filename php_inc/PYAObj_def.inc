@@ -620,9 +620,9 @@ function EchoEdit($DH=true) {
 
     case "TXT":
         $defl=explode(',',$this->Valeurs);
-        // pour la size et maxlength , on prend les chiffres dans le champ valeurs (size,maxlength)
+        // pour la size et maxsize , on prend les chiffres dans le champ valeurs (size,maxsize)
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
-        $mxsize=(($defl[1]>0) ? " MAXLENGTH=\"$defl[1]\" " : "");
+        $mxsize=(($defl[1]>0) ? " MAXSIZE=\"$defl[1]\" " : "");
     default :
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
       break;
@@ -830,7 +830,7 @@ if ($this->TypeAff=="FICFOT") {
     // si nouveau ou modif avec fichier attach�
     if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
     // remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-    $this->Fname=strtr($this->Fname," �����","_aeeueciuuia");
+    $this->Fname=strtr($this->Fname," àéèûêçïûüîâ","_aeeueciuuia");
 
     // variable determinant fichier avec son chemin complet
     $ChemFich=$ChemImg.$keycopy.$this->Fname;
@@ -845,7 +845,7 @@ if ($this->TypeAff=="FICFOT") {
 
     // test taille du fichier attach�    
     if (($this->Fsize>$MaxFSize) && ($this->ValChp<>"none")) {
-      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attach� est limit� �$MaxFSize, ";
+      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à $MaxFSize, ";
       unlink ($this->ValChp);
       die ($retVal." et le fichier attach�$this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arri�e de votre navigateur");
       } // fin si fichier trop gros
