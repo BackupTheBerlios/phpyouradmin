@@ -1,3 +1,5 @@
+<?@ini_set("default_charset",($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8"));
+?>
 <HTML>
 <HEAD>
 <TITLE><?=($admadm==1 ? "!P!Y!A! ":"PYA ").$title?></TITLE>

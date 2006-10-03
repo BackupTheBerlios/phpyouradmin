@@ -75,7 +75,7 @@ return($ret);
 }
 
 // fonction qui d�arre la session, et qui regarde si certainses variables sont OK
-function sess_start() {
+function sess_start($verifUserisConnected=true) {
 session_start();
 include ("globvar.inc");
 
@@ -93,7 +93,6 @@ foreach( $_SESSION as $a => $b)
 {
 $$a = $b;
 }
-
 if ($lc_clean==1)
   {
   $_SESSION=array();
@@ -148,7 +147,7 @@ if ($lc_where_sup!="" || $lc_NM_TABLE!="") {
   $_SESSION["NM_TABLE"]=$NM_TABLE; //session_register("where_sup", "NM_TABLE");
   }
 
-if ($$VarNomUserMAJ=="") { // verifie que util d�lar�  
+if ($verifUserisConnected && $$VarNomUserMAJ=="") { // verifie que util d�lar�  
 	header ("location: ./index.php?lc_clean=1"); // sinon renvoie en page d'accueil et d�ruit la session
   }
 }

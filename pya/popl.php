@@ -1,8 +1,9 @@
 <?
 require("infos.php");
-sess_start();
+sess_start($false);
 DBconnect();
 require ("ajaxtools.inc");
+@ini_set("default_charset",$_SESSION['ss_parenv']['encoding']);
 
 ?>
 <html>

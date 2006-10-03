@@ -5,7 +5,7 @@ include_once("reg_glob.inc");
 DBconnect();
 
 if ($NM_TABLE!="__reqcust") {
-   // recup libellé et commentaire de la table
+   // recup libellï¿½et commentaire de la table
    $LB_TABLE=RecLibTable($NM_TABLE,0);
    $COM_TABLE=RecLibTable($NM_TABLE,1);
 
@@ -37,7 +37,7 @@ if ($debug) DispDebug();?>
    <H6>
    <? echo ($modif==1 ? trad(ER_record_car).$key : ""); ?>
    </H6>
-   <? echo ($modif==2 ? "<H5><u>COPIE  !</u> pensez à changer la clé ($key) si elle n'est pas en auto-incrément !<br>- Attention les images ou fichiers liés ne sont pas copiés !</H5>" : ""); ?>
+   <? echo ($modif==2 ? "<H5><u>COPIE  !</u> pensez ï¿½changer la clï¿½($key) si elle n'est pas en auto-incrï¿½ent !<br>- Attention les images ou fichiers liï¿½ ne sont pas copiï¿½ !</H5>" : ""); ?>
 
 <? } ?>
 <BR>
@@ -58,7 +58,7 @@ if ($modif==1 || $modif==2) { // recup des valeurs de l'enregistrement
     $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
     if ($NM_TABLE!="__reqcust") {
 	//$reqcust="SELECT * FROM $CSpIC$NM_TABLE$CSpIC";
-	// on ne fait plus ça, car ça charge les champs blobs qui sont cachés pour rien...
+	// on ne fait plus ï¿½, car ï¿½ charge les champs blobs qui sont cachï¿½ pour rien...
 	
 	$rq1=db_query($reqLChp) or die ("req 2 invalide");
 	while ($rw=db_fetch_row($rq1)) {
@@ -73,7 +73,7 @@ if ($modif==1 || $modif==2) { // recup des valeurs de l'enregistrement
 
 
 if ($NM_TABLE!="__reqcust") {
-   // Création et Initialisation des propriétés des objets PYAobj
+   // Crï¿½tion et Initialisation des propriï¿½ï¿½ des objets PYAobj
    $rq1=db_query($reqLChp) or die ("req 2 invalide");
    while ($CcChp=db_fetch_row($rq1)) { // boucles sur les champs
    
@@ -84,24 +84,24 @@ if ($NM_TABLE!="__reqcust") {
      $ECT[$NM_CHAMP]->NmChamp=$NM_CHAMP;
      $ECT[$NM_CHAMP]->TypEdit=$modif;
      $ECT[$NM_CHAMP]->InitPO();
-	 if ($ECT[$NM_CHAMP]->TypeAff=="POPL") $poplex=true; // s'il existe au moins une edition en popup liée
+	 if ($ECT[$NM_CHAMP]->TypeAff=="POPL") $poplex=true; // s'il existe au moins une edition en popup liï¿½
      }
    } // fin si pas req custom
 else { // requete custom
      $ECT=InitPOReq($reqcust." ".$where,$DBName);
 }
-if ($poplex) JSpopup(); // s'il existe au moins une edition en popup liée colle le code d'ouverture d'une popup
+if ($poplex) JSpopup(); // s'il existe au moins une edition en popup liï¿½ colle le code d'ouverture d'une popup
 ?>
 <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
 <?
 
 foreach ($ECT as $PYAObj) {
-  if ($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq spéciale
+  if ($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq spï¿½iale
   $NM_CHAMP=$PYAObj->NmChamp;
-  if ($modif!="") $PYAObj->ValChp=$tbValChp[$NM_CHAMP]; // si pas création (edit ou copy recup la val)
+  if ($modif!="") $PYAObj->ValChp=$tbValChp[$NM_CHAMP]; // si pas crï¿½tion (edit ou copy recup la val)
 
-  // ICI les traitements avant Mise à Jour
-  if ($modif==2) { // en cas de COPIE on annule la valeur auto incrémentée
+  // ICI les traitements avant Mise ï¿½Jour
+  if ($modif==2) { // en cas de COPIE on annule la valeur auto incrï¿½entï¿½
     if (stristr($PYAObj->FieldExtra,"auto_increment")) $PYAObj->ValChp="";
     }
 
@@ -114,7 +114,7 @@ foreach ($ECT as $PYAObj) {
     if ($PYAObj->Comment!="") echo "<BR><span class=\"legendes9px\">".$PYAObj->Comment."</span>";
      echo "</TD>\n<TD>";
 
-    $PYAObj->EchoEditAll(false); // n'affiche pas les champs cachés!!!!!!!!!!!!!!!! //
+    $PYAObj->EchoEditAll(false); // n'affiche pas les champs cachï¿½!!!!!!!!!!!!!!!! //
 
      echo "</TD>\n</TR>"; //finit la ligne du tableau
    } else
@@ -130,10 +130,10 @@ foreach ($ECT as $PYAObj) {
 <? // boutons valider et annuler que quand read only false
     if ($ss_parenv[ro]!=true) { ?>
         &nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="<?=($poplex ? "closepop();" : "")?>javascript:ConfReset()" class="fxbutton"> <?=trad(BT_reset)?> </a>
+		<a href="<?=($poplex ? "closepop();" : "")?>javascript:ConfReset()" class="fxbutton"> <?=trad('BT_reset')?> </a>
 		<!--<A HREF="javascript:ConfReset()" title="RAZ du formulaire"><IMG SRC="./annuler.gif" border="0"></a>-->
         &nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="#" onclick="<?=($poplex ? "closepop();" : "")?>document.theform.submit();" class="fxbutton"> <?=trad(BT_valider)?> </a>
+		<a href="#" onclick="<?=($poplex ? "closepop();" : "")?>document.theform.submit();" class="fxbutton"> <?=trad('BT_valider')?> </a>
 <!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
     <?} ?>
 
