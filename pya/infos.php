@@ -66,6 +66,12 @@ if (isset($ss_parenv['MySqlPasswd'])) $DBPass=$ss_parenv['MySqlPasswd'];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
 $ret=db_connect($DBHost,$DBUser, $DBPass,$DBName);
+
+if ($_SESSION["ss_parenv"]["encoding"] == "utf-8" && $_SESSION['db_type']=="mysql") {
+	@mysql_query("SET NAMES 'utf8'");
+	@mysql_query("SET CHARACTER SET utf8");
+}
+
 if (!db_case_sens()) { // si base de donn�s insensible �la casse sur les noms de tables et champ
 	$TBDname=strtolower($TBDname);
 	$NM_TABLE=strtolower($NM_TABLE);
