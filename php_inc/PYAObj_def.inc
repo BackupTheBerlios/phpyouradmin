@@ -298,7 +298,8 @@ function DispNeg($DE2=true) {
         // nbre de car max par d�aut, ou pass�en propri��
         $NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust : $nbcarmxlist);
         $Val2Af=stripslashes($this->ValChp);
-        $Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caract�es
+        $Val2Af=tronqstrww ($Val2Af,$NbCarMax); // + malin,
+        //$Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caract�es
         if ($HT) { 
         	$Val2Af=DispCustHT($Val2Af);
 	  	$Val2Af=($Val2Af=="" ? "$EiS" : $Val2Af);
@@ -332,7 +333,8 @@ function RVLS($EiS) {
             foreach ($tabcle as $cle) {
                 if ($cle!="") { // ignore valeurs vides
                    if ($LnkTb) {
-                      $valsuiv=ttChpLink($this->Valeurs,"",$cle); }
+                      $valsuiv=ttChpLink($this->Valeurs,"",$cle); 
+                      }
                    else $valsuiv=$tbval[$cle];
                    $valaff.=($valsuiv ? "$valsuiv, ": "NC[$cle], "); // affiche si trouv�, ou erreur
                 } // fin si valeur bnon vide
@@ -346,7 +348,7 @@ function RVLS($EiS) {
             $valaff=($valsuiv ? "$valsuiv": "NC[$cle]"); // n'affiche si trouv�
             }
           } // fin si $cle!=""
-        $valaff=($valaff!=""? $valaff : "$EiS");
+        $valaff=($valaff!=""? $valaff : $EiS);
         return $valaff;
    } // fin fonction
 
@@ -390,7 +392,7 @@ function EchoEdit($DH=true) {
         // on est en consultation forc�.
         // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur �afficher
         // est certainement �piocher dans une liste cl�valeurs et non �afficher telle quelle
-           $Val2Af=DispCustHT($this->RVLS("&nbsp"));
+           $Val2Af=DispCustHT($this->RVLS("&nbsp;"));
            $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
            $this->TypeAff="STAF"; // pour ne plus rien faire ...
            break;
@@ -847,7 +849,7 @@ if ($this->TypeAff=="FICFOT") {
     if (($this->Fsize>$MaxFSize) && ($this->ValChp<>"none")) {
       $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à $MaxFSize, ";
       unlink ($this->ValChp);
-      die ($retVal." et le fichier attach�$this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arri�e de votre navigateur");
+      die ($retVal." et le fichier attach�$this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arriere de votre navigateur");
       } // fin si fichier trop gros
 
       copy($this->ValChp,$ChemFich) or die("Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>");
