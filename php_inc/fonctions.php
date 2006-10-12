@@ -922,7 +922,7 @@ $entete .= " boundary=\"----=$limite\"\n\n";
 $texte_simple = "This is a multi-part message in MIME format.\n";
 $texte_simple .= "Ceci est un message est au format MIME.\n";
 $texte_simple .= "------=$limite\n";
-$texte_simple .= "Content-Type: text/plain; charset=\"iso-8859-1\"\r\n";
+$texte_simple .= "Content-Type: text/plain; charset=\"utf-8\"\r\n";
 $texte_simple .= "Content-Transfer-Encoding: 8bit\n\n";
 //$texte_simple .=  "Procurez-vous un client de messagerie qui sait afficher le HTML !!";
 $texte_simple .=  strip_tags(eregi_replace("<br/>", "\n", $messhtml)) ;
@@ -930,7 +930,7 @@ $texte_simple .= "\n\n";
 
 //le message en html original
 $texte_html = "------=$limite\n";
-$texte_html .= "Content-Type: text/html; charset=\"iso-8859-1\"\r\n";
+$texte_html .= "Content-Type: text/html; charset=\"utf-8\"\r\n";
 $texte_html .= "Content-Transfer-Encoding: 8bit\n\n";
 $texte_html .= $messhtml;
 $texte_html .= "\n\n\n------=$limite--\n";

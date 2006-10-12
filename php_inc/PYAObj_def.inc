@@ -1,5 +1,6 @@
 <?// objet PYA, permettant l'affichage de filtres, de champ dans les listes et de controle d'�ition
 class PYAobj {
+//global $MaxFSizeDef;
   var $NbCarMxCust=0;
   var $NmBase;
   var $NmTable;
@@ -29,10 +30,13 @@ class PYAobj {
   var $TypEdit; // important de savoir si on est en cr�tion ("" ou N), copie(2), �ition(1) ou consultation (C), effacement (-1)
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
+  var $MaxFSize; // taille max des fichiers joints !!
+
 
 // m�hode qui initialise toutes les propri�� de l'objet pour un champ
 // simplement �partir de la d�inition du nom du champ, de la table et de la base
 function InitPO($Val2assign="")  {
+
 // Nom de la table de description des autres
 // nom du champ contenant les caract�istiques globales �la table
 // morceua de chaine identifiant une table virtuelle
@@ -101,9 +105,9 @@ $retVal="";
 	    } else $this->ValChp=$Val2assign;
 	      
             } // fin si champ trouv�
-        else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouv�dans la table de description";
+        else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouve dans la table de description";
         }
-    else $retVal = "Appel de la m�hode InitPO de l'objet PYAObj incorrecte: au moins une des propri�� de base n'a pas ��d�inie"; 
+    else $retVal = "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie"; 
     if ($this->DirEcho) {
     	echo $retVal;
     } else {
@@ -773,9 +777,9 @@ Function InitAvMaj($User="") {
 // et g�e aussi les fichiers joints (!)
 
 function RetSet($keycopy,$rttb=false) {
-global $MaxFSize,$MaxFSizeDef; // taille max des fichiers joints !!
+global $MaxFSizeDef;
 $keycopy=str_replace("'","",$keycopy);
-if ($MaxFSize==0 || $MaxFSize=="") $MaxFSize=$MaxFSizeDef ;
+if ($this->MaxFSize==0 || $this->MaxFSize=="") $this->MaxFSize=$MaxFSizeDef ;
 
   if ($this->TTC=="date") // date
     {$this->ValChp=DateA($this->ValChp);}
@@ -846,10 +850,10 @@ if ($this->TypeAff=="FICFOT") {
     $retVal.= "taille: $this->Fsize<br/>"; */
 
     // test taille du fichier attach�    
-    if (($this->Fsize>$MaxFSize) && ($this->ValChp<>"none")) {
-      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à $MaxFSize, ";
+    if (($this->Fsize>$this->MaxFSize) && ($this->ValChp<>"none")) {
+      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ".$this->MaxFSize.", ";
       unlink ($this->ValChp);
-      die ($retVal." et le fichier attach�$this->Fname a une taille de $this->Fsize octets. <br/>Appuyez sur la touche retour arriere de votre navigateur");
+      die ($retVal." et le fichier attache ".$this->Fname." a une taille de ".$this->Fsize." octets. <br/>Appuyez sur la touche retour arriere de votre navigateur");
       } // fin si fichier trop gros
 
       copy($this->ValChp,$ChemFich) or die("Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>");
