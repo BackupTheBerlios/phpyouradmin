@@ -179,8 +179,8 @@ $table_def = db_table_defs($NM_TABLE);
     $vares=$row['TYPAFF_L'];
     ?><BR>
     <select name="TYPAFF_L[<?= $i ?>]">
-      <option value=<? es(""); //0?>> Caché/option>
-      <option value=<? es("TRQ"); //1?>> Tronqué/option>
+      <option value=<? es(""); //0?>> Caché</option>
+      <option value=<? es("TRQ"); //1?>> Tronqué</option>
       <option value=<? es("NOR"); //2?>> Normal</option>
       <option value=<? es("AUT"); //3?>> Auto</option>
       <option value=<? es("LNK"); //4?>> Lié</option>
