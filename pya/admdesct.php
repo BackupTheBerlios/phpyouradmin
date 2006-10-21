@@ -199,7 +199,7 @@ $table_def = db_table_defs($NM_TABLE);
     $vares=$row['TYPEAFF'];
     ?><BR>
     <select name="TYPEAFF[<?=$i?>]" onchange="alertfic(this.value,'<?=$DBName."_".$NM_TABLE."_".$row['NM_CHAMP']; ?>',getIndex(this));">
-      <option value=<? es("HID"); ?>> Caché/option>
+      <option value=<? es("HID"); ?>> Caché</option>
       <option value=<? es("TXT"); ?>> Boite Texte</option>
       <option value=<? es("TXA"); ?>> Text Area</option>
       <option value=<? es("AUT"); ?>> Auto</option>
