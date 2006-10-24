@@ -373,7 +373,11 @@ function EchoEdit($DH=true) {
   
   if (!strstr($this->FieldType,'date')) { 
     if ($this->TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); }
-  else $this->ValChp=DateF($this->ValChp);
+  else {
+  	$this->ValChp=DateF($this->ValChp);
+  	$size=' SIZE="10" ';
+  	$mxsize=' maxlength="10" ';
+  	}
 
   if ($this->TypEdit=="C") { // si on est en consultation, on passe tout en STA ou STAL ou rien
 
@@ -626,9 +630,9 @@ function EchoEdit($DH=true) {
 
     case "TXT":
         $defl=explode(',',$this->Valeurs);
-        // pour la size et maxsize , on prend les chiffres dans le champ valeurs (size,maxsize)
+        // pour la size et maxlength , on prend les chiffres dans le champ valeurs (size,maxlength)
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
-        $mxsize=(($defl[1]>0) ? " MAXSIZE=\"$defl[1]\" " : "");
+        $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
       break;
@@ -836,7 +840,7 @@ if ($this->TypeAff=="FICFOT") {
     // si nouveau ou modif avec fichier attach�
     if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
     // remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-    $this->Fname=strtr($this->Fname," àéèûêçïûüîâ","_aeeueciuuia");
+    $this->Fname=strtr($this->Fname," àéèûêçïûüîâä","_aeeueciuuiaa");
 
     // variable determinant fichier avec son chemin complet
     $ChemFich=$ChemImg.$keycopy.$this->Fname;
