@@ -484,7 +484,15 @@ foreach ($tb2 as $k=>$v) {
 return($tb3);
 }
 // FIN ENSEMBLE DE FONCTIONS NECESSAIRES A ttChpLink
-
+// convertit une chaine de type 0:Non demandé,1:Refusé,2:Accepté,3:A revoir en tableau de hachage
+function hash_explode($string,$sep1=":",$sep2=",") {
+	$tbvrac=explode($sep2,$string);
+	foreach($tbvrac as $tbelem) {
+		$tbe=explode($sep1,$tbelem);
+		$res[$tbe[0]]=$tbe[1];
+	}
+	return($res);
+}
 // info serveur
 function pinfserv() {
 //  echo gethostbyaddr ("127.0.0.1");
