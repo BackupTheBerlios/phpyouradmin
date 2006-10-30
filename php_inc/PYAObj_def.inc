@@ -31,7 +31,7 @@ class PYAobj {
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
   var $MaxFSize; // taille max des fichiers joints !!
-
+  var $error;
 
 // m�hode qui initialise toutes les propri�� de l'objet pour un champ
 // simplement �partir de la d�inition du nom du champ, de la table et de la base
@@ -839,40 +839,42 @@ if ($this->TypeAff=="FICFOT") {
     
     // si nouveau ou modif avec fichier attach�
     if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
-    // remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-    $this->Fname=strtr($this->Fname," àéèûêçïûüîâä","_aeeueciuuiaa");
-
-    // variable determinant fichier avec son chemin complet
-    $ChemFich=$ChemImg.$keycopy.$this->Fname;
-
-/*    $retVal.= "debug:";
-    $retVal.= "valeur (ftemp): $this->ValChp<br/>";
-    $retVal.= "Chemin : $ChemImg<br/>";
-    $retVal.= "nom fichier: $this->Fname<br/>";
-    $retVal.= "Fok: $this->Fok<br/>";
-    $retVal.= "Ancien nom: $this->OFN<br/>";
-    $retVal.= "taille: $this->Fsize<br/>"; */
-
-    // test taille du fichier attach�    
-    if (($this->Fsize>$this->MaxFSize) && ($this->ValChp<>"none")) {
-      $retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ".$this->MaxFSize.", ";
-      unlink ($this->ValChp);
-      die ($retVal." et le fichier attache ".$this->Fname." a une taille de ".$this->Fsize." octets. <br/>Appuyez sur la touche retour arriere de votre navigateur");
-      } // fin si fichier trop gros
-
-      copy($this->ValChp,$ChemFich) or die("Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>");
-      delfich ($this->ValChp);
-      // affecte le nouveau nom de la variable �stocker
-      $value=$keycopy.$this->Fname;
-      // la valeur �stocker dans la base de donn� est (�priori) le fichier pr���de la cl�
-      } // fin si nouveau ou modif avec fichier attach�
-    if ($this->TypEdit==-1 && $this->Fname!="")
-      {// si suppression d'enregistrement on efface tous les fichiers eventuels
-      $ChemFich=$ChemImg.$this->Fname;
-      delfich($ChemFich);
-      } // fin si suppression enregistrement
+	// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
+	$this->Fname=strtr($this->Fname," àéèûêçïûüîâä","_aeeueciuuiaa");
+	
+	// variable determinant fichier avec son chemin complet
+	$ChemFich=$ChemImg.$keycopy.$this->Fname;
+	
+	/*    $retVal.= "debug:";
+	$retVal.= "valeur (ftemp): $this->ValChp<br/>";
+	$retVal.= "Chemin : $ChemImg<br/>";
+	$retVal.= "nom fichier: $this->Fname<br/>";
+	$retVal.= "Fok: $this->Fok<br/>";
+	$retVal.= "Ancien nom: $this->OFN<br/>";
+	$retVal.= "taille: $this->Fsize<br/>"; */
+	
+	// test taille du fichier attach�    
+	if (($this->Fsize>$this->MaxFSize) && ($this->ValChp!="none")) {
+		$retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ".$this->MaxFSize.", ";
+		unlink ($this->ValChp);
+		$this->error=$retVal." et le fichier attache ".$this->Fname." a une taille de ".$this->Fsize." octets. <br/>Cliquez sur le bouton retour arriere de votre navigateur";
+	} else { // fin si fichier trop gros
+		$retcopy=copy($this->ValChp,$ChemFich);
+		if (!$retcopy) { 
+			$this->error="Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>";
+			delfich ($this->ValChp);
+		}
+	}
+	// affecte le nouveau nom de la variable �stocker
+	if (!$this->error) $value=$keycopy.$this->Fname;
+	// la valeur �stocker dans la base de donn� est (�priori) le fichier pr���de la cl�
+    } // fin si nouveau ou modif avec fichier attach�
+    if ($this->TypEdit==-1 && $this->Fname!="") {// si suppression d'enregistrement on efface tous les fichiers eventuels
+        $ChemFich=$ChemImg.$this->Fname;
+        delfich($ChemFich);
+    } // fin si suppression enregistrement
     $this->ValChp=$value;
-    } // fin si type de champ=fichier attach�
+} // fin si type de champ=fichier attach�
 
  // fonction qui retourn�eventuellement ' fonction du type de champ
 // avec PostGres, le ' autour des champs num fout la merde
