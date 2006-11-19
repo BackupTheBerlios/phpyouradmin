@@ -629,12 +629,14 @@ function str_replace(a,b,expr) {
 
 // fonction qui permet de rentrer de prot�er un lien par une boite JS ou il faut rentrer un mot de passe
 // le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'�at
+// ce n'est biensur pas tres secure, mais bon on est pas encore chez Sarko donc ca va...
 function JSprotectlnk() {
 ?>
 <SCRIPT>
 function protectlnk(url,passwd,message) {
 	if (passwd==prompt(message,'')) {
 	   location=url;}
+	else alert ('Mot de passe incorrect');
 }
 </SCRIPT>
 <?
