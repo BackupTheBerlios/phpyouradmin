@@ -69,6 +69,7 @@ $retVal="";
 		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ �ur�sans les valeurs (enum, varchar, etc ...)
 		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
 		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
+		if (stristr($TTC,"int") || stristr($TTC,"decimal")|| stristr($TTC,"float")|| stristr($TTC,"double")) $TTC="numeric";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
 		// si nouvel enregistrement, affecte la valeur par d�au
@@ -787,7 +788,7 @@ if ($this->MaxFSize==0 || $this->MaxFSize=="") $this->MaxFSize=$MaxFSizeDef ;
 
   if ($this->TTC=="date") // date
     {$this->ValChp=DateA($this->ValChp);}
-  else if  (is_array($this->ValChp))  // tableau
+  elseif  (is_array($this->ValChp))  // tableau
     { // on vient d'un set ou d'une liste d�oulante multiple (li� ou pas) et la var est un tableau
 		if($this->TTC!="set") $valset=","; // Nouveau: avant rien
 		foreach($this->ValChp as $val){
@@ -796,6 +797,9 @@ if ($this->MaxFSize==0 || $this->MaxFSize=="") $this->MaxFSize=$MaxFSizeDef ;
 		if($this->TTC=="set")	$valset=substr($valset,0,-1); // enl�e la derni�e virgule �la fin
 				$this->ValChp=$valset; // laisse la derni�e virgule �la fin
     } // fin si valeur est un tableau
+  elseif ($this->TTC=="numeric") {
+	$this->ValChp=$this->ValChp + 0; // astuce pour convertir en nombre si pas bon
+   }
   else { // pas tableau ni date
     $this->ValChp=addslashes($this->ValChp);
     }
@@ -858,6 +862,7 @@ if ($this->TypeAff=="FICFOT") {
 		$retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ".$this->MaxFSize.", ";
 		unlink ($this->ValChp);
 		$this->error=$retVal." et le fichier attache ".$this->Fname." a une taille de ".$this->Fsize." octets. <br/>Cliquez sur le bouton retour arriere de votre navigateur";
+		$this->ValChp=$value=""; // annule le nom de fichier pour qu'il ne soit mis en base...
 	} else { // fin si fichier trop gros
 		$retcopy=copy($this->ValChp,$ChemFich);
 		if (!$retcopy) { 
