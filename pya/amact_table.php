@@ -74,12 +74,17 @@ while ($res1=db_fetch_row($rq1))
   if ($PYAoMAJ->TypeAff=="FICFOT") {
      if ($_FILES[$NOMC][name]!="" && $_FILES[$NOMC][error]!="0") die ("error: impossible de joindre le fichier ".$_FILES[$NOMC][name]."; sa taille est peut-etre trop importante");
      $VarFok="Fok".$NOMC;
-     $PYAoMAJ->ValChp=($_FILES[$NOMC][tmp_name]!="" ? $_FILES[$NOMC][tmp_name] : $PYAoMAJ->ValChp);
+     //print_r($_FILES);
+     
+     //$PYAoMAJ->ValChp=($_FILES[$NOMC]['tmp_name']!="" ? $_FILES[$NOMC]['tmp_name'] : $PYAoMAJ->ValChp);
+     $PYAoMAJ->ValChp=$_FILES[$NOMC]['tmp_name'];
      $PYAoMAJ->Fok=$$VarFok;
-     $VarFname=$NOMC."_name"; // ancienne méthode
-     $PYAoMAJ->Fname=($$VarFname !="" ? $$VarFname : $_FILES[$NOMC][name]);
-     $VarFsize=$NOMC."_size";// ancienne méthode
-     $PYAoMAJ->Fsize=($$VarFsize!="" ? $$VarFsize : $_FILES[$NOMC][size]);
+     //$VarFname=$NOMC."_name"; // ancienne méthode
+     //$PYAoMAJ->Fname=($$VarFname !="" ? $$VarFname : $_FILES[$NOMC]['name']);
+     $PYAoMAJ->Fname=$_FILES[$NOMC]['name'];
+     //$VarFsize=$NOMC."_size";// ancienne méthode
+     //$PYAoMAJ->Fsize=($$VarFsize!="" ? $$VarFsize : $_FILES[$NOMC]['size']);
+     $PYAoMAJ->Fsize=$_FILES[$NOMC]['size'];
      $VarOldFName="Old".$NOMC;
      $PYAoMAJ->OFN=$$VarOldFName;
      if ($modif==-1) { // suppression de l'enregistrement
