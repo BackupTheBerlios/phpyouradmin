@@ -844,7 +844,7 @@ if ($this->TypeAff=="FICFOT") {
     // si nouveau ou modif avec fichier attach�
     if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
 	// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-	$this->Fname=addslashes(strtr($this->Fname," àéèûêçïûüùîâäôö","_aeeueciuuuiaaoo"));
+	$this->Fname=addslashes(strtr($this->Fname," àéèûêçïûüùîâäôö'","_aeeueciuuuiaaoo_"));
 	
 	// variable determinant fichier avec son chemin complet
 	$ChemFich=$ChemImg.$keycopy.$this->Fname;
