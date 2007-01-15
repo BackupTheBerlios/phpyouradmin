@@ -292,7 +292,7 @@ function DispNeg($DE2=true) {
                $ChemFF="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";}
 
           if ($HT) {
-               return "<A HREF=\"".$ChemFF.$this->ValChp."\" target=\"_blank\">".$this->ValChp."</A>";}
+               return "<A HREF=\"".$ChemFF.$this->ValChp."\" ".(TestNFImg($this->ValChp) ? "target=\"_blank\"" : "").">".$this->ValChp."</A>";}
           else
               {return "Fichier attache".$ChemFF.$this->ValChp;}
   
@@ -595,7 +595,7 @@ function EchoEdit($DH=true) {
           { $retVal.= "<P><IMG SRC=\"".$NCF."\"></P>";
           }
         else
-          { $retVal.= "Lien vers le fichier associe : <A HREF=\"".$NCF."\" TARGET=\"_blank\">".$this->ValChp."</A><br/>";}
+          { $retVal.= "Lien vers le fichier associe : <A HREF=\"".$NCF."\" ".(TestNFImg($this->ValChp) ? "TARGET=\"_blank\"" : "").">".$this->ValChp."</A><br/>";}
 
         if ($this->TypEdit!="C") $retVal.= "<INPUT TYPE=\"checkbox\" NAME=\"Fok".$this->NmChamp."\" VALUE=\"".$this->ValChp."\" CHECKED>".$this->ValChp."&nbsp;";
         }// Fin si il y a un fichier associe
@@ -844,7 +844,7 @@ if ($this->TypeAff=="FICFOT") {
     // si nouveau ou modif avec fichier attach�
     if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
 	// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-	$this->Fname=strtr($this->Fname," àéèûêçïûüîâä","_aeeueciuuiaa");
+	$this->Fname=addslashes(strtr($this->Fname," àéèûêçïûüùîâäôö","_aeeueciuuuiaaoo"));
 	
 	// variable determinant fichier avec son chemin complet
 	$ChemFich=$ChemImg.$keycopy.$this->Fname;
