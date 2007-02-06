@@ -384,8 +384,8 @@ else {
      }
 
 if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeur �chercher
-	// on cherche les parents initiaux, ie ceux dont le pid est null ou �al �la cl�du m�e enregistrement
-	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid='0')  $orderby");
+	// on cherche les parents initiaux, ie ceux dont le pid est null ou egal a la cle du meme enregistrement
+	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1])  $orderby");
 	if (db_num_rows($rql) > 0) {
 		$tabCorlb=array();
 		while ($rw=db_fetch_row($rql)) {
@@ -469,7 +469,8 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 			$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
 			$resaf=$resaf.$cs.$resra[$k + 1];
 			}
-		$tabCorlb[$cle]=str_repeat("&nbsp;|&nbsp;&nbsp;",$niv-1)."&nbsp;|--".$resaf; // tableau associatif de correspondance code -> libell�		rettarbo($tabCorlb,$cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv);
+		$tabCorlb[$cle]=str_repeat("&nbsp;|&nbsp;&nbsp;",$niv-1)."&nbsp;|--".$resaf; // tableau associatif de correspondance code -> libell�
+		rettarbo($tabCorlb,$cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv);
 	} // fin boucle sur les r�onses
 	return;
 }
