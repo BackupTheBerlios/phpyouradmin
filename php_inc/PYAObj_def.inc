@@ -847,7 +847,7 @@ if ($this->TypeAff=="FICFOT") {
 	$this->Fname=addslashes(strtr($this->Fname," àéèûêçïûüùîâäôö'","_aeeueciuuuiaaoo_"));
 	
 	// variable determinant fichier avec son chemin complet
-	$ChemFich=$ChemImg.$keycopy.$this->Fname;
+	$ChemFich=$ChemImg.(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname; // ne remet la clé que si elle y est pas déjà.
 	
 	/*    $retVal.= "debug:";
 	$retVal.= "valeur (ftemp): $this->ValChp<br/>";
@@ -871,7 +871,7 @@ if ($this->TypeAff=="FICFOT") {
 		}
 	}
 	// affecte le nouveau nom de la variable �stocker
-	if (!$this->error) $value=$keycopy.$this->Fname;
+	if (!$this->error) $value=(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname;// ne remet la clé que si elle y est pas déjà.
 	// la valeur �stocker dans la base de donn� est (�priori) le fichier pr���de la cl�
     } // fin si nouveau ou modif avec fichier attach�
     if ($this->TypEdit==-1 && $this->Fname!="") {// si suppression d'enregistrement on efface tous les fichiers eventuels

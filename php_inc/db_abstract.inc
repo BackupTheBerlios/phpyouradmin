@@ -286,6 +286,13 @@ function db_field_name($res,$i) {
 		break;
 	}
 }
+// renvoie un tableau contenant le nom de tous les champs
+function db_list_fields($res) {
+	for($i=0;$i<db_num_fields($res);$i++) {
+		$listf[]=db_field_name($res,$i);
+	}
+	return($listf);
+}
 
 function db_field_size($res,$i) { 
 	switch($_SESSION['db_type']) {
