@@ -179,15 +179,15 @@ $retVal="";
             }
         else $tabval=$tbval;
 				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait � le % se retrouve �la fin ..
-        $tbjok[000]=$VSLD."(tous)"; // on fait � pour ne pas d�aler les indices dans le cas o le champ est num
+        $tbjok[000]=$VSLD."(tous)"; // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
                               // quand c'est un champ num, on a 0, sinon 000
-        //$tabval=array_merge($tbjok,$tabval);
+			        //$tabval=array_merge($tbjok,$tabval);
 				// mais cette fonction reindexe le tableau et donc fout une merdre pas croyable!!
 				//astuce ci-dessous trouv� et mise par un anonyme sur internet !!!
-				$tabval=$tbjok+$tabval;
-				$retVal.= "<!-- desbog";
-				$retVal.= $tabval[103];
-				$retVal.= "-->";
+				$tabval=$tbjok + $tabval;
+// 				$retVal.= "<!-- desbog";
+// 				$retVal.= $tabval[103];
+// 				$retVal.= "-->";
 //        asort($tbval); // pas de tri de la liste (sp�ifi�dans la liaison)
         $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fcrr,false);
         break;

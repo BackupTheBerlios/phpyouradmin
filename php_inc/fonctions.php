@@ -454,7 +454,7 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 	//if ($niv==3) die("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby");
 	$niv=$niv+1;
 	if ($niv>$maxprof) {
-		$tabCorlb[errprogf]="ERREUR Profond max de l'arbre ($maxprof) d�ass� !";
+		$tabCorlb[errprogf]="ERREUR Profond max de l'arbre ($maxprof) depassee !";
 		return;
 		}
 	$rqra=db_query("SELECT $defl[1],$cppid $rcaf from $defl[0] where ($cppid='$valcppid' AND $defl[1]!='$valcppid') $orderby");
