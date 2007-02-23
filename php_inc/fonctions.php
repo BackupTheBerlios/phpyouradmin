@@ -293,8 +293,8 @@ return($resRL[$offs]);
  Nom_base,nom_serveur,nom_user,passwd;0: table, 1: champ li�(cl�; 2: ET SUIVANTS champs affich�
 
 retourne un tableau associatif si valc="", une valeur sinon
-A priori, $reqsup avait ��impl�ent�pour la gestion de projet, mais n'est plus utilis�SISI*/
-
+$reqsup est utilise par DRH2 et GDP1
+*/
 function ttChpLink($valb0,$reqsup="",$valc=""){
 global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname,$maxrepld;
 //$valb0=str_replace (' ','',$valb0); // enl�e espaces ind�irables
@@ -799,13 +799,13 @@ if ($echov)
 
 // Fonction de definition de condition
 // appel� pour les def de liste
- function SetCond ($TypF,$ValF,$NegF,$NomChp) {
+ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
  if ($ValF!=NULL && $Vaf!="%") {
     switch ($TypF) { // switch sur type de filtrage
       case "INPLIKE" : // boite d'entr�
         $ValF=trim($ValF);
-        if (substr($ValF,-1,1)!="%") $ValF.="%";
-        $cond="$NomChp LIKE '".$ValF."'";
+        if (substr($ValF,-1,1)!="%" && !$typChpNum) $ValF.="%";
+        $cond=$typChpNum ? "$NomChp = $ValF" : "$NomChp LIKE '".$ValF."'";
         break;
 
       case "LDM" : // liste �choix multiples de valeurs ds ce cas la valeur est un tableau
@@ -817,7 +817,7 @@ if ($echov)
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.="$NomChp LIKE '%".$valf."%' OR "; // on av vire les % puis les a remis
+                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp LIKE '%".$valf."%' OR "; // on av vire les % puis les a remis
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!
@@ -834,7 +834,7 @@ if ($echov)
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.="$NomChp='".$valf."' OR ";
+                $cond.=$cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".$valf."' OR ";
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR  
 	   // et rajoute () !!          
@@ -889,7 +889,7 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1) {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
-  $resreq=msq($req.($limit==1 ? " limit 1" : ""));
+  $resreq=msq($req.($limit==1 ? " limit 1 " : " limit $limit "));
   if ($limit==1) {
   	$tbValChp=db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
   } else {
