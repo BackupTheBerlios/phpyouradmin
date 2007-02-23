@@ -889,7 +889,7 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1) {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
-  $resreq=msq($req.($limit==1 ? " limit 1 " : " limit $limit "));
+  $resreq=msq($req.($limit==1 ? " limit 1 " : ($limit!="no" ? " limit $limit " : "")));
   if ($limit==1) {
   	$tbValChp=db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
   } else {

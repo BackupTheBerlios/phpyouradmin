@@ -28,7 +28,7 @@ $usmaj="COOPE";
 $dtcrea="DTCREA"; // idem, date de creation
 $uscrea="USCREA";// idem, avec nom user effectuant la creation
 // table et champ personne pour affichage correct de l'usmaj
-$chpperlie="users,login,name, (!login";
+$chpperlie="PERSONNE,PER_LCIDLDAP,PER_LLPRENOMPERS,PER_LLNOMPERS, -id=!PER_LCIDLDAP, no=!PER_NUPERS";
 // ceci ci-dessous utilis�tout le temps
 // A POSITIONNER TOUT LE TEMPS
 $VarNomUserMAJ="CO_USMAJ"; //nom de la variable contenant le code user

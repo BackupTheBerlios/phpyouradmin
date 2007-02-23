@@ -107,7 +107,14 @@ if ($NM_TABLE!="__reqcust") {
          echovar ("nmvarNEG");
          }
 
-       $cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp);
+	$tbCIL[$NomChp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
+	$tbCIL[$NomChp]->NmBase=$DBName;
+	$tbCIL[$NomChp]->NmTable=$NM_TABLE;
+	$tbCIL[$NomChp]->NmChamp=$NomChp;
+	$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
+	
+
+       $cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
        if ($cond!="") {
          if ($where_sup!="") $where_sup.=" AND ";
          $where_sup.=$cond;
@@ -216,13 +223,16 @@ else // si nbr�ultat>0
          }
      $nbcol=($nbcol-1);
      
+     $tbCIL=array(); // reinitialise le tableau
      for ($i=0;$i<=$nbcol;$i++){
           $NomChamp=$tbobjCC[$i];
-          $tbCIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
-          $tbCIL[$NomChamp]->NmBase=$DBName;
-          $tbCIL[$NomChamp]->NmTable=$NM_TABLE;
-          $tbCIL[$NomChamp]->NmChamp=$NomChamp;
-          $tbCIL[$NomChamp]->InitPO();
+//          if (!isset($tbCIL[$NomChamp])) { // si pas deja existant !! on le fait pas sinon ca modifie l'ordre des colonnes
+		$tbCIL[$NomChamp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
+		$tbCIL[$NomChamp]->NmBase=$DBName;
+		$tbCIL[$NomChamp]->NmTable=$NM_TABLE;
+		$tbCIL[$NomChamp]->NmChamp=$NomChamp;
+		$tbCIL[$NomChamp]->InitPO();
+//	} //
      } // fin boucle sur les champs
     
 	$lctd=implode(",",$tbobjCC);

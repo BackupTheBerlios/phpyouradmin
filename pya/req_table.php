@@ -74,9 +74,9 @@ while ($res=db_fetch_array($qr))
   }
 ?>
 <tr><td colspan="3" align="center"><br>
-<?=ret_adrr($_SERVER["PHP_SELF"],true,trad(REQ_retLT))?>
+<?=ret_adrr($_SERVER["PHP_SELF"],true,trad('REQ_retLT'))?>
 <img src="./shim.gif" height="1" width="10">
-<a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
+<a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad('BT_valider')?> </a>
 </td></tr>
 </TABLE>
 </form>
