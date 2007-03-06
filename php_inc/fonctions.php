@@ -380,12 +380,15 @@ if  ($valc!="") {
 }
 // soit la liste est limit� par une clause where suppl�entaire
 else {
-     $whsl=$reqsup;
+     $whsl= ($reqsup != "" ? "WHERE ".$reqsup : "");
      }
 
 if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeur �chercher
 	// on cherche les parents initiaux, ie ceux dont le pid est null ou egal a la cle du meme enregistrement
-	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1])  $orderby");
+	if ($reqsup!="") {
+		$whreqsup=" AND $reqsup ";
+	}
+	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1]) $whreqsup $orderby");
 	if (db_num_rows($rql) > 0) {
 		$tabCorlb=array();
 		while ($rw=db_fetch_row($rql)) {
@@ -396,7 +399,7 @@ if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeu
 					$resaf=$resaf.$cs.$rw[$k +1];
 					} // boucle sur chps �entuels en plus
 				$tabCorlb[$rw[0]]=$resaf;
-				rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0); 
+				rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
 				//print_r($tabCorlb);				
 				} // fin si cl�valide
 			} // fin boucle r�onses
@@ -449,7 +452,7 @@ else {
 }
 // fonction compl�entaire r�ntrante pour la gestion hi�archique
 // !! le tableau pricipal est pass�par argument !
-function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv=0) {
+function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv=0,$whreqsup="") {
 	global $carsepldef,$maxprof;
 	//if ($niv==3) die("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby");
 	$niv=$niv+1;
@@ -457,7 +460,7 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 		$tabCorlb[errprogf]="ERREUR Profond max de l'arbre ($maxprof) depassee !";
 		return;
 		}
-	$rqra=db_query("SELECT $defl[1],$cppid $rcaf from $defl[0] where ($cppid='$valcppid' AND $defl[1]!='$valcppid') $orderby");
+	$rqra=db_query("SELECT $defl[1],$cppid $rcaf from $defl[0] where ($cppid='$valcppid' AND $defl[1]!='$valcppid') $whreqsup $orderby");
 	//echo ("SELECT $defl[1],$cppid $rcaf from $defl[0] where $cppid='$valcppid' $orderby, nbrep:".db_num_rows($rqra).", niv=$niv<br/>");
 	// constitution du tableau associatif �2 dim de corresp code ->lib
 	while ($resra=db_fetch_row($rqra)) {
@@ -470,7 +473,7 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 			$resaf=$resaf.$cs.$resra[$k + 1];
 			}
 		$tabCorlb[$cle]=str_repeat("&nbsp;|&nbsp;&nbsp;",$niv-1)."&nbsp;|--".$resaf; // tableau associatif de correspondance code -> libell�
-		rettarbo($tabCorlb,$cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv);
+		rettarbo($tabCorlb,$cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv,$whreqsup);
 	} // fin boucle sur les r�onses
 	return;
 }
@@ -542,7 +545,7 @@ global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
 if ($idC=="") $idC=$nmC;
 if (count($tbval)==0) {
    if ($DispMsg) $retVal.= "<h6>Aucune liste de valeurs disponible <br/></h6>";
-   $retVal.= "<INPUT TYPE=\"hidden\" ID=\"".$idC."\"  name=\"".$nmC."[]\" value=\"\">";
+   $retVal.= "<INPUT TYPE=\"hidden\" ID=\"".$idC."\"  name=\"".$nmC.($Mult!="no" ? "[]" : "")."\" value=\"\">";
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
 // liste d�oulante: nbre val suffisantes et pas de forcage 

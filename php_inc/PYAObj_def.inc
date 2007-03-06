@@ -168,7 +168,7 @@ $retVal="";
   
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
-        $tbval=ttChpLink($this->Valeurs);
+        $tbval=ttChpLink($this->Valeurs,$this->Val2);
 	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,cl�%
             {
             foreach ($tbval as $key=>$val)
@@ -495,7 +495,7 @@ function EchoEdit($DH=true) {
         $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
         $tbval[$valnul]="Aucun, Elle-meme(self)";
         }
-      elseif ($this->FieldNullOk=="YES") {  // si null autoris�
+      elseif ($this->FieldNullOk=="YES") {  // si null autorise
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
         $tbval["NULL"]="Aucun(e)";
         }
