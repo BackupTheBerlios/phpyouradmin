@@ -128,6 +128,7 @@ if ($NM_TABLE!="__reqcust") {
        $afcexists=true;
        // si affichage selectionnable ne tient pas compte de TYPAFF_L
        $tbAfC[$NomChp]=($$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif     
+       $_SESSION[$nmvarAfC]=$$nmvarAfC;
        }
      } // fin boucle sur les champs
 
