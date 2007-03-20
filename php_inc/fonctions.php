@@ -11,7 +11,7 @@ $nValRadLd=4; // nbre de valeurs passage liste dï¿½oulante/boutons radio case ï¿
 $SzLDM=6; // parmetre size pour les listes dï¿½oulantes multiples
 $DispMsg=true; // affichage par dï¿½aut du message "appuyez sur control pour sï¿½ectionner plusieurs valeurs
 $VSLD="#SEL#"; // caractï¿½es insï¿½ï¿½en dï¿½ut de valeur de listes indiquant la sï¿½ection
-$maxrepld=200;
+$maxrepld=2000;
 $carsepldef="-"; // caractï¿½e par dï¿½aut sï¿½arant les valeur dans les listes dï¿½oulantes
 $maxprof=10; // prof max des hiï¿½archies
 $CSpIC=""; // caractï¿½e pour "isoler" les noms de champs merdiques
@@ -30,6 +30,8 @@ $ListDev="linuxk6 192.168.0.20 192.168.0.30";
 
 // abstraction BDD
 require_once("db_abstract.inc");
+// abstraction BDD
+require_once("ajaxtools.inc");
 
 // NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
 require_once ("funct_sso.inc");
@@ -322,7 +324,8 @@ $nbca=0; // on regarde les suivants pour construire la requete
 $rcaf="";
 /* si le 1er ï¿½afficher champ comporte un & au dï¿½ut, il faut aller cherche les valeurs dans une 
 table; les paramï¿½res sont  indiquï¿½ dans les caractï¿½istiques d'ï¿½ition de CE champ dans la table  de dï¿½inition*/
-if (strstr($defl[2],"&")) { // si chainage
+
+/*if (strstr($defl[2],"&")) { // si chainage
     $nmchp=substr ($defl[2],1); // enlï¿½e le &
        if (strstr($nmchp,"@")) { // si classement sur ce champ
          $nmchp=substr ($nmchp,1); // enlï¿½e le @
@@ -332,16 +335,27 @@ if (strstr($defl[2],"&")) { // si chainage
      $rqvc=msq("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
      $resvc=db_fetch_row($rqvc);
      $valbchain=$resvc[0];
-    }
-else {
+    }*/
+//else {
      while ($defl[$nbca+2]!="") {
        $nmchp=$defl[$nbca+2];
        $c2aff=true; // champ ï¿½afficher effectivement
        if (strstr($nmchp,"!")) { // caractï¿½e spï¿½ateur dï¿½ini
          $nmchp=explode("!",$nmchp);
-       $tbcs[$nbca+1]=$nmchp[0]; // sï¿½arateur avant le "!"
-       $nmchp=$nmchp[1];
-         }
+       	 $tbcs[$nbca+1]=$nmchp[0]; // sï¿½arateur avant le "!"
+       	 $nmchp=$nmchp[1];
+        }
+       	if (strstr($nmchp,"&")) { // si chainage
+   	 $nmchp=substr ($nmchp,1); // enlï¿½e le &
+		if (strstr($nmchp,"@")) { // si classement en plus sur ce champ
+		$nmchp=substr ($nmchp,1); // enlï¿½e le @
+		$orderby=" order by $nmchp "; 
+		}
+     	 $rqvc=msq("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
+      	 $resvc=db_fetch_row($rqvc);
+     	 $valbchain[$nbca+1]=$resvc[0];
+    	}
+
        if (strstr($nmchp,"@@")) { // si ce champ indique un champ de structure hiï¿½achique avec la clï¿½de type pid= parent id
          $cppid=substr ($nmchp,2); // enlï¿½e le @@
 	 $c2aff=false;
@@ -349,7 +363,7 @@ else {
        elseif (strstr($nmchp,"@")) { // si classement sur ce champ
          $nmchp=substr ($nmchp,1); // enlï¿½e le @
          $orderby=" order by $nmchp "; 
-         }
+        }
 	 
        if ($c2aff) {	 
        	  $rcaf=$rcaf.",".$nmchp;
@@ -358,7 +372,7 @@ else {
        $nbca++;
        } // fin boucle
        if ($cppid) $nbca=$nbca-1;  
-}
+/*}*/
  // soit on cherche 1 et 1 seule valeur, ou plusieurs : $valc est un tableau
 if  ($valc!="") {
     if (is_array($valc)) {
@@ -419,17 +433,13 @@ else 	{ // pas hiï¿½archique => normal
 	while ($resl=db_fetch_row($rql)) {
 		//$cle=strtoupper($resl[0]);
 		$cle=$resl[0];
-		//echo "<!--debug2: $cle\n-->";
-		if (isset($valbchain)) { // champ lie nouveau
-			$resaf=ttChpLink($valbchain,"",$cle); // on rï¿½ntre dans la fonction et on va chercher dans le champ 
-			}
-		else { // pas de liaison, on construit
-			$resaf=$resl[1];
-			for ($k=2;$k<=$nbca;$k++) {
-				$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-				$resaf=$resaf.$cs.$resl[$k];
-				}
-			}
+		$resaf="";
+		for ($k=1;$k<=$nbca;$k++) {
+			$cs=($tbcs[$k]!="" ? $tbcs[$k] : ($k!=1 ? $carsepldef : ""));
+			if ($valbchain[$k]!="") {
+				$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$resl[$k]);
+			} else $resaf=$resaf.$cs.$resl[$k];
+		}
 		$tabCorlb[$cle]=stripslashes($resaf); // tableau associatif de correspondance code -> libellï¿½		
 		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
 	} 
@@ -549,7 +559,7 @@ if (count($tbval)==0) {
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
 // liste dï¿½oulante: nbre val suffisantes et pas de forcage 
-  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" ID=\"".$idC."\" NAME=\"".$nmC;
+  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" TITLE=\"Appuyez sur la touche Ctrl pour s&eacute;lectionner plusieurs valeurs\" ID=\"".$idC."\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));
   $retVal.= ($Mult!="no" ? "[]\" MULTIPLE=\"MULTIPLE\" SIZE=\"$SizeLDM\">" : "\">");
   foreach ($tbval as $key =>$val) {
@@ -564,7 +574,8 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
     $retVal.= $sel.">$val</OPTION>";
     } // fin boucle sur les valeurs
   $retVal.= "</SELECT>";
-  $retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour s&eacute;lectionner plusieurs valeurs</small>" : "");} // fin liste dï¿½oulante
+  //$retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour s&eacute;lectionner plusieurs valeurs</small>" : "");
+  } // fin liste deroulante
 else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases ï¿½cocher si multiple ou pas de forï¿½ge en radio
   { 
   foreach ($tbval as $key =>$val) {
@@ -612,11 +623,26 @@ if (isset($var)) {
   }
 }
 
+// fonction qui met les bonnes balises Javascript
+function outJS($myjs) {
+return('
+<script type="text/javascript">
+	/*<![CDATA[*/
+<!--
+'.$myjs.'
+// -->
+	/*]]>*/
+</script>
+');
+}
+
 // fonction JAVASCRIPT qui remplace un caractï¿½e a par b dans une chaine
 // le js est a mettre dans le onclick plutot que dans le href, sinon on voit tout dans la barre d'ï¿½at
 function JSstr_replace() {
 ?>
-<SCRIPT>
+<script type="text/javascript">
+	/*<![CDATA[*/
+<!--
 function str_replace(a,b,expr) {
       var i=0
       while (i!=-1) {
@@ -627,7 +653,10 @@ function str_replace(a,b,expr) {
          }
       }
       return expr
-   }</SCRIPT>
+   }
+// -->
+	/*]]>*/
+</script>
 <?
 }
 
@@ -636,14 +665,17 @@ function str_replace(a,b,expr) {
 // ce n'est biensur pas tres secure, mais bon on est pas encore chez Sarko donc ca va...
 function JSprotectlnk() {
 ?>
-<SCRIPT>
+<script type="text/javascript">
+	/*<![CDATA[*/
+<!--
 function protectlnk(url,passwd,message) {
 	if (passwd==prompt(message,'')) {
 	   location=url;}
 	else alert ('Mot de passe incorrect');
 }
-</SCRIPT>
-<?
+// -->
+	/*]]>*/
+</script><?
 }
 // colle le code javascript d'ouverture d'une popup
 function JSpopup($wdth=500,$hght=400,$nmtarget="Intlpopup") {
@@ -652,7 +684,9 @@ $HostName=($HTTP_HOST=="" ? $_SERVER["HTTP_HOST"] : $HTTP_HOST); // because diff
 // on change le nom de target des popups internet (externes) pour ne pas foutre la merde dans les popups ouvertes sur l'intranet
 $nmtarget=(strstr($HostName,"haras-nationaux.fr")!=false ? "Ext".$nmtarget : $nmtarget);
 ?>
-<SCRIPT language="javascript">
+<script type="text/javascript">
+	/*<![CDATA[*/
+<!--
 // ouverture d'une Popup
 var oPopupWin; // stockage du handle de la popup
 function popup(page, width, height) {
@@ -694,7 +728,9 @@ function closepop() {
       }
 
 }
-</SCRIPT>
+// -->
+	/*]]>*/
+</script>
 <?
 }
 /* colle le code javascript d'ouverture d'une popup Loupe de photo qui se redimensionne automatiquement
@@ -711,7 +747,9 @@ $doc_root_vm=($_SERVER["DOCUMENT_ROOT"]=="" ? "/home/httpd/html" : $_SERVER["DOC
 $chemcour=str_replace ( $doc_root_vm,"" , getcwd());
 //echo "test chemin:".getcwd()."<br/>";
 ?>
-<SCRIPT language="javascript">
+<script type="text/javascript">
+	/*<![CDATA[*/
+<!--
 // ouverture d'une Popup Loupe auto redimensionnante
 var oPopupWin; // stockage du handle de la popup
 function poploup(image,titre,commentaire) {
@@ -761,7 +799,9 @@ function poploup(image,titre,commentaire) {
 	oPopupWin.focus();    
 	return !oPopupWin;
 }
-</SCRIPT>
+// -->
+	/*]]>*/
+</script>
 <?
 }
 //

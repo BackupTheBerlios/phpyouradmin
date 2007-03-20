@@ -1,6 +1,6 @@
 <?// objet PYA, permettant l'affichage de filtres, de champ dans les listes et de controle d'�ition
 class PYAobj {
-//global $MaxFSizeDef;
+
   var $NbCarMxCust=0;
   var $NmBase;
   var $NmTable;
@@ -243,7 +243,9 @@ function DispNeg($DE2=true) {
       case "ONCD":
         $nmvarAfC="AfC_".$this->NmChamp;
         $retVal.= "<input type=\"hidden\" name=\"$nmvarAfC\" value=\"no\">"; // obligatoire
-        $cs=($this->TypCSA=="OCD" ? "checked" : "");
+        if (isset($_SESSION[$nmvarAfC])) {
+        	$cs=($_SESSION[$nmvarAfC]=="yes" ? ' checked="checked" ' : "");
+        } else $cs=($this->TypCSA=="OCD" ? ' checked="checked" ' : "");
         $retVal.= "<input type=\"checkbox\" name=\"$nmvarAfC\" value=\"yes\" $cs>";
          
       default: 
@@ -402,7 +404,7 @@ function EchoEdit($DH=true) {
         // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur �afficher
         // est certainement �piocher dans une liste cl�valeurs et non �afficher telle quelle
            $Val2Af=DispCustHT($this->RVLS("&nbsp;"));
-           $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
+           $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
            $this->TypeAff="STAF"; // pour ne plus rien faire ...
            break;
 
@@ -422,7 +424,7 @@ function EchoEdit($DH=true) {
       break;
       
     case "HID": // on affiche un champ cach�que si $DH=true, sinon rien
-      if ($DH) $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
+      if ($DH) $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
   
     // pour indiquer qu'in ��ent est s�ectionn� met VSLD devant (#SEL#)
@@ -493,7 +495,7 @@ function EchoEdit($DH=true) {
       if (strstr($this->Valeurs,"@@")) {  // si hierachique
 	$valnul=($this->TTC=="char" ? "NULL" : 0);
         $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
-        $tbval[$valnul]="Aucun, Elle-meme(self)";
+        $tbval[$valnul]="Aucun, elle-meme";
         }
       elseif ($this->FieldNullOk=="YES") {  // si null autorise
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
@@ -568,7 +570,7 @@ function EchoEdit($DH=true) {
 		}
 	}
 	
-	$retVal.='<SELECT ID="'.$this->NmChamp.'" NAME="'.$this->NmChamp.($Mult ? "[]" : "").'" SIZE="'.(($Mult ? max(1,count($tabVS)) : 1)).'" MULTIPLE=\"MULTIPLE\" >';
+	$retVal.='<SELECT ID="'.$this->NmChamp.'" NAME="'.$this->NmChamp.($Mult ? "[]" : "").'" ID="'.$this->NmChamp.'" SIZE="'.(($Mult ? max(1,count($tabVS)) : 1)).'" MULTIPLE=\"MULTIPLE\" >';
 
 	if ($tabVS) {
 		foreach ($tabVS as $k=>$v) {
@@ -583,7 +585,7 @@ function EchoEdit($DH=true) {
     		
     case "FICFOT":
       if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
-      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
+      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\"  ID=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
         if ($this->ValChp!="") {  // regarde si chemin param�r�correctement
           if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
               $ChemFF=$this->Valeurs;}
@@ -612,12 +614,12 @@ function EchoEdit($DH=true) {
       case "STA": // statique  simple
      // remplace caract�e merdiques et converti adresses mail en cliquables pour le HTML
       $Val2Af=DispCustHT($this->ValChp);
-      $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
+      $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
 
     case "STAL": // statique li�
       $retVal.= (ttChpLink($this->Valeurs,"",$this->ValChp));
-      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
+      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
 
       break;
 
@@ -626,7 +628,7 @@ function EchoEdit($DH=true) {
         // pour les dimensions, on prend les chiffres dans le champ valeurs (nblignes, nbcolonnes)
         $ligs=(($defl[0]>0) ? $defl[0] : $nbrtxa);
         $cols=(($defl[1]>0) ? $defl[1] : $nbctxa);
-        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\">".$this->ValChp."</TEXTAREA>";
+        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\">".$this->ValChp."</TEXTAREA>";
       break;
 
     case "TXT":
@@ -635,7 +637,7 @@ function EchoEdit($DH=true) {
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
         $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
-        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
+        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
       break;
      } // fin switch sur type d'affichage
     
@@ -663,8 +665,8 @@ function EchoEditAuto() {
 
    switch ($this->TTC) { // switch sur type de champ
      case "boolean": // specifique postgres
-	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" value=\"TRUE\" $ck>vrai (true)\n";
-	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" value=\"FALSE\" $ck>faux (false)\n";
+	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" ID=\"".$this->NmChamp."\" value=\"TRUE\" $ck>vrai (true)\n";
+	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" ID=\"".$this->NmChamp."\" value=\"FALSE\" $ck>faux (false)\n";
 	break;
 
      case "enum" : // liste de valeurs
@@ -676,11 +678,11 @@ function EchoEditAuto() {
        if ($enum_cnt<=$nValRadLd || $this->Fccr) { // si - de 3, cases �option
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=($enum[$l]==$this->ValChp ? "checked" : "");
-           $retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" value=\"$enum[$l]\" $ck>$enum[$l]\n";
+           $retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" ID=\"".$this->NmChamp."\" value=\"$enum[$l]\" $ck>$enum[$l]\n";
                }
          } // fin si cases �options 
        else { // si + de 3, liste d�oulante
-         $retVal.= "<select name=\"$this->NmChamp\">";
+         $retVal.= "<select name=\"$this->NmChamp\" ID=\"".$this->NmChamp."\">";
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=($enum[$l]==$this->ValChp ? "selected" : "");
            $retVal.= "<option value=\"$enum[$l]\" $ck>$enum[$l]</option>\n";
@@ -697,11 +699,11 @@ function EchoEditAuto() {
        if ($enum_cnt<=$nValRadLd || $this->Fccr) { // si - de 3, cases �cocher
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=(stristr($this->ValChp,$enum[$l]) ? "checked" : "");
-           $retVal.= "<input type=\"checkbox\" name=\"".$this->NmChamp."[]\" value=\"".$enum[$l]."\" $ck>".$enum[$l]."&nbsp;&nbsp;&nbsp;";
+           $retVal.= "<input type=\"checkbox\" name=\"".$this->NmChamp."[]\"  ID=\"".$this->NmChamp."\" value=\"".$enum[$l]."\" $ck>".$enum[$l]."&nbsp;&nbsp;&nbsp;";
                }
          }
        else { // liste d�oulante �choix multiples (variable tableau)
-         $retVal.= "<select name=\"".$this->NmChamp."[]\" multiple size=\"".min($enum_cnt ,4)."\">";
+         $retVal.= "<select name=\"".$this->NmChamp."[]\"  ID=\"".$this->NmChamp."\" multiple size=\"".min($enum_cnt ,4)."\">";
          for ($l=0;$l<$enum_cnt;$l++) {
            $ck=(stristr($this->ValChp,$enum[$l]) ? "selected" : "");
            $retVal.= "<option value=\"$enum[$l]\" $ck>$enum[$l]</option>\n";
@@ -711,11 +713,11 @@ function EchoEditAuto() {
        break;
 
      case "date" : // on passe la date en fran�is
-         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".DateF($this->ValChp)."\" size=\"10\" maxlength=\"10\">";
+         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".DateF($this->ValChp)."\" size=\"10\" maxlength=\"10\">";
        break;
 
      case "txtblob" : // textarea
-         $retVal.= "<TEXTAREA COLS=\"$nbctxa\" ROWS=\"$nbrtxa\" NAME=\"".$this->NmChamp."\">".$this->ValChp."</TEXTAREA>";
+         $retVal.= "<TEXTAREA COLS=\"$nbctxa\" ROWS=\"$nbrtxa\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\">".$this->ValChp."</TEXTAREA>";
        break;
 
      case "char" : // char ou varchar
@@ -723,11 +725,11 @@ function EchoEditAuto() {
        $lg=strrchr($this->FieldType, "(");
        $lg= substr($lg,1,-1); // ne r�up�e que l'entier
        $size=min(intval($lg*1.5),100);
-         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" ".($lg > 0 ? "maxlength=\"$lg\" size=\"$size\"": "").">";
+         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" ".($lg > 0 ? "maxlength=\"$lg\" size=\"$size\"": "").">";
        break;
 
      default :
-         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
+         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
        break;
      } // fin switch type de champ
      
