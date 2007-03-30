@@ -27,7 +27,7 @@ class PYAobj {
   var $Tt_AvMaj;
   var $Tt_PdtMaj;
   var $Tt_AprMaj;
-  var $TypEdit; // important de savoir si on est en cr�tion ("" ou N), copie(2), �ition(1) ou consultation (C), effacement (-1)
+  var $TypEdit; // important de savoir si on est en cr�tion ("" ou N), copie(2), �ition(1 ou M) ou consultation (C), effacement (-1)
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
   var $MaxFSize; // taille max des fichiers joints !!
@@ -62,7 +62,6 @@ $retVal="";
               $this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
 	      
 	      if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caract�iser le champ que s'il n'est pas dans une table virtuelle
-	      
 		$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
 //		print_r($TbDescChp);
 		$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
@@ -73,7 +72,7 @@ $retVal="";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
 		// si nouvel enregistrement, affecte la valeur par d�au
-		$this->FieldNullOk=$TbDescChp[$this->NmChamp]['FieldNullOk']; // YES ou rien
+		$this->FieldNullOk=strtoupper($TbDescChp[$this->NmChamp]['FieldNullOk']); // YES ou rien
 		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // cl�PRI, index=MUL, unique=UNI
 		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
 		// si champ auto increment et pas cach� on le met en statique
@@ -490,10 +489,10 @@ function EchoEdit($DH=true) {
     case "LDL": // liste d�oulante li�
       /* Syntaxe
       (base,user,passwd);table,chpcl�chp_aff1,chpaff2,...,chpaffn)
-      */
+      */      
       $tabCorlb=ttChpLink($this->Valeurs,$this->Val2);
       if (strstr($this->Valeurs,"@@")) {  // si hierachique
-	$valnul=($this->TTC=="char" ? "NULL" : 0);
+	$valnul=($this->TTC=="char" ? "''" : 0);
         $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
         $tbval[$valnul]="Aucun, elle-meme";
         }
@@ -521,7 +520,7 @@ function EchoEdit($DH=true) {
       $tbvalm=explode(',',$this->ValChp);
 
      if (strstr($this->Valeurs,"@@")) $valsh=" ou elle-meme";
-      $valnul=($this->TTC=="char" ? "NULL" : 0);
+      $valnul=($this->TTC=="char" ? "''" : 0);
       $tbval[$valnul]="Aucun(e)".$valsh;
 
 
@@ -769,7 +768,7 @@ Function InitAvMaj($User="") {
             }
       break;
     case "EDOOFT" : // edition seulement la premiere fois
-         if ($this->TypEdit==1) {
+         if ($this->TypEdit==1 || $this->TypEdit=="M") {
             if ($this->TypeAff=="LDL" || $this->TypeAff=="LDLM"){
                $this->TypeAff="STAL";
                }
@@ -826,7 +825,7 @@ if ($this->TypeAff=="FICFOT") {
           $ChemImg="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";}
 
 	//print_r($this);
-    if ($this->TypEdit==1) { // gestion effacement anciens fichiers attach�
+    if ($this->TypEdit==1 || $this->TypEdit=='M') { // gestion effacement anciens fichiers attach�
       // test decoche ou changement en modif
     // pour effacement de l'ancien fichier attach�
        if ($this->OFN!="" && ($this->Fok=="" || ( $this->ValChp!="none" && $this->ValChp!="" && $keycopy.$this->Fname!= $keycopy.$this->OFN)))
@@ -891,7 +890,7 @@ $cpstr=rt_carpstr($this->TTC);
   if ($this->ValChp !="") {
 	$this->ValChp=$cpstr.$this->ValChp.$cpstr;
 	}
-  else	$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : ($this->FieldNullOk!="no" ? "NULL" : "''"));
+  else	$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : ($this->FieldNullOk!="NO" ? "NULL" : "''"));
 	
   return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
 } // fin m�hode RetSet

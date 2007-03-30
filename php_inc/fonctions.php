@@ -939,7 +939,7 @@ global $debug, $DBName;
   	$CIL['db_num_rows']=db_num_rows($resreq);
   	$CIL['db_resreq']=$resreq;
 	if ( $CIL['db_num_rows']== 0) return (false);
-	}
+  }
   
 //  print_r($tbValChp);
   for ($i=0;$i<db_num_fields($resreq);$i++) {
@@ -949,10 +949,10 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmBase=$Base;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
+      $CIL[$NmChamp]->TypEdit=$TypEdit;
       $CIL[$NmChamp]->InitPO();
       if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
-      if ($TypEdit!="") $CIL[$NmChamp]->TypEdit=$TypEdit;
-      if ($TypEdit!="N") $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+      if ($TypEdit!="N" && $TypEdit!="") $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
 	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du r�ultat
   if ($debug) echo("Champs traites par la fct InitPOReq :".$strdbgIPOR."<br/>\n");
