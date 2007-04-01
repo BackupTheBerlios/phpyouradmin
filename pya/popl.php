@@ -2,7 +2,7 @@
 require("infos.php");
 sess_start($false);
 DBconnect();
-require ("ajaxtools.inc");
+//require ("ajaxtools.inc"); inclus par fonctions lui meme inclu par infos
 @ini_set("default_charset",$_SESSION['ss_parenv']['encoding']);
 
 ?>

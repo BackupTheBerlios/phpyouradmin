@@ -37,7 +37,7 @@ if ($debug) DispDebug();?>
    <H6>
    <? echo ($modif==1 ? trad(ER_record_car).$key : ""); ?>
    </H6>
-   <? echo ($modif==2 ? "<H5><u>COPIE  !</u> pensez �changer la cl�($key) si elle n'est pas en auto-incr�ent !<br>- Attention les images ou fichiers li� ne sont pas copi� !</H5>" : ""); ?>
+   <? echo ($modif==2 ? "<H5><u>COPIE  !</u> pensez  a changer la cle ($key) si elle n'est pas en auto-increment !<br>- Attention les images ou fichiers lies ne sont pas copies !</H5>" : ""); ?>
 
 <? } ?>
 <BR>

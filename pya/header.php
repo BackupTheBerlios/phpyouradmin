@@ -1,4 +1,5 @@
 <?@ini_set("default_charset",($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8"));
+header('Content-type: text/html; charset='.($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8")); 
 ?>
 <HTML>
 <HEAD>
