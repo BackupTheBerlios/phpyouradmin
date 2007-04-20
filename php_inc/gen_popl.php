@@ -1,6 +1,8 @@
 <?
 require_once ("ajaxtools.inc");
-
+$charset=($_SESSION['ss_parenv']['encoding']!="" ? $_SESSION['ss_parenv']['encoding'] : "utf-8");
+@ini_set("default_charset", $charset);
+header('Content-type: text/html; charset='.$charset); 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">

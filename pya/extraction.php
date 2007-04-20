@@ -1,14 +1,18 @@
 <? 
+@ini_set("default_charset",($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8"));
+//header('Content-type: text/html; charset='.($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8")); 
 require("infos.php");
 sess_start();
 include_once("reg_glob.inc");
 DBconnect();
 
-$whodb=stripslashes(urldecode($whodb));
+//$whodb=stripslashes(urldecode($whodb));
+$whodb=stripslashes($whodb);
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles ï¿½la casse (ï¿½cause de pgsql...)
 
-$ult=rtb_ultchp(); // tableau des noms de champs sensibles à la casse (à cause de pgsql...)
+//$debug=true;
 
-// entetes http pour téléchargement
+// entetes http pour tï¿½ï¿½hargement
 if (!$debug) {
 header('Content-disposition: filename=extractPYA.tsv');
 header('Content-type: application/octetstream');
@@ -18,7 +22,7 @@ header('Expires: 0');
 }
 
 $tab="\t"; //tab en ascii
-echo "Extraction de données de phpYourAdmin\n\n";
+echo "Extraction de donnees de phpYourAdmin\n\n";
 echo "Base $DBName\n\n";
 if ($debug) {
    echovar("ss_parenv");
@@ -28,12 +32,12 @@ if ($debug) {
    echovar("tbAfC");}
   
 if ($NM_TABLE!="__reqcust") {
-   // recup libellé et commentaire de la table
+   // recup libellï¿½et commentaire de la table
    $LB_TABLE=epurelongchp(RecLibTable($NM_TABLE,0));
    echo "Edition de la table $LB_TABLE ($NM_TABLE)\n\n";
 
    $result=msq("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $whodb");
-   // on compte le nombre de ligne renvoyée par la requête
+   // on compte le nombre de ligne renvoyï¿½ par la requï¿½e
    }
 else { // req custom
    $result=msq($reqcust);
@@ -51,10 +55,10 @@ else {
      $reqcust="select * from $CSpIC$NM_TABLE$CSpIC";
      
      $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND TYPAFF_L!='' ORDER BY ORDAFF_L, LIBELLE");
-     $nbcol=0; // n° de colonne
+     $nbcol=0; // n de colonne
      while ($res0=db_fetch_assoc($rq1)) {
          $tbobjCC[$nbcol]=$res0[$ult[NM_CHAMP]];
-         if ($tbAfC[$res0[$ult[NM_CHAMP]]]) {$nbcol++;}// la condition n'est true que si champ à afficher et case cochée
+         if ($tbAfC[$res0[$ult[NM_CHAMP]]]) {$nbcol++;}// la condition n'est true que si champ ï¿½afficher et case cochï¿½
          }
      $nbcol=($nbcol-1);
      
@@ -84,14 +88,14 @@ else {
       echo "\n";
   } // fin si afichage des noms de champs  
   
-  // affichage entêtes de lignes (noms des champs en clair)
-  echo "N° ligne\t";
+  // affichage entï¿½es de lignes (noms des champs en clair)
+  echo "N ligne\t";
   
   foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
      $NomChamp=$objCIL->NmChamp;
      if ($objCIL->Typaff_l!="" && $objCIL->Typaff_l!="")
         {echo  $objCIL->Libelle."\t";}
-     else unset($CIL[$NomChamp]); // en profite pour supprimer les champs non affichés
+     else unset($CIL[$NomChamp]); // en profite pour supprimer les champs non affichï¿½
          
     }
   echo "\n";
@@ -101,7 +105,7 @@ else {
   $i=1;
   while ($tbValChp=db_fetch_array($req)) {
     // colonnes 
-      echo $i."\t"; // affiche n° de ligne
+      echo $i."\t"; // affiche n de ligne
       $i++;
       foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
             $NomChamp=$objCIL->NmChamp;

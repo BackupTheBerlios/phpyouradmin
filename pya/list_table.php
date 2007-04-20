@@ -16,8 +16,11 @@ if ($lc_FirstEnr!="") {
 else if (!isset($FirstEnr) ) // && $cfp=="" on vient d'une autre page que de celle l�ou des pages de consult
   {$FirstEnr=0;
   unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
+  unset($tbchptri);
   unset($_SESSION["tbordtri"]); //unregvar ("tbordtri");
+  unset($tbordtri);
   unset($_SESSION["FirstEnr"]); //unregvar ("FirstEnr");
+  unset($FirstEnr);
   $_SESSION["FirstEnr"]=$FirstEnr=0; //session_register("FirstEnr");
   }  
 
@@ -166,7 +169,7 @@ include ("header.php");
 <a name="haut"></a>
 <div align="center">
 <?
-if (!$ss_parenv[noinfos]) { ?>
+if (!$ss_parenv['noinfos'] || true) { ?>
 <H3><?=trad(com_database)." ".$DBName?></H3> <? }
 ?>
 <H1><?=$TitreHP?></H1>
