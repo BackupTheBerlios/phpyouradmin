@@ -19,10 +19,10 @@ $_SESSION["reqcust"]=$reqcust; //session_register("reqcust");
 
 // reset des variables de session de tri, d'ordre, d'enregistrement de d�ut et d'affichage des colonnes
 //unregvar ("where_sup");
-unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
-unset($_SESSION["tbordtri"]); //unregvar ("tbordtri");
-unset($_SESSION["FirstEnr"]); //unregvar ("FirstEnr");
-unset($_SESSION["tbAfC"]); //unregvar ("tbAfC");
+$_SESSION["tbchptri"]=array(); //unregvar ("tbchptri");
+$_SESSION["tbordtri"]=array(); //unregvar ("tbordtri");
+$_SESSION["FirstEnr"]=0;
+$_SESSION["tbAfC"]=array(); //unregvar ("tbAfC");
 $NoConfSuppr=$lc_NoConfSuppr;
 $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
 

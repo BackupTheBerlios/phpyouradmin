@@ -13,14 +13,11 @@ if ($lc_FirstEnr!="") {
   $FirstEnr=$lc_FirstEnr;
   $_SESSION["FirstEnr"]=$FirstEnr; //session_register("FirstEnr");
   }
-else if (!isset($FirstEnr) ) // && $cfp=="" on vient d'une autre page que de celle l�ou des pages de consult
-  {$FirstEnr=0;
-  unset($_SESSION["tbchptri"]); //unregvar ("tbchptri");
-  unset($tbchptri);
-  unset($_SESSION["tbordtri"]); //unregvar ("tbordtri");
-  unset($tbordtri);
-  unset($_SESSION["FirstEnr"]); //unregvar ("FirstEnr");
-  unset($FirstEnr);
+
+if (!isset($FirstEnr) || $_REQUEST['cfopl']!="" ) // && $cfp=="" on vient d'une autre page que de celle la
+  {
+  $_SESSION["tbchptri"]=$tbchptri=array(); //unregvar ("tbchptri");
+  $_SESSION["tbordtri"]=$tbordtri=array(); //unregvar ("tbordtri");
   $_SESSION["FirstEnr"]=$FirstEnr=0; //session_register("FirstEnr");
   }  
 
@@ -116,9 +113,12 @@ if ($NM_TABLE!="__reqcust") {
 	$tbCIL[$NomChp]->NmChamp=$NomChp;
 	$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
 	
+	// verrue pour avoir une requete égalité au de recherche en like %val% comme avant
+	if ($$nmvarTR=="LDM" && ($tbCIL[$NomChp]->TypeAff!="LDLM" && $tbCIL[$NomChp]->TypeAff!="POPLM")) $$nmvarTR="LDMEG";
 
        $cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
        if ($cond!="") {
+	$cond=str_replace("%%","%",$cond); // virer bizareries
          if ($where_sup!="") $where_sup.=" AND ";
          $where_sup.=$cond;
          }
@@ -362,7 +362,7 @@ else // si nbr�ultat>0
     <? if ($PgReq==1) { ?>
        &nbsp;&nbsp;&nbsp;<a class="fxbutton" title="<?=trad(LR_query_back_bulle)?>" href="req_table.php?lc_NM_TABLE=<?=$NM_TABLE?>"> <?=trad(LR_query_back)?> </a>
 <?  } if ($nbrows>0) {?>
-  <img src="shim.gif" height="1" width="50"><a class="fxbutton" href="extraction.php?whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad(LR_download_bulle)?>"><img src="filesave.png"> <?=trad(LR_download)?></A>
+  <img src="shim.gif" height="1" width="50"><a class="fxbutton" href="extraction.php?whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad(LR_download_bulle)?>"><img src="filesave.png"> <?=trad(LR_download)?></A> &nbsp;&nbsp;&nbsp; <a class="fxbutton" href="extraction.php?encod=iso&whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad(LR_download_bulle)?> EN ISO FORMAT"> <img src="filesave.png">Extract. ISO</A>
   <? if ($MailATous!="") {
 	$MailATous=vdc($MailATous,1); // d�age la derniere virgule
   ?> &nbsp;&nbsp;&nbsp;<a href="mailto:<?=$MailATous?>" title="<?=trad(LR_mail_to_all_bulle)?>"><img src="mail_send.png"> <?=trad(LR_mail_to_all)?></A>

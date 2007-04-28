@@ -94,7 +94,11 @@ else {
   foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
      $NomChamp=$objCIL->NmChamp;
      if ($objCIL->Typaff_l!="" && $objCIL->Typaff_l!="")
-        {echo  $objCIL->Libelle."\t";}
+     {
+	if ($_REQUEST['encod']=="iso") {
+		echo  utf8_decode($objCIL->Libelle)."\t";
+	} else echo  $objCIL->Libelle."\t";
+     }
      else unset($CIL[$NomChamp]); // en profite pour supprimer les champs non affich�
          
     }
@@ -110,8 +114,10 @@ else {
       foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
             $NomChamp=$objCIL->NmChamp;
             $objCIL->ValChp=$tbValChp[$NomChamp];
-            echo epurelongchp($objCIL->RetVCL(false)).$tab; // affiche Valeur Champ ds Liste
-            }  // fin boucle sur les colonnes
+	    if ($_REQUEST['encod']=="iso") {
+		echo  utf8_decode(epurelongchp($objCIL->RetVCL(false))).$tab;
+	    } else  echo epurelongchp($objCIL->RetVCL(false)).$tab; // affiche Valeur Champ ds Liste
+      }  // fin boucle sur les colonnes
       echo "\n";
     } // fin while = fin boucle sur les lignes
   } // fin si nbrows>0

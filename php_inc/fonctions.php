@@ -843,7 +843,7 @@ if ($echov)
 // Fonction de definition de condition
 // appel� pour les def de liste
  function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
- if ($ValF!=NULL && $Vaf!="%") {
+ if ($ValF!=NULL && $Valf!="%") {
     switch ($TypF) { // switch sur type de filtrage
       case "INPLIKE" : // boite d'entr�
         $ValF=trim($ValF);
@@ -906,7 +906,7 @@ if ($echov)
         $cond="";
         break;
       } // fin switch
-  } // fin CalF a une valeur coh�ente
+  } // fin ValF a une valeur coh�ente
   else $cond="";
 
 
