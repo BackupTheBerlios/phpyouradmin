@@ -117,6 +117,7 @@ if (isset($lc_parenv)) { // tableau des param�res d'environnement pass� en g
       // ne maj que ceux qui sont pass�
       $ss_parenv[$key]=$val;
       //echovar("ss_parenv");
+      if (($key=="ro") && $val!="true") unset($ss_parenv[$key]);
       }
    $_SESSION["ss_parenv"]=$ss_parenv; //session_register("ss_parenv");
 }

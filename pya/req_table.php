@@ -49,7 +49,7 @@ include ("header.php");?>
 <H3><?=strtoupper(trad(com_database).$DBName)?></H3> <? } ?>
 <H1><?=trad(REQ_crit_select).$lc_NM_TABLE;?></H1>
 <h3><? echo trad(REQ_select_text);
-if ($admadm!="1") {
+if ($admadm!="1" && $ss_parenv[ro]!=true) { 
 	echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"edit_table.php?lc_NM_TABLE=$lc_NM_TABLE&lc_adrr[edit_table.php]=".$_SERVER["PHP_SELF"]."\" title=\"".trad(LT_addrecord)."\"> <img src=\"new_r.gif\"> ".trad(LT_addrecord)." </a>";
      }
 ?> </h3>

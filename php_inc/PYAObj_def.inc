@@ -819,6 +819,9 @@ if ($this->TypeAff=="FICFOT") {
     //print_r($_FILES);
     $value=$this->OFN; // valeur du set par d�aut
 
+// en php5, la varaiable $this->ValChp=$_REQUEST[toto] contient en fait $_FILES[toto] qui est un tableau...
+if (is_array($this->ValChp)) $this->ValChp=$this->ValChp['name'];
+
     if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
           $ChemImg=$this->Valeurs;}
     else {

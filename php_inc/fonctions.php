@@ -877,7 +877,7 @@ if ($echov)
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.=$cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".$valf."' OR ";
+                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".$valf."' OR ";
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR  
 	   // et rajoute () !!          
