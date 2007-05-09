@@ -73,22 +73,26 @@ return(implode("/",$tab));
 }
 // conversion d'une date en fran�is jj/mm/aa vers anglais aa-mm-jj
 function DateA($DateOr){
-$tab=explode("/",$DateOr);
-$tab[0]=$tab[0]+0;
-$tab[1]=$tab[1]+0;
-if ($tab[2]=="") $tab[2]=date("Y");
-if ($tab[2]<70) $tab[2]+=2000;
-if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
-$DateOr=$tab[2]."-".$tab[1]."-".$tab[0];
+if (strstr($DateOr,"-")) { // si pas de /, fait rien elle est peut-etre deja au bon format
+	$tab=explode("/",$DateOr);
+	$tab[0]=$tab[0]+0;
+	$tab[1]=$tab[1]+0;
+	if ($tab[2]=="") $tab[2]=date("Y");
+	if ($tab[2]<70) $tab[2]+=2000;
+	if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
+	$DateOr=$tab[2]."-".$tab[1]."-".$tab[0];
+}
 return($DateOr);
 }
 // fonction inverse (anglais vers fran�is)
 function DateF($DateOr){
-$tab=explode("-",$DateOr);
-$tab[0]=$tab[0]+0;
-$tab[1]=$tab[1]+0;
-if ($tab[1]<10) $tab[1]="0".$tab[1];
-$DateOr=$tab[2]."/".$tab[1]."/".$tab[0];
+if (strstr($DateOr,"-")) { // si pas de -, fait rien elle est peut-etre deja au bon format
+	$tab=explode("-",$DateOr);
+	$tab[0]=$tab[0]+0;
+	$tab[1]=$tab[1]+0;
+	if ($tab[1]<10) $tab[1]="0".$tab[1];
+	$DateOr=$tab[2]."/".$tab[1]."/".$tab[0];
+}
 return($DateOr);
 }
 function DateF2tstamp($DateStr) {

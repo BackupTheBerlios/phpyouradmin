@@ -404,7 +404,14 @@ function EchoEdit($DH=true) {
         // est certainement ï¿½piocher dans une liste clï¿½valeurs et non ï¿½afficher telle quelle
            $Val2Af=DispCustHT($this->RVLS("&nbsp;"));
            $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
-           $this->TypeAff="STAF"; // pour ne plus rien faire ...
+	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
+	// si on le fait, si on rappelle deux fois la méthode pour le même champ ds une page
+	// ça plante 
+		if ($this->DirEcho) {
+			echo $retVal;
+		} else {
+			return($retVal);
+		}
            break;
 
      // le reste on change pas, les photos sont traitï¿½s dans la proc elle-meme
