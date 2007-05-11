@@ -405,8 +405,8 @@ function EchoEdit($DH=true) {
            $Val2Af=DispCustHT($this->RVLS("&nbsp;"));
            $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
 	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
-	// si on le fait, si on rappelle deux fois la méthode pour le même champ ds une page
-	// ça plante 
+	// si on le fait, si on rappelle deux fois la mï¿½hode pour le mï¿½e champ ds une page
+	// ï¿½ plante 
 		if ($this->DirEcho) {
 			echo $retVal;
 		} else {

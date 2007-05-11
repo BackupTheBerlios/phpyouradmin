@@ -73,7 +73,7 @@ return(implode("/",$tab));
 }
 // conversion d'une date en fran�is jj/mm/aa vers anglais aa-mm-jj
 function DateA($DateOr){
-if (strstr($DateOr,"-")) { // si pas de /, fait rien elle est peut-etre deja au bon format
+if (strstr($DateOr,"/")) { // si pas de /, fait rien elle est peut-etre deja au bon format
 	$tab=explode("/",$DateOr);
 	$tab[0]=$tab[0]+0;
 	$tab[1]=$tab[1]+0;
