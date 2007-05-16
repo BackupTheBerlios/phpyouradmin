@@ -11,6 +11,7 @@ class PYAobj {
   var $TTC; 
   var $FieldValDef="";
   var $ValChp;
+  var $ValChpAvMajA; // val chp avant MAJ auto
   var $FieldNullOk; // YES ou rien
   var $FieldKey; // cl�PRI, index=MUL, unique=UNI
   var $FieldExtra; // auto_increment
@@ -619,7 +620,8 @@ function EchoEdit($DH=true) {
 
       case "STA": // statique  simple
      // remplace caract�e merdiques et converti adresses mail en cliquables pour le HTML
-      $Val2Af=DispCustHT($this->ValChp);
+      if ($this->ValChpAvMajA!=$this->ValChp && $this->ValChpAvMajA!="") $Val2Af="Valeur avant MAJ: ".DispCustHT($this->ValChpAvMajA)."; Après: ";
+      $Val2Af.=DispCustHT($this->ValChp);
       $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
 
@@ -750,6 +752,7 @@ function EchoEditAuto() {
 
   
 Function InitAvMaj($User="") {
+  $this->ValChpAvMajA=$this->ValChp;
   switch ($this->Tt_AvMaj) {
     case "DJ": // date du jour
       $this->ValChp=date("Y-m-d");
