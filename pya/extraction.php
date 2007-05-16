@@ -32,17 +32,21 @@ if ($debug) {
    echovar("tbAfC");}
   
 if ($NM_TABLE!="__reqcust") {
-   // recup libell�et commentaire de la table
+   // recup libelle et commentaire de la table
    $LB_TABLE=epurelongchp(RecLibTable($NM_TABLE,0));
    echo "Edition de la table $LB_TABLE ($NM_TABLE)\n\n";
 
    $result=msq("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $whodb");
-   // on compte le nombre de ligne renvoy� par la requ�e
+   // on compte le nombre de ligne renvoyee par la requ�e
    }
 else { // req custom
    $result=msq($reqcust);
    $LB_TABLE=$ss_parenv[lbreqcust];
    $COM_TABLE="";
+}
+
+if ($_REQUEST['encod']=="iso") {
+	$LB_TABLE=utf8_decode($LB_TABLE);
 }
 
 $nbrows=db_num_rows($result);

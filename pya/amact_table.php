@@ -1,9 +1,10 @@
-<? require("infos.php");
+<?php 
+require("infos.php");
 sess_start();
 include_once("reg_glob.inc");
 DBconnect();
 // r�onse a un ajout, modif ou suppression d'un enregistrement
-if ($debug) echovar("_FILES");
+//if ($debug) echovar("_FILES");
 // s'il existe au moins 1 champ fichier-photo,
 // on calcule la CLE POUR LE NOM DE STOCKAGE DES FICHIERS ATTACHES EVENTUELS
 // uniquement en cas autre que modif: ds ce cas c'est pas la peine, $keycopy=$key
@@ -51,7 +52,8 @@ if ($modif=="1" && $key!="") {
 			}
 		} // fin si pas session pgsql
 	// echo "Keycopy: $keycopy <BR>";
-	} // fin s'il y a au moins un champ fichier attach�} // fin si autre que modif
+	} // fin s'il y a au moins un champ fichier attach�
+} // fin si autre que modif
   
 // construction du set, necessite uniquement le nom du champ ..
 $rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
