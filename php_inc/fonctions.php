@@ -112,6 +112,20 @@ function vdc($strap,$nbcar) {
 return (substr($strap,0,strlen($strap)-$nbcar));
 }
 
+// fonction qui convertit le contenu d'une valeur geree par LDLM dans pya ( ,toto,titi,
+// en valeur mettable dans un IN sql
+function cvldlm2in ($strap,$addsl=false) {
+	if ($addsl) $adsl="'";
+	if (strstr($strap,",")) {
+		$tbuids=explode(",",$strap);
+		foreach($tbuids as $uid) {
+			if ($uid!="") $tbuids2[]=$adsl.$uid.$adsl;
+		}
+		$uidin=implode(",",$tbuids2);
+	} else $uidin=$adsl.$uids.$adsl;
+	return($uidin);
+}
+
 // fonction qui renvoie x espaces ins�ables
 function nbsp($i=1){
 return(str_repeat("&nbsp;",$i));
