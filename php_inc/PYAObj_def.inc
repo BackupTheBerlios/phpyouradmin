@@ -11,6 +11,7 @@ class PYAobj {
   var $TTC; 
   var $FieldValDef="";
   var $ValChp;
+  var $ValChpAvMaj; // valeur champ avabt MAJ
   var $FieldNullOk; // YES ou rien
   var $FieldKey; // cl�PRI, index=MUL, unique=UNI
   var $FieldExtra; // auto_increment
@@ -372,11 +373,11 @@ function EchoEditAll($DH=true) {
 // pour tes les type d'aff <> de AUT  
 function EchoEdit($DH=true) {
   global $VSLD,$nbrtxa,$nbctxa;
-  
   if (!strstr($this->FieldType,'date')) { 
     if ($this->TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); }
   else {
   	$this->ValChp=DateF($this->ValChp);
+  	if ($this->ValChpAvMaj!="") $this->ValChpAvMaj=DateF($this->ValChpAvMaj);
   	$size=' SIZE="10" ';
   	$mxsize=' maxlength="10" ';
   	}
@@ -621,6 +622,7 @@ function EchoEdit($DH=true) {
       case "STA": // statique  simple
      // remplace caract�e merdiques et converti adresses mail en cliquables pour le HTML
       $Val2Af=DispCustHT($this->ValChp);
+      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $Val2Af.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
       $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
 
@@ -645,6 +647,7 @@ function EchoEdit($DH=true) {
         $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
+        if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
       break;
      } // fin switch sur type d'affichage
     
@@ -721,6 +724,8 @@ function EchoEditAuto() {
 
      case "date" : // on passe la date en fran�is
          $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".DateF($this->ValChp)."\" size=\"10\" maxlength=\"10\">";
+         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DateF($this->ValChpAvMaj).") ";
+
        break;
 
      case "txtblob" : // textarea
@@ -733,10 +738,13 @@ function EchoEditAuto() {
        $lg= substr($lg,1,-1); // ne r�up�e que l'entier
        $size=min(intval($lg*1.5),100);
          $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" ".($lg > 0 ? "maxlength=\"$lg\" size=\"$size\"": "").">";
+         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".$this->ValChpAvMaj.") ";
+        
        break;
 
      default :
          $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
+         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".$this->ValChpAvMaj.") ";
        break;
      } // fin switch type de champ
      
@@ -750,9 +758,12 @@ function EchoEditAuto() {
   } // fin Methode EchoEditAuto
 
   
-Function InitAvMaj($User="") {
+function InitAvMaj($User="") {
+if ($this->TypEdit!="C") {
+  unset($this->ValChpAvMaj);
   switch ($this->Tt_AvMaj) {
     case "DJ": // date du jour
+      $this->ValChpAvMaj=$this->ValChp;
       $this->ValChp=date("Y-m-d");
       break;  
     case "DJSN": // date du jour si nul
@@ -762,6 +773,7 @@ Function InitAvMaj($User="") {
       if ($this->ValChp=="" || $this->ValChp==0) $this->ValChp=date("Y-m-d",time()+5270400);
       break;  
     case "US": // code User
+      $this->ValChpAvMaj=$this->ValChp;
       if ($User!="") {
         $this->ValChp=$User; // ici CORES
       }else{
@@ -785,7 +797,8 @@ Function InitAvMaj($User="") {
     default :
       break;
     } // fin switch sur type de MAJ avant
-  } // fin m�hode d'init ava MAJ
+  } // fin Typedit !="C"    
+} // fin m�hode d'init ava MAJ
 
 // m�hode retourne un set pour les mises �jour
 // et g�e aussi les fichiers joints (!)
