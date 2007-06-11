@@ -81,8 +81,8 @@ Merci<br><br>",
 
 "ER_record_of_table"=>" d'un enregistrement de la table ",
 "ER_record_details"=>"Details d'un enregistrement ",
-"ER_record_car"=>"Caract�istiques de l'enregistrement ",
-"ER_raz_confirm"=>"Etes-vous certain de vouloir remettre �leur valeur d\'origine tous les champs de cette page ? ",
+"ER_record_car"=>"Caractéristiques de l'enregistrement ",
+"ER_raz_confirm"=>"Etes-vous certain de vouloir remettre à leur valeur d\'origine tous les champs de cette page ? ",
 
 
 "BT_retour"=>" << Retour ",

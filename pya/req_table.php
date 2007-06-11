@@ -18,11 +18,14 @@ $reqcust=$lc_reqcust;
 $_SESSION["reqcust"]=$reqcust; //session_register("reqcust");
 
 // reset des variables de session de tri, d'ordre, d'enregistrement de d�ut et d'affichage des colonnes
-//unregvar ("where_sup");
-$_SESSION["tbchptri"]=array(); //unregvar ("tbchptri");
-$_SESSION["tbordtri"]=array(); //unregvar ("tbordtri");
+unregvar ("where_sup");
+//$_SESSION["tbchptri"]=array(); 
+unregvar ("tbchptri");
+//$_SESSION["tbordtri"]=array(); 
+unregvar ("tbordtri");
 $_SESSION["FirstEnr"]=0;
-$_SESSION["tbAfC"]=array(); //unregvar ("tbAfC");
+//$_SESSION["tbAfC"]=array(); 
+unregvar ("tbAfC");
 $NoConfSuppr=$lc_NoConfSuppr;
 $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
 
@@ -74,7 +77,7 @@ while ($res=db_fetch_array($qr))
   }
 ?>
 <tr><td colspan="3" align="center"><br>
-<?=ret_adrr($_SERVER["PHP_SELF"],true,trad('REQ_retLT'))?>
+<?=trad(LT_nblig_aff_ppage)?> <input type="text" name="lc_nbligpp" size="3" maxlength="3" value="<? echo ($nbligpp>0 ? $nbligpp : $nbligpp_def) ?>"><br><?=ret_adrr($_SERVER["PHP_SELF"],true,'REQ_retLT')?>
 <img src="./shim.gif" height="1" width="10">
 <a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad('BT_valider')?> </a>
 </td></tr>

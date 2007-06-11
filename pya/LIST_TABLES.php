@@ -1,13 +1,20 @@
 <? require("infos.php");
 sess_start();
 // reset des variables de session de tri
-$_SESSION["where_sup"]=""; //unregvar ("where_sup");
-$_SESSION["tbchptri"]=array(); //unregvar ("tbchptri");
-$_SESSION["tbordtri"]=array(); //unregvar ("tbordtri");
+//$_SESSION["where_sup"]=""; 
+unregvar ("where_sup");
+//$_SESSION["tbchptri"]=array(); 
+unregvar ("tbchptri");
+//$_SESSION["tbordtri"]=array(); 
+unregvar ("tbordtri");
 $_SESSION["FirstEnr"]=0;
-$_SESSION["tbAfC"]=array(); //unregvar ("tbAfC");
-$_SESSION["ss_parenv"]['NoConfSuppr']=""; //unregvar ("ss_parenv['NoConfSuppr']");
-if ($cfLB=="vrai") $_SESSION["reqcust"]=""; //unregvar("reqcust"); // si on vient de la liste des bases, on anule la req
+//$_SESSION["tbAfC"]=array(); 
+unregvar ("tbAfC");
+//$_SESSION["ss_parenv"]['NoConfSuppr']=""; 
+unregvar ("ss_parenv['NoConfSuppr']");
+//if ($cfLB=="vrai") $_SESSION["reqcust"]=""; //unregvar("reqcust"); // si on vient de la liste des bases, on anule la req
+if ($cfLB=="vrai") unregvar("reqcust"); // si on vient de la liste des bases, on anule la req
+
 // suppression de la var de session au cas ou on ai appel�un ajout directement
 if (isset($ss_adrr['edit_table.php']))
    {

@@ -67,8 +67,9 @@ function DelItem() {
 
 function MajClose() {
   var srcList  = document.getElementById("resList");
-  var destList  = window.opener.document.getElementById("<?=$_REQUEST['NmChp']?>"); 
   var lens = srcList.options.length;
+//  var destList  = opener.document.getElementById("<?=$_REQUEST['NmChp']?>"); 
+  var destList  = window.opener.document.getElementById("<?=$_REQUEST['NmChp']?>"); 
 
   // efface toutes les valeurs dans la liste parente  
   var lend = destList.options.length;

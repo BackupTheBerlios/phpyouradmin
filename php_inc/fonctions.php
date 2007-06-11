@@ -633,12 +633,13 @@ else {// boutons radio
  
 // fonction qui efface une variable de session si elle existe
 // et la d�ruit par d�aut
-function unregvar($var,$annvar=true)
-{
-if (isset($var)) {
+function unregvar($var,$annvar=true) {
+global $$var;
+//if (isset($var)) {
   session_unregister($var);
+  unset($_SESSION[$var]);
   if ($annvar) unset($$var); // d�ruit par d�aut ensuite
-  }
+//  }
 }
 
 // fonction qui met les bonnes balises Javascript

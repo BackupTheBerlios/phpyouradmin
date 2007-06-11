@@ -1,7 +1,7 @@
 <?
 require("infos.php");
 sess_start();
-print_r($SESSION);
+//print_r($SESSION);
 include_once("reg_glob.inc");
 DBconnect();
 
@@ -145,7 +145,7 @@ if ($NM_TABLE!="__reqcust") {
    $result=msq("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
 
    $EchWher="<br><small>Condition: $where</small>";
-   $TitreHP=($ss_parenv[ro]==true ? trad(com_consultation) : trad(com_edition)).trad(com_de_la_table). $LB_TABLE;
+   $TitreHP=($ss_parenv[ro]==true ? trad('com_consultation') : trad('com_edition')).trad('com_de_la_table'). $LB_TABLE;
    } // fin si pas req custom
 
 else { // req custom
@@ -160,7 +160,7 @@ else { // req custom
 // on compte le nombre de ligne renvoy� par la requ�e
 $nbrows=db_num_rows($result);
 
-$title=trad(LR_title). $NM_TABLE." , ".trad(com_database)." ". $DBName;
+$title=trad('LR_title'). $NM_TABLE." , ".trad('com_database')." ". $DBName;
 include ("header.php");
 //echovar("_SESSION");
 //echovar("_REQUEST");
@@ -169,8 +169,9 @@ include ("header.php");
 <a name="haut"></a>
 <div align="center">
 <?
+//print_r($_SESSION["tbAfC"]);
 if (!$ss_parenv['noinfos'] || true) { ?>
-<H3><?=trad(com_database)." ".$DBName?></H3> <? }
+<H3><?=trad('com_database')." ".$DBName?></H3> <? }
 ?>
 <H1><?=$TitreHP?></H1>
 <?
@@ -185,7 +186,7 @@ if (($where!="" || $NM_TABLE=="__reqcust") && !$ss_parenv[noinfos]) echo $EchWhe
 if ($nbrows==0)// Si nbr�ultat = 0
     {
     ?>
-    <H3><?=trad(LR_no_record)?></H3>
+    <H3><?=trad('LR_no_record')?></H3>
     <?
   }
 else // si nbr�ultat>0
@@ -195,25 +196,25 @@ else // si nbr�ultat>0
   <script language="JavaScript">
   // boite de confirmation  de suppression d'un enregistrement
     function ConfSuppr(url) {
-    if (<?=($NoConfSuppr!="No" ? "confirm('".trad(LR_confirm_del_message)."')": "true")?>)
+    if (<?=($NoConfSuppr!="No" ? "confirm('".trad('LR_confirm_del_message')."')": "true")?>)
         self.location.href=url;
     }
   </script>
 
-  <H3><?=$nbrows.trad(com_record).$s.trad(LR_to_list)?> </H3>
-  <H4><?=trad(LR_display_record).$s?> <em><?echo ($FirstEnr+1)." ".trad(com_to)." ".min($nbrows,($FirstEnr+$nbligpp));  ?> </em></H4>
+  <H3><?=$nbrows.trad('com_record').$s.trad('LR_to_list')?> </H3>
+  <H4><?=trad('LR_display_record').$s?> <em><?echo ($FirstEnr+1)." ".trad('com_to')." ".min($nbrows,($FirstEnr+$nbligpp));  ?> </em></H4>
   <?if ($ss_parenv[ro]!=true && $NM_TABLE!="__reqcust") {?>
-  &nbsp;&nbsp;<a class="fxbutton" href="edit_table.php" title="<?=trad(LT_addrecord)?>"> <img src="new_r.gif"> <?=trad(LT_addrecord)?></a><?=nbsp(15)?>
+  &nbsp;&nbsp;<a class="fxbutton" href="edit_table.php" title="<?=trad('LT_addrecord')?>"> <img src="new_r.gif"> <?=trad('LT_addrecord')?></a><?=nbsp(15)?>
   <?}?>
-  <a href="#bas" class="fxbutton" title="<?=trad(com_vers_enbas_bulle)?>"><img src="flbas.png"> <?=trad(com_vers_enbas)?></a><br>
+  <a href="#bas" class="fxbutton" title="<?=trad('com_vers_enbas_bulle')?>"><img src="flbas.png"> <?=trad('com_vers_enbas')?></a><br>
   <? if ($orderb!="" && !$ss_parenv[noinfos])
-    echo "<small>".str_replace ("ORDER BY", trad(LR_orderby),$orderb)."</small><BR>";
+    echo "<small>".str_replace ("ORDER BY", trad('LR_orderby'),$orderb)."</small><BR>";
     ?>
     <!--On affiche les colonnes qui correspondent aux champs selectionn�-->
     <TABLE>
     <TR class="THEAD" valign="top">
   <TD class="th" align="center">
-  <? echo (($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") ? trad(com_details) : trad(LR_del_mod_cop)); ?>
+  <? echo (($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") ? trad('com_details') : trad('LR_del_mod_cop')); ?>
   </TD>
   <?
   if ($NM_TABLE!="__reqcust") {
@@ -222,7 +223,7 @@ else // si nbr�ultat>0
      while ($res0=db_fetch_assoc($rq1)) {
          $tbobjCC[$nbcol]=$res0[$ult['NM_CHAMP']];
          if ($_SESSION["tbAfC"][$res0[$ult['NM_CHAMP']]]) {
-         	$nbcol++; // la condition n'est true que si champ �afficher et case coch�
+         	$nbcol++; // la condition n'est true que si champ a afficher et case cochee 
          	}
          }
      $nbcol=($nbcol-1);
@@ -249,8 +250,8 @@ else // si nbr�ultat>0
        $tbCIL=InitPOReq($reqcust,$DBName); // construction ey initialisation du tableau d'objets
   }
 
-  $lb_orderasc=trad(LR_order_asc);
-  $lb_orderdesc=trad(LR_order_desc);
+  $lb_orderasc=trad('LR_order_asc');
+  $lb_orderdesc=trad('LR_order_desc');
 
   foreach($tbCIL as $CIL) {
       $NomChamp=$CIL->NmChamp;
@@ -346,26 +347,27 @@ else // si nbr�ultat>0
 <br>
 
   <?if ($ss_parenv[ro]!=true && $NM_TABLE!="__reqcust") {?>
-    <a class="fxbutton" href="edit_table.php" title="<?=trad(LT_addrecord)?>"> <img src="new_r.gif"> <?=trad(LT_addrecord)?></a><?=nbsp(15)?>
+    <a class="fxbutton" href="edit_table.php" title="<?=trad('LT_addrecord')?>"> <img src="new_r.gif"> <?=trad('LT_addrecord')?></a><?=nbsp(15)?>
   <?}?>
-  <a href="#haut" class="fxbutton" title="<?=trad(com_vers_enhaut_bulle)?>"><img src="flhaut.png"> <?=trad(com_vers_enhaut)?></a>
+  <a href="#haut" class="fxbutton" title="<?=trad('com_vers_enhaut_bulle')?>"><img src="flhaut.png"> <?=trad('com_vers_enhaut')?></a>
 
   <?
   if ($FirstEnr>0) {
-    echo "&nbsp;&nbsp;&nbsp;<A class=\"fxbutton\" style=\"padding-top: 7px\" HREF=\"list_table.php?lc_FirstEnr=".max(0,$FirstEnr-$nbligpp)."\" title=\"".trad(LT_display_the).$nbligpp.trad(LT_preced_recs)."\"> <img src=\"preced.png\" border=\"0\"> </A>&nbsp;&nbsp;&nbsp;";
+    echo "&nbsp;&nbsp;&nbsp;<A class=\"fxbutton\" style=\"padding-top: 7px\" HREF=\"list_table.php?lc_FirstEnr=".max(0,$FirstEnr-$nbligpp)."\" title=\"".trad('LT_display_the').$nbligpp.trad('LT_preced_recs')."\"> <img src=\"preced.png\" border=\"0\"> </A>&nbsp;&nbsp;&nbsp;";
     }
   if (($FirstEnr+$nbligpp)<$nbrows) {
-    echo "&nbsp;&nbsp;&nbsp;<A class=\"fxbutton\" style=\"padding-top: 7px\"  HREF=\"list_table.php?lc_FirstEnr=".($FirstEnr+$nbligpp)."\" title=\"".trad(LT_display_the).$nbligpp.trad(LT_follow_recs)."\"> <img src=\"suivant.png\" border=\"0\"> </A>";
+    echo "&nbsp;&nbsp;&nbsp;<A class=\"fxbutton\" style=\"padding-top: 7px\"  HREF=\"list_table.php?lc_FirstEnr=".($FirstEnr+$nbligpp)."\" title=\"".trad('LT_display_the').$nbligpp.trad('LT_follow_recs')."\"> <img src=\"suivant.png\" border=\"0\"> </A>";
     }
 	?>
+  &nbsp;&nbsp;&nbsp;<?=trad(LT_nblig_aff_ppage)?> <input type="text" name="lc_nbligpp" size="3" maxlength="3" value="<? echo ($nbligpp>0 ? $nbligpp : $nbligpp_def) ?>">
   <br><br><?=ret_adrr($_SERVER["PHP_SELF"],true)?>
     <? if ($PgReq==1) { ?>
-       &nbsp;&nbsp;&nbsp;<a class="fxbutton" title="<?=trad(LR_query_back_bulle)?>" href="req_table.php?lc_NM_TABLE=<?=$NM_TABLE?>"> <?=trad(LR_query_back)?> </a>
+       &nbsp;&nbsp;&nbsp;<a class="fxbutton" title="<?=trad('LR_query_back_bulle')?>" href="req_table.php?lc_NM_TABLE=<?=$NM_TABLE?>"> <?=trad('LR_query_back')?> </a>
 <?  } if ($nbrows>0) {?>
-  <img src="shim.gif" height="1" width="50"><a class="fxbutton" href="extraction.php?whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad(LR_download_bulle)?>"><img src="filesave.png"> <?=trad(LR_download)?></A> &nbsp;&nbsp;&nbsp; <a class="fxbutton" href="extraction.php?encod=iso&whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad(LR_download_bulle)?> EN ISO FORMAT"> <img src="filesave.png">Extract. ISO</A>
+  <img src="shim.gif" height="1" width="50"><a class="fxbutton" href="extraction.php?whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad('LR_download_bulle')?>"><img src="filesave.png"> <?=trad('LR_download')?></A> &nbsp;&nbsp;&nbsp; <a class="fxbutton" href="extraction.php?encod=iso&whodb=<?=urlencode($where." ".$orderb)?>" title="<?=trad('LR_download_bulle')?> EN ISO FORMAT"> <img src="filesave.png">Extract. ISO</A>
   <? if ($MailATous!="") {
 	$MailATous=vdc($MailATous,1); // d�age la derniere virgule
-  ?> &nbsp;&nbsp;&nbsp;<a href="mailto:<?=$MailATous?>" title="<?=trad(LR_mail_to_all_bulle)?>"><img src="mail_send.png"> <?=trad(LR_mail_to_all)?></A>
+  ?> &nbsp;&nbsp;&nbsp;<a href="mailto:<?=$MailATous?>" title="<?=trad('LR_mail_to_all_bulle')?>"><img src="mail_send.png"> <?=trad('LR_mail_to_all')?></A>
   <? 	} // fin MailATous
    } // fin nblig>0
    ?>
@@ -377,7 +379,7 @@ function DispFlClasst($NmChamp) { // affiche fleches de classement
 global $tbchptri, $tbordtri;
 for ($l=1;$l<=3;$l++) {
   if ($tbchptri[$l]==$NmChamp) {
-    echo "<IMG SRC=\"fl".$l.$tbordtri[$l].".gif\" alt=\"la fl�he indique le sens et le n l'ordre de cl�du classement de ce champ\">&nbsp;";
+    echo "<IMG SRC=\"fl".$l.$tbordtri[$l].".gif\" alt=\"la flèche indique le sens et le n° d'ordre de clé du classement de ce champ\">&nbsp;";
     break;
     }
   }
