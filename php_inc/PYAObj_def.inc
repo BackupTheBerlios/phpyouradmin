@@ -588,7 +588,7 @@ function EchoEdit($DH=true) {
 	$retVal.='</SELECT>';
 	
 	$retVal.= '<input type="button" class="fxbutton" onclick="popup(\''.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)" value=" M " />';
-	$retVal.= '<a target="_blank" href="'.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'">M</a>';
+	//$retVal.= '<a target="_blank" href="'.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'">M</a>';
 
 	break;
     		
