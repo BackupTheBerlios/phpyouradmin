@@ -155,7 +155,7 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 				$ret[$NM_CHAMP]['FieldType']=$row_table_def['Type'];
 				//$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "" );
 				$ret[$NM_CHAMP]['FieldValDef']=$row_table_def['Default'];
-				$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
+				$ret[$NM_CHAMP]['FieldNullOk']=(strtoupper($row_table_def['Null'])=="YES" ? "yes" : "no"); // YES ou rien
 				$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : ""); // cl�PRI, index=MUL, unique=UNI
 				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
 			}

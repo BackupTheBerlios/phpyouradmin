@@ -879,7 +879,7 @@ if ($echov)
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp LIKE '%".$valf."%' OR "; // on av vire les % puis les a remis
+                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp LIKE '%".addslashes($valf)."%' OR "; // on av vire les % puis les a remis
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!
@@ -896,7 +896,7 @@ if ($echov)
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".$valf."' OR ";
+                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".addslashes($valf)."' OR ";
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR  
 	   // et rajoute () !!          

@@ -34,7 +34,7 @@ function ahahDone(target) {
        } else {
            document.getElementById(target).innerHTML=\"ahah error:\" + req.statusText;
        }
-   }
+   } 
 }
 /* End of JS Functions for Ajax/XMLHttpRequest dynamic content (made by DLCube ;) */
 
