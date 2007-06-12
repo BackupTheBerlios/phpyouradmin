@@ -66,10 +66,13 @@ function DelItem() {
 }
 
 function MajClose() {
+  var l=0;
   var srcList  = document.getElementById("resList");
   var lens = srcList.options.length;
+//  alert(lens);
 //  var destList  = opener.document.getElementById("<?=$_REQUEST['NmChp']?>"); 
   var destList  = window.opener.document.getElementById("<?=$_REQUEST['NmChp']?>"); 
+  alert (destList.options.length);
 
   // efface toutes les valeurs dans la liste parente  
   var lend = destList.options.length;
@@ -79,8 +82,14 @@ function MajClose() {
     
   for(var i = (lens-1); i >= 0; i--) {
     if (srcList.options[i] != null) {
-        destList.options[destList.options.length] = new Option(srcList.options[i].text, srcList.options[i].value);
-	destList.options[destList.options.length-1].selected=true;
+        l=destList.options.length;
+    	destList.options.length++;
+    	destList.options[l].value=srcList.options[i].value;
+	destList.options[l].text=srcList.options[i].text;
+        
+        // fait planter IE
+        //destList.options[destList.options.length] = new Option(srcList.options[i].text, srcList.options[i].value);
+	destList.options[destList.options.length - 1].selected = true;
 	//destList.options[ -1].selected=true;
     }
   }
