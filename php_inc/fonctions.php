@@ -909,18 +909,56 @@ if ($echov)
       case "DPOST" : // date ant�ieure 
       if ($ValF=="%" || $ValF=="") break; // pas de condition
         $oprq=($TypF=="DANT" ? "<=" : ">="); // calcul de l'op�ateur
-        $cond="$NomChp $oprq '".DateA($ValF)."'";
+        if ($typChpNum) { // alors c un tstamp
+        	$cond="$NomChp $oprq ".DateF2tstamp($ValF)."";
+        } else
+        	$cond="$NomChp $oprq '".DateA($ValF)."'";
         break;
 
       case "DATAP" : // date inf et sup
-        if ($ValF[0]!="%" && $ValF[0]!="") $cond="$NomChp >= '".DateA($ValF[0])."'";
+        if ($ValF[0]!="%" && $ValF[0]!="") {
+        	 if ($typChpNum) { // alors c un tstamp
+        	 	$cond="$NomChp >= ".DateF2tstamp($ValF[0])."";
+        	 } else 
+        		$cond="$NomChp >= '".DateA($ValF[0])."'";
+        }
 
         if ($ValF[1]!="%" && $ValF[1]!="") {
            $cond=($cond=="" ? "" : $cond." AND ");
-           $cond.="$NomChp <= '".DateA($ValF[1])."'";
+           if ($typChpNum) { // alors c un tstamp
+        	 	$cond="$NomChp <= ".DateF2tstamp($ValF[1])."";
+        	 } else 
+        		$cond.="$NomChp <= '".DateA($ValF[1])."'";
            }
         break;
          
+      case "VINF" : // inf
+      case "VSUP" : // sup 
+      if ($ValF=="%" || $ValF=="") break; // pas de condition
+        $oprq=($TypF=="VINF" ? "<=" : ">="); // calcul de l'op�ateur
+        if ($typChpNum) { //
+        	$cond="$NomChp $oprq $ValF";
+        } else // marche avec alpha
+        	$cond="$NomChp $oprq '".$ValF."'";
+        break;
+
+      case "VIS" : // inf et sup
+        if ($ValF[0]!="%" && $ValF[0]!="") {
+        	 if ($typChpNum) { // alors c un tstamp
+        	 	$cond="$NomChp >= ".$ValF[0]."";
+        	 } else // marche avec alpha
+        		$cond="$NomChp >= '".$ValF[0]."'";
+        }
+
+        if ($ValF[1]!="%" && $ValF[1]!="") {
+           $cond=($cond=="" ? "" : $cond." AND ");
+           if ($typChpNum) { //
+        	 	$cond="$NomChp <= ".$ValF[1]."";
+        	 } else 
+        		$cond.="$NomChp <= '".$ValF[1]."'";
+           }
+        break;
+
       default :
         $cond="";
         break;

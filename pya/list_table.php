@@ -324,9 +324,9 @@ else // si nbr�ultat>0
         echo "<A HREF=\"edit_table.php?key=".$key."&modif=1\" TITLE=\"$lb_recedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"18\"></A>&nbsp;";
         echo "<A HREF=\"edit_table.php?key=".$key."&modif=2\" TITLE=\"$lb_reccopy\"><IMG SRC=\"copie.png\" border=\"0\" height=\"18\"></A>";
         }
-    else { // affichage en read only (loupe et d�ails de l'enregistrement)
-         echo "<A HREF=\"edit_table.php?key=".$key."&modif=1\"><IMG SRC=\"loupe.gif\" ALT=\"$lb_recshow\" border=\"0\"></A>";
-    }
+//    else { // affichage en read only (loupe et d�ails de l'enregistrement)
+         echo "<A HREF=\"edit_table.php?key=".$key."&modif=C\"  TITLE=\"$lb_recshow\" ><IMG SRC=\"loupe.gif\" border=\"0\"></A>";
+//    }
       echo "</TD>\n";
     // colonnes suivantes
       foreach ($tbCIL as $objCIL){ // boucle sur le tableau d'objets colonnes

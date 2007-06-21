@@ -4,13 +4,18 @@ sess_start();
 include_once("reg_glob.inc");
 DBconnect();
 
+if ($modif=="C") {
+   	$modif=1;
+   	$ss_parenv['ro']=true;
+   }
+
 if ($NM_TABLE!="__reqcust") {
    // recup libell�et commentaire de la table
    $LB_TABLE=RecLibTable($NM_TABLE,0);
    $COM_TABLE=RecLibTable($NM_TABLE,1);
 
    if ($modif==1)
-      {$lbtitre=($ss_parenv[ro]==true ? trad(com_consultation) : trad(com_edition)).trad(ER_record_of_table). $LB_TABLE;}
+      {$lbtitre=($ss_parenv['ro']==true ? trad(com_consultation) : trad(com_edition)).trad(ER_record_of_table). $LB_TABLE;}
    else if ($modif==2)
       {$lbtitre=trad(com_copy).trad(ER_record_of_table).$LB_TABLE;}
    else
@@ -96,7 +101,7 @@ if ($poplex) JSpopup(); // s'il existe au moins une edition en popup li� colle
 <?
 
 foreach ($ECT as $PYAObj) {
-  if ($ss_parenv[ro]==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq sp�iale
+  if ($ss_parenv['ro']==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq sp�iale
   $NM_CHAMP=$PYAObj->NmChamp;
   if ($modif!="") $PYAObj->ValChp=$tbValChp[$NM_CHAMP]; // si pas cr�tion (edit ou copy recup la val)
 
@@ -126,9 +131,9 @@ foreach ($ECT as $PYAObj) {
 
 <div ALIGN="center">
 <br>
-<a href="<?=ret_adrr($_SERVER["PHP_SELF"])."?cfp=edit"?>"><img src="./fermer.gif" border="0" alt="<?=($ss_parenv[ro]!=true ? "Annuler tous les changement et ":"")?>fermer"></A>
+<a href="<?=ret_adrr($_SERVER["PHP_SELF"])."?cfp=edit"?>" class="fxbutton"><?=($ss_parenv['ro']!=true ? "Annuler tous les changement et ":"")?>fermer</A>
 <? // boutons valider et annuler que quand read only false
-    if ($ss_parenv[ro]!=true) { ?>
+    if ($ss_parenv['ro']!=true) { ?>
         &nbsp;&nbsp;&nbsp;&nbsp;
 		<a href="<?=($poplex ? "closepop();" : "")?>javascript:ConfReset()" class="fxbutton"> <?=trad('BT_reset')?> </a>
 		<!--<A HREF="javascript:ConfReset()" title="RAZ du formulaire"><IMG SRC="./annuler.gif" border="0"></a>-->

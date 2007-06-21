@@ -55,26 +55,32 @@ indtafl=ind-2; // indice de l'element typ affichage ds liste
 indval=ind+1; // indice de l'element valeurs
 
 if (valc=="FICFOT"){
-    alert('Pensez �cr�r un r�ertoire nomm�' + namec +', avec les droits en �riture pour le user du serveur web ....');
+    alert('Pensez a crer un repertoire nomme' + namec +', avec les droits en ecriture pour le user du serveur web ....');
      document.theform.elements[indtafl].selectedIndex=5; // lien
-     document.theform.elements[indval].value='#Dossier de stockage par d�aut: '+namec;
+     document.theform.elements[indval].value='#Dossier de stockage par defaut: '+namec;
   }    
 
 else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL' ||valc=='POPLM' )
   {
-  if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas li�    document.theform.elements[indtafl].selectedIndex=3; } // auto
+  if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas lie
+    document.theform.elements[indtafl].selectedIndex=3; } // auto
   else { 
     document.theform.elements[indtafl].selectedIndex=4; // met type aff ds liste li� si li� en ppal
     }
   if (document.theform.elements[indval].value=='') {
-    document.theform.elements[indval].value='Pensez �rentrer les valeurs ou le lien ici !';
+    document.theform.elements[indval].value='Pensez a rentrer les valeurs ou le lien ici !';
     }
   document.theform.elements[indval].focus();
   }
 
 else if (valc=='HID') 
   {
-  document.theform.elements[indtafl].selectedIndex=0; // cach�  }
+  document.theform.elements[indtafl].selectedIndex=0; // cache
+    }
+else if (valc=='DT_TSTAMP_ED' || valc=='DT_TSTAMP_VS') 
+  {
+  document.theform.elements[indtafl].selectedIndex=6; // timestamp
+    }
 else {
   document.theform.elements[indtafl].selectedIndex=3; // auto
   }
@@ -185,6 +191,8 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("AUT"); //3?>> Auto</option>
       <option value=<? es("LNK"); //4?>> Lié</option>
       <option value=<? es("AHREF"); //5?>> Lien HTML</option>
+      <option value=<? es("DT_TS"); ?>> Date timestamp </option>
+
     </select>
     </TD>
     <?
@@ -212,6 +220,9 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("STA"); ?>> Statique</option>
       <option value=<? es("STAL"); ?>> Statique Liée </option>
       <option value=<? es("FICFOT"); ?>> Fichier-Photo </option>
+      <option value=<? es("DT_TSTAMP_ED"); ?>> Date timestamp editable</option>
+      <option value=<? es("DT_TSTAMP_VS"); ?>> Date timestamp statique</option>
+      
     </select>
     </TD>
     <?
@@ -233,6 +244,10 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("DANT"); ?>>Date antérieure</option>
       <option value=<? es("DPOST"); ?>>Date postérieure</option>
       <option value=<? es("DATAP"); ?>>Date antérieure et postérieure</option>
+      <option value=<? es("VINF"); ?>>Valeur inferieure a</option>
+      <option value=<? es("VSUP"); ?>>Valeur superieure a</option>
+      <option value=<? es("VIS"); ?>>Valeur comprise entre bornes</option>
+      
     </select>
     <?// affichage s�ectionnable dans liste (autrefois Type du champ, maintenant r�up�� d'o le nom du champ...)
     $vares=$row['TYP_CHP'];

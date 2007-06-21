@@ -69,7 +69,7 @@ $retVal="";
 		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ �ur�sans les valeurs (enum, varchar, etc ...)
 		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
 		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
-		if (stristr($TTC,"int") || stristr($TTC,"decimal")|| stristr($TTC,"float")|| stristr($TTC,"double")) $TTC="numeric";
+		if (stristr($TTC,"int") || stristr($TTC,"decimal")|| stristr($TTC,"float")|| stristr($TTC,"double"))  $TTC="numeric";
 		$this->TTC=$TTC;
 		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
 		// si nouvel enregistrement, affecte la valeur par d�au
@@ -192,17 +192,43 @@ $retVal="";
         $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fcrr,false);
         break;
         
-      case "DANT": // criteres sur date ant�ieure ou post�ieure
+      case "DANT": // criteres sur date ant�ieure ou post�ieure, 
       case "DPOST":
+      case "VINF": //valeurs inf et sup
+      case "VSUP":
+      	
+      	switch ($this->TypFilt) {
+		case "DANT": 
+			$clause="ant&eacute;rieure";
+			break;
+		case "DPOST":
+			$clause="post&eacute;rieure";
+			break;
+		case "VINF":
+			$clause="inf&eacute;rieur";
+			break;
+		case "VSUP":
+			$clause="sup&eacute;rieur";
+			break;
+      	}
+       
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
-        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est ". ($this->TypFilt=="DANT" ? "ant&eacute;rieure" : "post&eacute;rieure") ." &agrave;";
+        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est $clause &agrave;";
         $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
         
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
+      case "VIS" : // bornes sup et inf
+      	if ($this->TypFilt=="DATAP") {
+      		$lbi="post&eacute;rieure";
+      		$lbs="ant&eacute;rieure";
+      	} else {
+      		$lbi="sup&eacute;rieur";
+      		$lbs="inf&eacute;rieur";
+      	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>post&eacute;rieure &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> et ant&eacute;rieure &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
              }
         else {
              $retVal.= "$this->Libelle > <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> && < <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
@@ -299,6 +325,10 @@ function DispNeg($DE2=true) {
               {return "Fichier attache".$ChemFF.$this->ValChp;}
   
           }
+        break;
+        
+        case "DT_TS":
+          return date("d/m/Y",$this->ValChp);
         break;
         
       default: 
@@ -623,7 +653,7 @@ function EchoEdit($DH=true) {
       case "STA": // statique  simple
      // remplace caract�e merdiques et converti adresses mail en cliquables pour le HTML
       $Val2Af=DispCustHT($this->ValChp);
-      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $Val2Af.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
+      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $Val2Af.= " (Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
       $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
 
@@ -640,6 +670,18 @@ function EchoEdit($DH=true) {
         $cols=(($defl[1]>0) ? $defl[1] : $nbctxa);
         $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\">".$this->ValChp."</TEXTAREA>";
       break;
+
+    case "DT_TSTAMP_ED": 
+       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\" 10 20 $evJS>";
+        if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
+    break;
+    
+     case "DT_TSTAMP_VS": 
+      $retVal.= date("d/m/Y",$this->ValChp);
+      $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\">";
+      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
+     break;
+
 
     case "TXT":
         $defl=explode(',',$this->Valeurs);
@@ -765,13 +807,14 @@ if ($this->TypEdit!="C") {
   switch ($this->Tt_AvMaj) {
     case "DJ": // date du jour
       $this->ValChpAvMaj=$this->ValChp;
-      $this->ValChp=date("Y-m-d");
+      $this->ValChp=(!strstr($this->TypeAff,"DT_TSTAMP") ? date("Y-m-d") : time());
       break;  
     case "DJSN": // date du jour si nul
-      if ($this->ValChp=="" || $this->ValChp==0) $this->ValChp=date("Y-m-d");
+      if ($this->ValChp=="" || $this->ValChp==0) $this->ValChp=(!strstr($this->TypeAff,"DT_TSTAMP") ? date("Y-m-d") : time());
+
       break;  
     case "DJP2MSN": // date du jour plus 2 mois si nul
-      if ($this->ValChp=="" || $this->ValChp==0) $this->ValChp=date("Y-m-d",time()+5270400);
+      if ($this->ValChp=="" || $this->ValChp==0) $this->ValChp=(!strstr($this->TypeAff,"DT_TSTAMP") ? date("Y-m-d",time() + 5270400) : time() + 5270400); 
       break;  
     case "US": // code User
       $this->ValChpAvMaj=$this->ValChp;
@@ -808,9 +851,12 @@ function RetSet($keycopy,$rttb=false) {
 global $MaxFSizeDef;
 $keycopy=str_replace("'","",$keycopy);
 if ($this->MaxFSize==0 || $this->MaxFSize=="") $this->MaxFSize=$MaxFSizeDef ;
-
+  
   if ($this->TTC=="date") // date
     {$this->ValChp=DateA($this->ValChp);}
+  elseif (strstr($this->TypeAff,"DT_TSTAMP")) {
+     $this->ValChp=DateF2tstamp ($this->ValChp);
+  }
   elseif  (is_array($this->ValChp))  // tableau
     { // on vient d'un set ou d'une liste d�oulante multiple (li� ou pas) et la var est un tableau
 		if($this->TTC!="set") $valset=","; // Nouveau: avant rien

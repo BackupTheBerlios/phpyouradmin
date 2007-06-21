@@ -1,25 +1,27 @@
 <?
 // utilitaire permettant de g��er la table DESC_TABLE qui d�rit les autres pour l'�ition
 
-include_once("reg_glob.inc");
 require("infos.php");
 include("globvar.inc");
 sess_start();
 DBconnect();
 
+
 $title="CREATION DE $TBDname";
 $admadm=1; // titre avec les !!
 include ("header.php"); 
-include ("reg_glob.inc");?>
+include("reg_glob.inc"); 
+
+?>
 <H1>Super Administration de phpYourAdmin</H1>
 <H2>Administration de la table de description <?=$TBDname?></H2> 
 <?
 if ($STEP=="") {
 ?>
 <h2>Bonjour !</h2>
-Cette page va vous permettre de visualiser ou (re)g��er la table utilitaire (nomm� <b><? echo $TBDname; ?></b>) permettant la description pour �ition des autres tables de la base <b><? echo $DBName; ?></b><br><br>
-<h3><u>Attention:</u> Les op�ations qui suivent sont excessivement risqu�s...</b></h3>
-S�ectionner une base dans la liste et cliquez sur le bouton SUITE ci-dessous pour commencer ...<Br>
+Cette page va vous permettre de visualiser ou (re)générer la table utilitaire (nommée <b><? echo $TBDname; ?></b>) permettant la description pour édition des autres tables de la base <b><? echo $DBName; ?></b><br><br>
+<h3><u>Attention:</u> Les operations qui suivent sont excessivement risquees...</b></h3>
+Selectionner une base dans la liste et cliquez sur le bouton SUITE ci-dessous pour commencer ...<Br>
 <form action="./CREATE_DESC_TABLES.php" method="post">
 <h3>Liste des bases du serveur <I><? echo "$LBHost </I>($DBHost)"; ?><br>
 
@@ -37,17 +39,17 @@ DispLD($tbldbas,"DBName");
 } //FIN SI STEP="", ie page d'accueil
 
 else if ($STEP=="1") {
-
+$_SESSION["DBName"]=$DBName;
 ?>
 <?
 //mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de donn�s $DBName.");
 ?>
 <h2>Etape 2</h2>
-La base s�ectionn� est <B><U><?=$DBName?></B></U><br><br>
-Cette page va vous permettre de visualiser ou (re)g��er la table utilitaire (nomm� <b><? echo $TBDname; ?></b>) permettant la description pour �ition des autres tables de la base <b><? echo $DBName; ?></b><br><br>
-Vous pouvez �iter un <a class="alertered14px" href="CONSULT_DESC_TABLES.php?DBName=<?=$DBName?>">�at complet</a> ou un <a class="alertered14px" href="CONSULT_DESC_TABLES.php?DBName=<?=$DBName?>&simpl=1">�at simplifi�/a> de la base</A><br><br>
-<h3><u>Attention:</u> Les op�ations qui suivent sont excessivement risqu�s...</b></h3>
-S�ectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le bouton SUITE ci-dessous pour continuer ...<Br>
+La base selectionnee est <B><U><?=$DBName?></B></U><br><br>
+Cette page va vous permettre de visualiser ou (re)geneer la table utilitaire (nommee <b><? echo $TBDname; ?></b>) permettant la description pour edition des autres tables de la base <b><? echo $DBName; ?></b><br><br>
+Vous pouvez editer un <a class="alertered14px" href="CONSULT_DESC_TABLES.php?DBName=<?=$DBName?>">état complet</a> ou un <a class="alertered14px" href="CONSULT_DESC_TABLES.php?DBName=<?=$DBName?>&simpl=1">etat simplifie</a> de la base</A><br><br>
+<h3><u>Attention:</u> Les operations qui suivent sont excessivement risquees...</b></h3>
+Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le bouton SUITE ci-dessous pour continuer ...<Br>
 <form action="./CREATE_DESC_TABLES.php" name="theform" method="post">
 <table>
 <tr><td><h3>Liste des tables <? echo "(serveur $LBHost $DBHost)"; ?></h3>
@@ -64,8 +66,8 @@ foreach($tbltab as $rst) {
   }
 ?>
 </select>
-<br><a href="#" onclick="setSelectOptions('theform', 'TableName[]', true); return false;">Tout s�ectionner</a>
-<br><a href="#" onclick="setSelectOptions('theform', 'TableName[]', false); return false;">Tout d��ectionner</a>
+<br><a href="#" onclick="setSelectOptions('theform', 'TableName[]', true); return false;">Tout selectionner</a>
+<br><a href="#" onclick="setSelectOptions('theform', 'TableName[]', false); return false;">Tout deselectionner</a>
 </td>
 <td>
 <?
@@ -83,15 +85,15 @@ if (stristr(strtolower($LNmTb),strtolower($TBDname))) {
 ?>
 <br>
 <input type="radio" name="CREATION" value="false" checked>Consulter la table<br>
-<input type="radio" name="CREATION" value="MAJ">Mettre �jour la table: les nouveaux champs cr�s, les anciens supprim�, mais les existants inchang�<br>
-<input type="radio" name="CREATION" value="vrai" onclick="if (this.checked) {alert ('Soyez certain de vouloir re-g��er tout ou partie de la table de description !\n Toutes les valeurs pr�lablement saisies seront �ras�s si elles existent !');}" >(re)g��er la table (!)
+<input type="radio" name="CREATION" value="MAJ">Mettre a jour la table: les nouveaux champs crees, les anciens supprimes, mais les existants inchanges<br>
+<input type="radio" name="CREATION" value="vrai" onclick="if (this.checked) {alert ('Soyez certain de vouloir re-geneer tout ou partie de la table de description !\n Toutes les valeurs prealablement saisies seront ecrasees si elles existent !');}" >(re)generer la table (!)
 <BR></h3>
-<input type="checkbox" name="AFFALL" value="vrai">Affichage des caract�istiques <u>compl�es</u> de chaque champ dans l'�ran suivant<BR><BR>
+<input type="checkbox" name="AFFALL" value="vrai">Affichage des caracteristiques <u>completes</u> de chaque champ dans l'ecran suivant<BR><BR>
 <input type="checkbox" name="VALAUTO" value="vrai"> Affectation de valeurs automatiques pour certains champs en fonction de leur nom:<BR>
 &#149; champs contenant <?=$dtmaj?> (variable $dtmaj) : date du jour auto<BR>
 &#149; champs contenant <?=$dtcrea?> (variable $dtcrea): date du jour auto si pas nulle avant<BR>
-&#149; champs contenant <?=$usmaj?> : code user affect�(variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et li�statique par la chaine <?=$chpperlie?> (variable $chpperlie)<BR>
-Les variables ci-dessus sont d�inies dans infos.php<BR><BR>
+&#149; champs contenant <?=$usmaj?> : code user affecte (variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et lie statique par la chaine <?=$chpperlie?> (variable $chpperlie)<BR>
+Les variables ci-dessus sont definies dans infos.php<BR><BR>
 
 <input type="hidden" name="DBName" value="<?=$DBName?>">
 <input type="hidden" name="STEP" value="2">
@@ -109,7 +111,7 @@ else {
   }
 if (count($TableName)>0 ) {
    if ($AFFALL=="vrai") {
-      echo "<H3>Tables s�ectionn�s : </H3><UL>";
+      echo "<H3>Tables selectionnees : </H3><UL>";
       foreach ($TableName as $Table) {
         echo"<LI> $Table";
         }
@@ -182,7 +184,7 @@ if (count($TableName)>0 ) {
 	 echo "<H3>Table <I>".$NM_TABLE."</I> (".$rwlibt[$ult[LIBELLE]].")</H3>";
 	 
 	 if ($rwlibt[$ult[COMMENT]]) echo "<small>".$rwlibt[$ult[COMMENT]]."</small><br/>";
-	 if ($CREATION=="false") { // on affiche les champ dans l'ordre d�dition
+	 if ($CREATION=="false") { // on affiche les champ dans l'ordre d�ition
 		$resf= db_query("SELECT NM_CHAMP FROM $TBDname WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF");
 		while ($rf=db_fetch_row($resf)) $tbLCHP[]=$rf[0];
 	}		
@@ -219,7 +221,7 @@ if (count($TableName)>0 ) {
           if ($CREATION=="vrai" || $CREATMAJ)  {
             // init sp�iales en fonction des noms ou des types de champs
             // des types, etc
-            echo "<B><U>Cr�tion </U></B>";
+            echo "<B><U>Creation </U></B>";
             $TT_AVMAJ="";
 	    $TT_APRMAJ="";
 	    $TT_PDTMAJ="";
@@ -253,7 +255,7 @@ if (count($TableName)>0 ) {
                  $TYPAFF_L=""; // pas d'affichage ds la liste
                  $VALEURS=$chpperlie;
                  $TT_AVMAJ="USSN";
-                 $LIBELLE="Cr� par";
+                 $LIBELLE="Cree par";
                  }
             } // fin si VALAUTO
             $val=$j; // force ordre d'aff sur 2 car
@@ -281,7 +283,7 @@ if (count($TableName)>0 ) {
       if ($_SESSION[db_type]!="mysql") $row_table_def['Type']=db_field_type($resf,$j);
       echo "<TD>".$row_table_def['Type'];
       $row_table_def['True_Type'] = ereg_replace('\\(.*', '', $row_table_def['Type']);
-      if ($AFFALL=="vrai") echo " ;epur�: ".$row_table_def['True_Type']."<BR>";
+      if ($AFFALL=="vrai") echo " ;epur� ".$row_table_def['True_Type']."<BR>";
       if (strstr($row_table_def['True_Type'], 'enum')) {
             $enum        = str_replace('enum(', '', $row_table_def['Type']);
             $enum        = ereg_replace('\\)$', '', $enum);
@@ -294,7 +296,7 @@ if (count($TableName)>0 ) {
              }
            echo "<BR>";
            }
-        } // fin si �num
+        } // fin si �um
       if ($AFFALL=="vrai" && $_SESSION[db_type]=="mysql") echo "Flags MySql:".mysql_field_flags ($resf, $j)."<BR>";
       echo "</TD>";
       
@@ -318,7 +320,7 @@ if (count($TableName)>0 ) {
             // si champ n'existe plus l'enl�e
             if (!in_array($rpLCE[0],$tbNM_CHAMP)) { 
                 db_query("DELETE FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$rpLCE[0]'");
-                echo "<br>Champ <b>$rpLCE[0] <u>supprim�/u></b> de la table de description! <BR>";
+                echo "<br>Champ <b>$rpLCE[0] <u>supprimé</u></b> de la table de description! <BR>";
                 } // fin si a supprimer
             }
         } // fin si MAJ
@@ -327,11 +329,11 @@ if (count($TableName)>0 ) {
     $i++;
     } // fin boucle sur les tables de la base
   ?>
-  <P>Cliquez <b><a href="LIST_TABLES.php?admadm=1&lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour changer les propri�� d'EDITION des tables .....
-  <P>Cliquez <b><a href="LIST_TABLES.php?lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour �iter le CONTENU des tables.....<br>
+  <P>Cliquez <b><a href="LIST_TABLES.php?admadm=1&lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour changer les propriete d'EDITION des tables .....
+  <P>Cliquez <b><a href="LIST_TABLES.php?lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour editer le CONTENU des tables.....<br>
   <?
   } // si nbre tables selectionnn�s >0
-else echo "<H3> Vous devez s�ectionner au moins une table !</H3>";
+else echo "<H3> Vous devez selectionner au moins une table !</H3>";
 
 } // fin tests sur step
 ?>
