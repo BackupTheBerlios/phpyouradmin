@@ -178,6 +178,7 @@ $retVal="";
                }
             }
         else $tabval=$tbval;
+	if (!is_array($tabval)) $tabval = array(); // ptit bug si la liste est vide
 				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait � le % se retrouve �la fin ..
         $tbjok[000]=$VSLD."(tous)"; // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
                               // quand c'est un champ num, on a 0, sinon 000
@@ -423,6 +424,10 @@ function EchoEdit($DH=true) {
            $this->TypeAff="STA";
            break;
 
+	case "DT_TSTAMP_ED" :
+ 	   $this->TypeAff="DT_TSTAMP_VS";
+           break;
+
    //chgt en statique normale forc� (on recherche les paires cl�: valeurs dans this->Valeurs
         case "LD": // liste d�oulante non li�
         case "LDM": // liste d�oulante non li� MULTIPLE
@@ -445,7 +450,7 @@ function EchoEdit($DH=true) {
 			return($retVal);
 		}
            break;
-
+	
      // le reste on change pas, les photos sont trait�s dans la proc elle-meme
      } // fin switch
    }   // fin si on est en consultation

@@ -697,31 +697,31 @@ function protectlnk(url,passwd,message) {
 </script><?
 }
 // colle le code javascript d'ouverture d'une popup
-function JSpopup($wdth=500,$hght=400,$nmtarget="Intlpopup") {
+function JSpopup($wdth=500,$hght=400,$nmtarget="Intlpopup",$DirEcho=true) {
 global $HTTP_HOST;
 $HostName=($HTTP_HOST=="" ? $_SERVER["HTTP_HOST"] : $HTTP_HOST); // because diff�entes versions
 // on change le nom de target des popups internet (externes) pour ne pas foutre la merde dans les popups ouvertes sur l'intranet
 $nmtarget=(strstr($HostName,"haras-nationaux.fr")!=false ? "Ext".$nmtarget : $nmtarget);
-?>
+$ret='
 <script type="text/javascript">
 	/*<![CDATA[*/
 <!--
-// ouverture d'une Popup
+// ouverture d\'une Popup
 var oPopupWin; // stockage du handle de la popup
 function popup(page, width, height) {
     NavVer=navigator.appVersion;
-	HostName='<?=$HostName?>' // sert au debogage;
+	HostName=\''.$HostName.'\' // sert au debogage;
     NavVer=navigator.appVersion;
-    if (NavVer.indexOf('MSIE 5.5',0) >0  ) {
+    if (NavVer.indexOf(\'MSIE 5.5\',0) >0  ) {
         var undefined;
-        undefined='';
+        undefined=\'\';
         }
   closepop();
   if (width==undefined)
-  width=<?=$wdth?>;
+  width='.$wdth.';
   if (height==undefined)
-  height=<?=$hght?>;
-    oPopupWin = window.open(page, "<?=$nmtarget?>", "alwaysRaised=1,dependent=1,height=" + height + ",location=0,menubar=0,personalbar=0,scrollbars=1,status=0,toolbar=0,width=" + width + ",resizable=1");
+  height='.$hght.';
+    oPopupWin = window.open(page, \''.$nmtarget.'\', "alwaysRaised=1,dependent=1,height=" + height + ",location=0,menubar=0,personalbar=0,scrollbars=1,status=0,toolbar=0,width=" + width + ",resizable=1");
 	oPopupWin.focus();
 	// valeur de retour diff�ente suivant navigateur (merdique a souhait) !!!
 	var bAgent = window.navigator.userAgent;
@@ -750,7 +750,10 @@ function closepop() {
 // -->
 	/*]]>*/
 </script>
-<?
+';
+if ($DirEcho) {
+	echo $ret;
+} else return $ret;
 }
 /* colle le code javascript d'ouverture d'une popup Loupe de photo qui se redimensionne automatiquement
 Utilisation: appel de cette fonction en php au d�ut du fichier dans l'entete <HEAD> pas ex
@@ -864,6 +867,11 @@ if ($echov)
  function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
  if ($ValF!=NULL && $Valf!="%") {
     switch ($TypF) { // switch sur type de filtrage
+      case "EGAL" : // special
+        $ValF=trim($ValF);
+        $cond=$typChpNum ? "$NomChp = $ValF" : "$NomChp = '".$ValF."'";
+        break;
+
       case "INPLIKE" : // boite d'entr�
         $ValF=trim($ValF);
         if (substr($ValF,-1,1)!="%" && !$typChpNum) $ValF.="%";
@@ -986,7 +994,7 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 
 // fonction renvoyant un tableau d'objets PYA initialis� en fonction d'une simple requ� SQL
 // les objets sont initialis� �partir des noms de champs et des noms de base du resultat
-function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1) {
+function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1,$co_user="") {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
   $resreq=msq($req.($limit==1 ? " limit 1 " : ($limit!="no" ? " limit $limit " : "")));
@@ -1010,6 +1018,7 @@ global $debug, $DBName;
       $CIL[$NmChamp]->InitPO();
       if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
       if ($TypEdit!="N" && $TypEdit!="") $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+      if ($co_user!="" && $TypEdit!="C") $CIL[$NmChamp]->InitAvMaj($co_user);
 	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du r�ultat
   if ($debug) echo("Champs traites par la fct InitPOReq :".$strdbgIPOR."<br/>\n");

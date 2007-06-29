@@ -1,5 +1,6 @@
 <? // liste dÃ©roulane gÃ©nÃ©rique
 // appellee par les popl en ajax..
+require_once("fonctions.php");
 $charset=($_SESSION['ss_parenv']['encoding']!="" ? $_SESSION['ss_parenv']['encoding'] : "utf-8");
 @ini_set("default_charset", $charset);
 header('Content-type: text/html; charset='.$charset); 
