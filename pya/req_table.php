@@ -57,8 +57,8 @@ if ($admadm!="1" && $ss_parenv[ro]!=true) {
      }
 ?> </h3>
 <TABLE>
-<THEAD>
-<TH width="30%">Champ</TH><TH width="50%">Crit�e</TH><TH width="20%">A Afficher</TH></THEAD>
+<TR class="THEAD">
+<TH>Champ</TH><TH>Critere</TH><TH>A Afficher</TH></TR>
 <?
 $FCobj=new PYAobj();
 $FCobj->NmTable=$lc_NM_TABLE;
