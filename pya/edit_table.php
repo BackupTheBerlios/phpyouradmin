@@ -54,7 +54,10 @@ function ConfReset() {
 </script>
 <form action="amact_table.php" method="post" name="theform" ENCTYPE="multipart/form-data">
 <INPUT TYPE="hidden" NAME="modif" value="<? echo $modif ?>">
+<? $keyfich=explode("=",$key);
+$keyfich = $keyfich [1];?>
 <INPUT TYPE="hidden" NAME="key" value="<? echo ($modif!=2 ? $key :"") ?>">
+<INPUT TYPE="hidden" NAME="keyfich" value="<? echo ($modif!=2 ? $keyfich :"") ?>">
 <?
 
 $reqLChp="SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE";

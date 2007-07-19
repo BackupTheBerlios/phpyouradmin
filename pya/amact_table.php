@@ -9,7 +9,7 @@ DBconnect();
 // on calcule la CLE POUR LE NOM DE STOCKAGE DES FICHIERS ATTACHES EVENTUELS
 // uniquement en cas autre que modif: ds ce cas c'est pas la peine, $keycopy=$key
 if ($modif=="1" && $key!="") {
-	$keycopy=$key;
+	$keycopy=$keyfich."_";
 } else {
 	$rpfl=msq("SELECT TYPEAFF from $TBDname where NM_TABLE='$NM_TABLE' AND TYPEAFF='FICFOT'");
 	if (db_num_rows($rpfl)>0) { 
