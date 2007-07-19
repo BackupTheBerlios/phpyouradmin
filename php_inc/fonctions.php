@@ -167,6 +167,12 @@ function VerifAdMail($admail) {
          else return(false);
 }
 
+// fonction qui convertit une chaine avec des accents en ascii pur
+function cv2purascii($text,$from_enc="UTF-8") {
+	setlocale(LC_CTYPE, 'fr_FR');
+	return(iconv('UTF-8','ASCII//TRANSLIT', $text));
+}
+
 // fonction qui encrypte les mails en JS
 function encJSmail ($admail,$DirEcho=true) {
 	$retVal='
