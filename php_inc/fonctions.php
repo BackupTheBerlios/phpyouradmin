@@ -918,7 +918,23 @@ if ($echov)
         else $cond="";
 
         break;
-        
+// special pour liaison multiple: solutionne le pb qui fait que typo met pas les , au debut et a la fin
+	case "LDM_SPL":
+        if (is_array($ValF)) {  // teste Valf est un tabelau
+           foreach ($ValF as $valf) {
+             if ($valf=="%" || $valf=="000") {
+                $cond="";
+                break; // pas de condition s'il y a %
+                }
+             else
+                $cond.="($NomChp LIKE '%,".addslashes($valf).",%' OR $NomChp LIKE '".addslashes($valf).",%' OR $NomChp LIKE '%,".addslashes($valf)."') OR "; // on av vire les % puis les a remis
+             }
+           if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
+                                                          // et rajoute () !!
+           } // si ValF pas tableau
+        else $cond="";
+
+	break;
       case "DANT" : // date ant�ieure �      
       case "DPOST" : // date ant�ieure 
       if ($ValF=="%" || $ValF=="") break; // pas de condition

@@ -167,9 +167,9 @@ $retVal="";
         break;
   
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
-        $tbval=ttChpLink($this->Valeurs,$this->Val2);
-	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,cl�%
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDM")."\">";
+        $tabval=ttChpLink($this->Valeurs,$this->Val2);
+/*	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,cl�%
             {
             foreach ($tbval as $key=>$val)
                {
@@ -177,7 +177,7 @@ $retVal="";
                $tabval[$key]=$val;
                }
             }
-        else $tabval=$tbval;
+        else $tabval=$tbval;*/
 	if (!is_array($tabval)) $tabval = array(); // ptit bug si la liste est vide
 				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait � le % se retrouve �la fin ..
         $tbjok[000]=$VSLD."(tous)"; // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
