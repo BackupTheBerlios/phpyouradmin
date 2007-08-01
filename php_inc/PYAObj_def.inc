@@ -128,7 +128,8 @@ $retVal="";
   //! ttes les listes sont �choix multiple (condition OR sur les valeurs)
       case "LDC": // Liste d�oulante affichant les diff�entes valeurs du champ  
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
-        $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC group by $this->NmChamp order by $this->NmChamp");
+	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
+        $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
         $tbval["%"]=$VSLD."(tous)";
         while ($rwsq=db_fetch_row($rqldcu)) {
@@ -167,6 +168,7 @@ $retVal="";
         break;
   
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
+
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDM")."\">";
         $tabval=ttChpLink($this->Valeurs,$this->Val2);
 /*	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,cl�%
@@ -190,7 +192,7 @@ $retVal="";
 // 				$retVal.= $tabval[103];
 // 				$retVal.= "-->";
 //        asort($tbval); // pas de tri de la liste (sp�ifi�dans la liaison)
-        $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fcrr,false);
+        $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
         break;
         
       case "DANT": // criteres sur date ant�ieure ou post�ieure, 
