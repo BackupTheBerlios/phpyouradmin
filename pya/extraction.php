@@ -119,21 +119,22 @@ else {
             $NomChamp=$objCIL->NmChamp;
             $objCIL->ValChp=$tbValChp[$NomChamp];
 	    if ($_REQUEST['encod']=="iso") {
-		echo  utf8_decode(epurelongchp($objCIL->RetVCL(false))).$tab;
+		if ($objCIL->TTC=="numeric") $objCIL->ValChp = str_replace(".",",",$objCIL->ValChp);
+		echo  utf8_decode(epurelongchp($objCIL->RetVCL(false),false)).$tab;
 	    } else  echo epurelongchp($objCIL->RetVCL(false)).$tab; // affiche Valeur Champ ds Liste
       }  // fin boucle sur les colonnes
       echo "\n";
     } // fin while = fin boucle sur les lignes
   } // fin si nbrows>0
 
-function epurelongchp($vchp)  
+function epurelongchp($vchp,$tronq=true)  
 {  
   $vchp=str_replace("\n", ";",$vchp);
   $vchp=str_replace("\r", ";",$vchp);
   $vchp=str_replace("&nbsp;", " ",$vchp);
   $vchp=str_replace("<br>", ";",$vchp);
   $vchp=str_replace("<BR>", ";",$vchp);
-  $vchp=substr($vchp,0,255) ;
+  if ($tronq) $vchp=substr($vchp,0,255) ;
   return($vchp);
 }
 ?>
