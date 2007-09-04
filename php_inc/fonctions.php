@@ -322,7 +322,7 @@ retourne un tableau associatif si valc="", une valeur sinon
 $reqsup est utilise par DRH2 et GDP1
 */
 function ttChpLink($valb0,$reqsup="",$valc=""){
-echo $reqsup;
+//echo $reqsup;
 global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname,$maxrepld;
 //$valb0=str_replace (' ','',$valb0); // enl�e espaces ind�irables
 $valbrut=explode(';',$valb0);
