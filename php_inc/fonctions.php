@@ -427,7 +427,7 @@ if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeu
 	if ($reqsup!="") {
 		$whreqsup=" AND $reqsup ";
 	}
-	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1]) $whreqsup $orderby");
+	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid=0) $whreqsup $orderby");
 	if (db_num_rows($rql) > 0) {
 		$tabCorlb=array();
 		while ($rw=db_fetch_row($rql)) {
