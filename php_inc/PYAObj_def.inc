@@ -127,7 +127,7 @@ $retVal="";
   
   //! ttes les listes sont �choix multiple (condition OR sur les valeurs)
       case "LDC": // Liste d�oulante affichant les diff�entes valeurs du champ  
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
+        $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="LDM">';
 	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
         $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
@@ -140,7 +140,7 @@ $retVal="";
         break;
   
       case "LDF": // Liste d�oulante affichant les diff�entes valeurs fixes list�s dans le champ valeur, ou les valeurs du set ou enum
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"LDM\">";
+        $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.(($this->TTC=="enum" || $this->TypeAff=="LD") ? "LDMEG" : "LDM").'">';
         // $tbval["%"]=$VSLD."%"; fait apr�
         if ($this->TTC=="enum" || $this->TTC=="set") {
             $tabval = str_replace('set(', '', $this->FieldType);
