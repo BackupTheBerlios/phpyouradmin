@@ -831,7 +831,7 @@ if ($this->TypEdit!="C") {
          $this->ValChp="_INC";}
       break;  
     case "USSN": // code User si nul avant (pour les nouvelles uniquement par e.)
-      if ($this->ValChp=="") {
+      if ($this->ValChp=="" || $this->ValChp==NULL || $this->ValChp==0) {
          if ($User!="") {
            $this->ValChp=$User; // ici CORES
          }else{
