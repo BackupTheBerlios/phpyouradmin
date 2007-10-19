@@ -337,13 +337,16 @@ function DispNeg($DE2=true) {
       default: 
         // nbre de car max par d�aut, ou pass�en propri��
         $NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust : $nbcarmxlist);
-        $Val2Af=stripslashes($this->ValChp);
+        $Val2Af =  $this->ValChp;
+        if ($NbCarMax<100) $Val2Af =  strip_tags($Val2Af) ; // si peu de caractères autorisés, on affiche pas le HTML
+        $Val2Af=stripslashes($Val2Af);
         $Val2Af=tronqstrww ($Val2Af,$NbCarMax); // + malin,
         //$Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caract�es
         if ($HT) { 
         	$Val2Af=DispCustHT($Val2Af);
 	  	$Val2Af=($Val2Af=="" ? "$EiS" : $Val2Af);
-        }
+        } else 
+        	$Val2Af = strip_tags($Val2Af) ;
         return ($Val2Af);
         break;
        } // fin du switch
