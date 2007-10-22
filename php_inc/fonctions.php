@@ -134,7 +134,9 @@ return(str_repeat("&nbsp;",$i));
 // fonction qui coupe une chaine �la longueur d�ir�, sans couper les mots
 function tronqstrww ($strac,$long=50,$strsuite=" [...]") {
          if (strlen($strac)<=$long) return $strac;
-         return strtok(wordwrap($strac,$long,"\n"),"\n").$strsuite;
+         $strac = wordwrap($strac,$long,"coucou");
+         $tbstrac= explode("coucou",$strac);
+         return($tbstrac[0].$strsuite);
 }
 
 // fonction qui echoise un texte dans un style
