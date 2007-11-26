@@ -121,7 +121,8 @@ $retVal="";
    global $VSLD;
     switch ($this->TypFilt) {
       case "INPLIKE":
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"INPLIKE\">";
+      case "EGAL":
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".$this->TypFilt."\">";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
   

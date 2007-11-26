@@ -147,7 +147,7 @@ $table_def = db_table_defs($NM_TABLE);
     <BR>- Type<? DHelp("admafl") ?></TD>
     <TD class="th"><u>Edition :</u><br>
     - Ordre dans formulaire<br>
-    - Type contr�e saisie<? DHelp("admtyped") ?></TD>
+    - Type saisie<? DHelp("admtyped") ?></TD>
     <TD class="th">Valeurs ou lien<? DHelp("admval") ?><br>
     <span style="font: 9px">* séparés par des ","</span></TD>
     <TD class="th"><u>Ecran de requête :</u><br>
@@ -238,6 +238,7 @@ $table_def = db_table_defs($NM_TABLE);
     <select name="VAL_DEFAUT[<?=$i?>]">
       <option value=<? es(""); ?>> Aucun</option>
       <option value=<? es("INPLIKE"); ?>>Entrée (Like)</option>
+      <option value=<? es("EGAL"); ?>>Entrée (=)</option>
       <option value=<? es("LDC"); ?>>Liste dér. Valeurs champ</option>
       <option value=<? es("LDF"); ?>>L.D. (clé>)Val. fixées, Set ou Enum</option>
       <option value=<? es("LDL"); ?>>L.D. Valeurs liées dynam.</option>

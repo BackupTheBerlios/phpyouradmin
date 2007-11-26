@@ -874,7 +874,7 @@ if ($echov)
 // Fonction de definition de condition
 // appel� pour les def de liste
  function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
- if ($ValF!=NULL && $Valf!="%") {
+ if ($ValF!=NULL && $ValF!="%") {
     switch ($TypF) { // switch sur type de filtrage
       case "EGAL" : // special
         $ValF=trim($ValF);
@@ -901,7 +901,14 @@ if ($echov)
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!
            } // si ValF pas tableau
-        else $cond="";
+        else {
+        	if ($ValF=="%" || $ValF=="000") {
+        		$cond="";
+        	} else {
+        		if (!$typChpNum) $gi="'";
+        		$cond="($NomChp = $gi$ValF$gi)";
+        	}
+        }
         break;
         
       case "LDMEG" : // liste �choix multiples de valeurs ds ce cas la valeur est un tableau
@@ -918,7 +925,14 @@ if ($echov)
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR  
 	   // et rajoute () !!          
 	   } // si ValF pas tableau
-        else $cond="";
+        else {
+        	if ($ValF=="%" || $ValF=="000") {
+        		$cond="";
+        	} else {
+        		if (!$typChpNum) $gi="'";
+        		$cond="($NomChp = $gi$ValF$gi)";
+        	}
+        }
 
         break;
 // special pour liaison multiple: solutionne le pb qui fait que typo met pas les , au debut et a la fin
