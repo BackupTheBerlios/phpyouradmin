@@ -5,11 +5,11 @@ header('Content-type: text/html; charset='.($_SESSION["ss_parenv"]["encoding"]!=
 <HTML>
 <HEAD>
 <TITLE><?=($admadm==1 ? "!P!Y!A! ":"PYA ").$title?></TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=<?=($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8")?>">
 <link href="styles.css" rel="styleSheet" type="text/css"><?// =($ss_parenv[css_ssf] ? $ss_parenv[css_ssf] : "styles.css")?> 
 <link href="stylesCalendar.css.php" rel="stylesheet" type="text/css">
 <script src="functions.js" type="text/javascript" language="javascript"></script>
 <script type="text/javascript" src="CalendarPopup.js.php"></script>
-<meta http-equiv="Content-Type" content="text/html; charset=<?=($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8")?>">
 </HEAD>
 <BODY>
 <DIV ID="popupcalend" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;z-index : 0;"></DIV>

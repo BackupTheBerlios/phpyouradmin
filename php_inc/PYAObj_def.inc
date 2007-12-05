@@ -198,6 +198,7 @@ $retVal="";
         
       case "DANT": // criteres sur date ant�ieure ou post�ieure, 
       case "DPOST":
+		$appopcal = ' onClick="popcal.select(document.getElementById(\'rq_'.$this->NmChamp.'\'),\'rq_'.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false; " ';
       case "VINF": //valeurs inf et sup
       case "VSUP":
       	
@@ -218,10 +219,12 @@ $retVal="";
        
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
         if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est $clause &agrave;";
-        $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
+        $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" ID=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
         
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
+		$appopcal0 = ' onClick="popcal.select(document.getElementById(\'rq_'.$this->NmChamp.'0\'),\'rq_'.$this->NmChamp.'0\',\'dd/MM/yyyy\'); return false; " ';
+		$appopcal1 = ' onClick="popcal.select(document.getElementById(\'rq_'.$this->NmChamp.'1\'),\'rq_'.$this->NmChamp.'1\',\'dd/MM/yyyy\'); return false; " ';
       case "VIS" : // bornes sup et inf
       	if ($this->TypFilt=="DATAP") {
       		$lbi="post&eacute;rieure";
@@ -232,10 +235,10 @@ $retVal="";
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $appopcal0 VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" $appopcal1 VALUE=\"%\">";
              }
         else {
-             $retVal.= "$this->Libelle > <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" VALUE=\"%\"> && < <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" VALUE=\"\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $appopcal0 VALUE=\"%\"> && &ly; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" $appopcal1 VALUE=\"\">";
              }
         break;
   
@@ -307,7 +310,9 @@ function DispNeg($DE2=true) {
       $EiS=($HT ? "&nbsp;" : ""); // espace ins�able  HTML ou rien
 
       if ($this->TTC=="date") $this->ValChp=DateF($this->ValChp); // convertit dates
-
+	
+	  if ($this->TypeAff == "HR_MN") $this->ValChp= DispHRMN($this->ValChp);
+	  
       switch ($this->Typaff_l) {
 
       case "LNK": // si champ li�a une autre table, ou liste compos�
@@ -425,7 +430,7 @@ function EchoEdit($DH=true) {
    switch ($this->TypeAff) {
    //chgt en statique normale
         case "AUT": // AUto
-	case "TXT": // boite texte normale
+		case "TXT": // boite texte normale
         case "TXA": // texte area
            $this->TypeAff="STA";
            break;
@@ -434,18 +439,33 @@ function EchoEdit($DH=true) {
  	   $this->TypeAff="DT_TSTAMP_VS";
            break;
 
+	case "HR_MN":
+        $Val2Af= DispHRMN($Val2Af);
+           $retVal.= $Val2Af.($DH ? "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">" : "");
+	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
+	// si on le fait, si on rappelle deux fois la m�hode pour le m�e champ ds une page
+	// � plante 
+		if ($this->DirEcho) {
+			echo $retVal;
+			return;
+		} else {
+			return($retVal);
+		}
+           break;
+
+		
    //chgt en statique normale forc� (on recherche les paires cl�: valeurs dans this->Valeurs
         case "LD": // liste d�oulante non li�
         case "LDM": // liste d�oulante non li� MULTIPLE
         case "LDL":
         case "LDLM":
-	case "POPL":
-	case "POPLM":
+		case "POPL":
+		case "POPLM":
         // on est en consultation forc�.
         // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur �afficher
         // est certainement �piocher dans une liste cl�valeurs et non �afficher telle quelle
            $Val2Af=DispCustHT($this->RVLS("&nbsp;"));
-           $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
+           $retVal.= $Val2Af.($DH ? "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">" : "");
 	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
 	// si on le fait, si on rappelle deux fois la m�hode pour le m�e champ ds une page
 	// � plante 
@@ -683,7 +703,7 @@ function EchoEdit($DH=true) {
       break;
 
     case "DT_TSTAMP_ED": 
-       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\" 10 20 $evJS>";
+       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\" size=\"10\" maxsize=\"20\" $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
     break;
     
@@ -692,7 +712,10 @@ function EchoEdit($DH=true) {
       $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\">";
       if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
      break;
-
+	
+	case "HR_MN":
+       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."_hr\" ID=\"".$this->NmChamp."_hr\" VALUE=\"".floor($this->ValChp/100)."\" size=\"2\" maxsize=\"2\" $evJS> : <INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."_mn\" ID=\"".$this->NmChamp."_mn\" VALUE=\"".c2c($this->ValChp % 100)."\" size=\"2\" maxsize=\"2\" $evJS>";		
+	break;
 
     case "TXT":
         $defl=explode(',',$this->Valeurs);

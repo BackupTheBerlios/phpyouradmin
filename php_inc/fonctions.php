@@ -107,6 +107,16 @@ if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
 return(mktime(0,0,0,$tab[1],$tab[0],$tab[2]));
 }
 
+// pr affichage des minutes et heures à 2 décimales
+function c2c($nb) {
+	if ($nb<10) $nb="0".$nb;
+	return ($nb);
+}
+
+function DispHRMN($hr) {
+	return (c2c(floor($hr/100))."H".c2c($hr % 100)."Mn");
+}
+
 // fonction qui vire les x derniers car d'une chaine
 function vdc($strap,$nbcar) {
 return (substr($strap,0,strlen($strap)-$nbcar));

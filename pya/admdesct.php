@@ -222,7 +222,7 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("FICFOT"); ?>> Fichier-Photo </option>
       <option value=<? es("DT_TSTAMP_ED"); ?>> Date timestamp editable</option>
       <option value=<? es("DT_TSTAMP_VS"); ?>> Date timestamp statique</option>
-      
+      <option value=<? es("HR_MN"); ?>> Heure : Minute</option>
     </select>
     </TD>
     <?

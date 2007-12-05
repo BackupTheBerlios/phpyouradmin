@@ -72,7 +72,11 @@ while ($res1=db_fetch_row($rq1))
   $PYAoMAJ->NmChamp=$NOMC;
   $PYAoMAJ->InitPO();
   $PYAoMAJ->ValChp=$$NOMC; // issu du formulaire
-  if ($PYAoMAJ->TypeAff=="FICFOT") {
+  if ($PYAoMAJ->TypeAff=="HR_MN") {
+	$NOMC_mn=$NOMC."_mn";
+	$NOMC_hr=$NOMC."_mn";
+	  $PYAoMAJ->ValChp= $$NOMC_mn + $$NOMC_hr*100;
+  } elseif ($PYAoMAJ->TypeAff=="FICFOT") {
      // en php5, la variable $this->ValChp=$_REQUEST[toto], quand le champ est de type fichier a uploader, contient en fait $_FILES[toto] qui est un tableau...
      // et ca peut foutre la zouille...
      //$PYAoMAJ->ValChp=(is_array($$NOMC) ? $$NOMC['name'] : $$NOMC); 
