@@ -777,7 +777,7 @@ function EchoEditAuto() {
        break;
 
      case "date" : // on passe la date en fran�is
-         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\"  ID=\"".$this->NmChamp."\" VALUE=\"".DateF($this->ValChp)."\" size=\"10\" maxlength=\"10\">";
+         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" size="10" maxlength="10" onClick="popcal.select(document.getElementById(\''.$this->NmChamp.'\'),\''.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false;">';
          if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DateF($this->ValChpAvMaj).") ";
 
        break;

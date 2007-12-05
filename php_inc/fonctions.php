@@ -646,8 +646,13 @@ function unregvar($var,$annvar=true) {
 global $$var;
 //if (isset($var)) {
   session_unregister($var);
+  $_SESSION[$var] = null;
   unset($_SESSION[$var]);
-  if ($annvar) unset($$var); // d�ruit par d�aut ensuite
+  if ($annvar) {
+  	$$var = null;
+	$_SESSION[$var] = null;
+  	unset($$var); // d�ruit par d�aut ensuite
+  	}
 //  }
 }
 
