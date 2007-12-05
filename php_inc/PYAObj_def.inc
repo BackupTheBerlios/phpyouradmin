@@ -700,6 +700,7 @@ function EchoEdit($DH=true) {
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
         $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
+		if (strstr($this->NmChamp,"_DT")) $evJS.= ' onClick="popcal.select(document.getElementById(\''.$this->NmChamp.'\'),\''.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false; "';
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
       break;
@@ -777,7 +778,7 @@ function EchoEditAuto() {
        break;
 
      case "date" : // on passe la date en fran�is
-         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" size="10" maxlength="10" onClick="popcal.select(document.getElementById(\''.$this->NmChamp.'\'),\''.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false;">';
+         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" size="10" maxlength="10" onClick="popcal.select(document.getElementById(\''.$this->NmChamp.'\'),\''.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false;"/>';
          if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DateF($this->ValChpAvMaj).") ";
 
        break;
