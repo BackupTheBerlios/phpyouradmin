@@ -13,14 +13,14 @@ class PYAobj {
   var $ValChp;
   var $ValChpAvMaj; // valeur champ avabt MAJ
   var $FieldNullOk; // YES ou rien
-  var $FieldKey; // cl�PRI, index=MUL, unique=UNI
+  var $FieldKey; // clePRI, index=MUL, unique=UNI
   var $FieldExtra; // auto_increment
   var $TypeAff;
-  var $Fccr=""; // force cases �cocher/radio en place des LD. rien ou
+  var $Fccr=""; // force cases a cocher/radio en place des LD. rien ou
                 // si qqchose, force. Si contient 'BR' force avec retour de lignes
                 // si contient RAD force boutons radios
   var $Valeurs;
-  var $Val2=""; // valeurs en plus, �alu�s en fonction de l'enregistrement
+  var $Val2=""; // valeurs en plus, Saluts en fonction de l'enregistrement
   var $nmfpopl="popl.php"; // nom du fichier popup
   var $chempopl=""; // chemin par défaut pour la popup, incluant les /
   var $TypFilt;
@@ -28,25 +28,25 @@ class PYAobj {
   var $Tt_AvMaj;
   var $Tt_PdtMaj;
   var $Tt_AprMaj;
-  var $TypEdit; // important de savoir si on est en cr�tion ("" ou N), copie(2), �ition(1 ou M) ou consultation (C), effacement (-1)
+  var $TypEdit; // important de savoir si on est en creation ("" ou N), copie(2), edition(1 ou M) ou consultation (C), effacement (-1)
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
   var $MaxFSize; // taille max des fichiers joints !!
   var $error;
 
-// m�hode qui initialise toutes les propri�� de l'objet pour un champ
-// simplement �partir de la d�inition du nom du champ, de la table et de la base
+// methode qui initialise toutes les propriete de l'objet pour un champ
+// simplement a partir de la definition du nom du champ, de la table et de la base
 function InitPO($Val2assign="")  {
 
 // Nom de la table de description des autres
-// nom du champ contenant les caract�istiques globales �la table
+// nom du champ contenant les caracteristiques globales a la table
 // morceua de chaine identifiant une table virtuelle
 global $TBDname,$NmChDT,$id_vtb;
 $retVal="";
     if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
-    	$ult=rtb_ultchp(); // tableau des noms de champs sensibles �la casse (�cause de pgsql...)
-    	// normallement on est d��connect�
-        //mysql_select_db($this->NmBase) or die ("Impossible d'ouvrir la base de donn�s $this->NmBase.");
+    	$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
+    	// normallement on est deconnecte
+        //mysql_select_db($this->NmBase) or die ("Impossible d'ouvrir la base de donnees $this->NmBase.");
         $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
         if (db_num_rows($rpDF)>0) {
               $CcChp=db_fetch_assoc($rpDF);

@@ -107,16 +107,51 @@ if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
 return(mktime(0,0,0,$tab[1],$tab[0],$tab[2]));
 }
 
-// pr affichage des minutes et heures à 2 décimales
+// force affichage d'un nombre a 2 decimales (pr affichage des minutes et heures) à 2 décimales
 function c2c($nb) {
 	if ($nb<10) $nb="0".$nb;
 	return ($nb);
 }
 
+/// affichage heure : min à partir entier (webcalendar)
 function DispHRMN($hr) {
 	return (c2c(floor($hr/100))."H".c2c($hr % 100)."Mn");
 }
 
+function readfile2tb($file,$cs=";") {
+// lecture d'un fichier csv : première ligne contient les clés, suivantes les valeurs des clés
+// renvoie un tableau à deux dimensions $tb[col][ligne]=
+// utilisé dans GRH pour les profils
+if (file_exists($file)) {
+	$h=fopen($file,'r');
+	while (!feof($h)) {
+		$lig = fgets($h);
+		if ( (strpos($lig,'#') === false)) { // pas commentaire
+			$i++;
+			if ($i == 1) { // ligne entête
+				$tbhead = explode($cs,$lig);
+				$j=0;
+				foreach($tbhead as $head) {
+					if ($j>0) $tb[$head] =  array();
+					$j++;
+				}
+			} else { // ligne "normale"
+				$tblig = explode($cs,$lig);
+				$j =  0;
+				foreach($tbhead as $head) {
+					if ($j>0) $tb[$head][$tblig[0]] = $tblig[$j];
+					$j++;
+				}
+			}
+		}
+	}
+	fclose($h);
+	return ($tb);
+} else {
+	echo "Erreur : impossible de lire $file";
+	return (false);
+	}
+}
 // fonction qui vire les x derniers car d'une chaine
 function vdc($strap,$nbcar) {
 return (substr($strap,0,strlen($strap)-$nbcar));
@@ -160,7 +195,7 @@ function echspan($style,$text,$DirEcho=true) {
 
 }
 
-// fonction qui echoise un champ n
+// fonction qui echoise un champ hidden
 function echochphid($NmC,$ValC,$DirEcho=true) {
     $retVal.= "<input type=\"hidden\" name=\"$NmC\" value=\"$ValC\">\n";
     if ($DirEcho) {
