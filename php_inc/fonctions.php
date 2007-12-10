@@ -115,7 +115,7 @@ function c2c($nb) {
 
 /// affichage heure : min à partir entier (webcalendar)
 function DispHRMN($hr) {
-	return (c2c(floor($hr/100))."H".c2c($hr % 100)."Mn");
+	return (c2c(floor($hr/100))."h".c2c($hr % 100)."mn");
 }
 
 function readfile2tb($file,$cs=";") {

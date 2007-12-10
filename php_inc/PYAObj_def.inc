@@ -440,7 +440,7 @@ function EchoEdit($DH=true) {
            break;
 
 	case "HR_MN":
-        $Val2Af= DispHRMN($Val2Af);
+        $Val2Af= DispHRMN($this->ValChp);
            $retVal.= $Val2Af.($DH ? "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">" : "");
 	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
 	// si on le fait, si on rappelle deux fois la m�hode pour le m�e champ ds une page
