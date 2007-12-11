@@ -198,7 +198,6 @@ $retVal="";
         
       case "DANT": // criteres sur date ant�ieure ou post�ieure, 
       case "DPOST":
-		$appopcal = ' onClick="popcal.select(document.getElementById(\'rq_'.$this->NmChamp.'\'),\'rq_'.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false; " ';
       case "VINF": //valeurs inf et sup
       case "VSUP":
       	
@@ -223,8 +222,6 @@ $retVal="";
         break;
         
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
-		$appopcal0 = ' onClick="popcal.select(document.getElementById(\'rq_'.$this->NmChamp.'0\'),\'rq_'.$this->NmChamp.'0\',\'dd/MM/yyyy\'); return false; " ';
-		$appopcal1 = ' onClick="popcal.select(document.getElementById(\'rq_'.$this->NmChamp.'1\'),\'rq_'.$this->NmChamp.'1\',\'dd/MM/yyyy\'); return false; " ';
       case "VIS" : // bornes sup et inf
       	if ($this->TypFilt=="DATAP") {
       		$lbi="post&eacute;rieure";
@@ -235,10 +232,10 @@ $retVal="";
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $appopcal0 VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" $appopcal1 VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\"  class=\"dateinput\" VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\" VALUE=\"%\">";
              }
         else {
-             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $appopcal0 VALUE=\"%\"> && &ly; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" $appopcal1 VALUE=\"\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" class=\"dateinput\"  VALUE=\"%\"> && &ly; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\"  VALUE=\"\">";
              }
         break;
   
@@ -723,8 +720,7 @@ function EchoEdit($DH=true) {
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
         $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
-		if (strstr($this->NmChamp,"_DT")) $evJS.= ' onClick="popcal.select(document.getElementById(\''.$this->NmChamp.'\'),\''.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false; "';
-        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\" $size $mxsize $evJS>";
+        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\"  class=\"dateinput\" $size $mxsize $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
       break;
      } // fin switch sur type d'affichage
@@ -801,7 +797,7 @@ function EchoEditAuto() {
        break;
 
      case "date" : // on passe la date en fran�is
-         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" size="10" maxlength="10" onClick="popcal.select(document.getElementById(\''.$this->NmChamp.'\'),\''.$this->NmChamp.'\',\'dd/MM/yyyy\'); return false;"/>';
+         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" size="10" maxlength="10"  class="dateinput"/>';
          if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DateF($this->ValChpAvMaj).") ";
 
        break;
