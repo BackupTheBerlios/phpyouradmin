@@ -1,10 +1,12 @@
 <? 
 // fichier shared_inc.js.php
-header("Content-type: text/javascript; charset=utf-8");
 // inclusions de fichiers partagés placés dans php_inc
 // fctions principales de jQuery
+include ("jquery.min.js");
 // calendrier sur input date
+include ("ui.datepicker.js");
 // francisation du calendrier
+include ("ui.datepicker-fr.js");
 // init diverses JS dlcube
-include ("jQuery/shared_inc.js.php");
+include ("initjqdl3.js");
 ?>
