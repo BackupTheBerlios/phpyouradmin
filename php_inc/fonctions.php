@@ -34,7 +34,6 @@ require_once("db_abstract.inc");
 require_once("ajaxtools.inc");
 
 // NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
-require_once ("funct_sso.inc");
 // et tt ce qui concerne l'objet PYA
 require_once("PYAObj_def.inc");
 require_once("debug_tools.inc"); // fonctions servant au debogage
