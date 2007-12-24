@@ -198,6 +198,7 @@ $retVal="";
         
       case "DANT": // criteres sur date ant�ieure ou post�ieure, 
       case "DPOST":
+      	$classinp = ' class="dateinput" ';
       case "VINF": //valeurs inf et sup
       case "VSUP":
       	
@@ -218,12 +219,13 @@ $retVal="";
        
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
         if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est $clause &agrave;";
-        $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" ID=\"rq_".$this->NmChamp."\" VALUE=\"\">";
+        $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" ID=\"rq_".$this->NmChamp."\" $classinp VALUE=\"\">";
         break;
         
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
       case "VIS" : // bornes sup et inf
       	if ($this->TypFilt=="DATAP") {
+	      	$classinp = ' class="dateinput" ';
       		$lbi="post&eacute;rieure";
       		$lbs="ant&eacute;rieure";
       	} else {
@@ -232,10 +234,10 @@ $retVal="";
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\"  class=\"dateinput\" VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\" VALUE=\"%\">";
+             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\" VALUE=\"%\">";
              }
         else {
-             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" class=\"dateinput\"  VALUE=\"%\"> && &ly; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\"  VALUE=\"\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> && &ly; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\"  VALUE=\"\">";
              }
         break;
   
