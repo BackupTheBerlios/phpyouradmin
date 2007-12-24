@@ -126,20 +126,20 @@ if (file_exists($file)) {
 	$h=fopen($file,'r');
 	while (!feof($h)) {
 		$lig = fgets($h);
-		if ( (strpos($lig,'#') === false)) { // pas commentaire
+		if ( (substr($lig,0,1) != "#")) { // pas commentaire
 			$i++;
 			if ($i == 1) { // ligne entête
 				$tbhead = explode($cs,$lig);
 				$j=0;
 				foreach($tbhead as $head) {
-					if ($j>0) $tb[$head] =  array();
+					if ($j>0) $tb[trim($head)] =  array();
 					$j++;
 				}
 			} else { // ligne "normale"
 				$tblig = explode($cs,$lig);
 				$j =  0;
 				foreach($tbhead as $head) {
-					if ($j>0) $tb[$head][$tblig[0]] = $tblig[$j];
+					if ($j>0) $tb[$head][trim($tblig[0])] = trim($tblig[$j]);
 					$j++;
 				}
 			}
