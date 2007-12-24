@@ -429,7 +429,7 @@ function EchoEdit($DH=true) {
    switch ($this->TypeAff) {
    //chgt en statique normale
         case "AUT": // AUto
-		case "TXT": // boite texte normale
+	case "TXT": // boite texte normale
         case "TXA": // texte area
            $this->TypeAff="STA";
            break;
@@ -702,7 +702,7 @@ function EchoEdit($DH=true) {
       break;
 
     case "DT_TSTAMP_ED": 
-       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\" size=\"10\" maxsize=\"20\" $evJS>";
+       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"  class=\"dateinput\"  VALUE=\"".date("d/m/Y",$this->ValChp)."\" size=\"10\" maxsize=\"20\" $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
     break;
     
@@ -722,7 +722,8 @@ function EchoEdit($DH=true) {
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
         $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
-        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\"  class=\"dateinput\" $size $mxsize $evJS>";
+    	if (strstr($this->NmChamp,"_DT")) $classi=' class="dateinput" ';
+        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\"  $classi $size $mxsize $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
       break;
      } // fin switch sur type d'affichage
