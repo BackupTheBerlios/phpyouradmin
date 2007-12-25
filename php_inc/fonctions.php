@@ -320,8 +320,8 @@ function db_qr_res($req,$lnkid="") {
 	return ($ret);
 }
 // fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau ASSOCIATIF
-function db_qr_rass($req,$lnkid) {
-	$res=db_query($req);
+function db_qr_rass($req,$lnkid="") {
+	$res=db_query($req,$lnkid);
 	if (db_num_rows($res) >0 ) 	{
 		$ret=db_fetch_assoc($res);
 	} else {
