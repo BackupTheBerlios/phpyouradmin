@@ -82,9 +82,13 @@ function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
 	case "pgsql":
 		if ($DB=="") $DB="template1";
 		if ($portIP=="") $portIP=5432;
-		$link=pg_connect("host=$Host port=$portIP user=$User password=$Pwd dbname=$DB") or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
+		$link = pg_connect("host=$Host port=$portIP user=$User password=$Pwd dbname=$DB") or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
 		break;
 		
+	case "oracle":
+		$link = oci_connect($User,$Pwd, $DB) or die ("Impossible to connect to  oracle server, localhost, user $User, passwd: *****, db=$DB");
+		break;
+	
 	case "mysql":
 	default:
 		if ($portIP=="") $portIP=3306;
@@ -101,6 +105,10 @@ function db_close($lnk) {
 		pg_close($lnk);
 		break;
 		
+	case "oracle":
+		oci_close($lnk);
+		break;
+	
 	case "mysql":
 		default:
 		mysql_close($lnk);
@@ -109,7 +117,7 @@ function db_close($lnk) {
 }
 
 function db_query($req,$lnkid="",$mserridrq=""){
-	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> �la page pr��ente";
+	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> a la page precedente";
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 	  if ($lnkid=="") { // connection par la connexion courante
@@ -118,6 +126,15 @@ function db_query($req,$lnkid="",$mserridrq=""){
     $ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requ�e= <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
 		break;
 		
+	case "oracle":
+		$ret = oci_parse($lnkid,$req) or die ("parsing req oracle plante : $req") ;
+		if (!oci_execute($ret)) { 
+			print_r (oci_error($lnkid));
+			die ("execute req oracle plante:  $req");
+		}
+		oci_commit($lnkid) or die ("commit sur $lnkid plante");
+		break;
+	
 	case "mysql":
 	default:	
 		if ($lnkid=="") { // connection par la connexion courante
@@ -171,6 +188,10 @@ function db_num_rows($res) {
 		return(pg_num_rows($res));
 		break;
 		
+	case "oracle":
+		return(oci_num_rows($res));
+		break;
+	
 	case "mysql":
 	default:	
 		return(mysql_num_rows($res));
@@ -266,6 +287,11 @@ function db_num_fields($res) {
 	case "pgsql":
 		return(pg_num_fields($res));
 		break;
+	
+	case "oracle":
+		return (oci_num_fields($res));
+		break;
+
 		
 	case "mysql":
 	default:
@@ -278,6 +304,10 @@ function db_field_name($res,$i) {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		return(pg_field_name($res,$i));
+		break;
+	
+	case "oracle":
+		return(oci_field_name($stmt,$i));
 		break;
 		
 	case "mysql":
@@ -300,6 +330,10 @@ function db_field_size($res,$i) {
 		return(pg_field_size($res,$i));
 		break;
 		
+	case "oracle":
+		return(oci_field_size($res,$i));
+		break;
+	
 	case "mysql":
 	default:
 		return(mysql_field_len($res,$i));
@@ -313,6 +347,10 @@ function db_field_type($res,$i) {
 		return(pg_field_type($res,$i));
 		break;
 		
+	case "oracle":
+		return(oci_field_type($res,$i));
+		break;
+	
 	case "mysql":
 	default:
 		return(mysql_field_type($res,$i));
@@ -343,6 +381,10 @@ function db_fetch_row($res) {
 	case "pgsql":
 		return(pg_fetch_row($res));
 		break;
+	
+	case "oracle":
+		return(oci_fetch_row($res));
+		break;
 		
 	case "mysql":
 	default:
@@ -357,6 +399,10 @@ function db_fetch_array($res) {
 	case "pgsql":
 		return(pg_fetch_array($res));
 		break;
+	
+	case "oracle":
+		return(oci_fetch_array($res));
+		break;
 		
 	case "mysql":
 	default:
@@ -370,6 +416,10 @@ function db_fetch_assoc($res) {
 	case "pgsql":
 		return(pg_fetch_assoc($res));
 		break;
+	
+	case "oracle":
+		return(oci_fetch_assoc($res));
+		break;
 		
 	case "mysql":
 	default:
@@ -382,6 +432,10 @@ function db_fetch_object($res) {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		return(pg_fetch_object($res));
+		break;
+	
+	case "oracle":
+		return(oci_fetch_object($res));
 		break;
 		
 	case "mysql":

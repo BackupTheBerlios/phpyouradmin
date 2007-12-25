@@ -269,6 +269,14 @@ function msq($req,$lnkid="",$mserridrq="") {
 	return (db_query($req,$lnkid="",$mserridrq=""));
 }
 
+// compte ligne dans table
+function db_count($table,$where="",$lnkid="") {
+$where = ($where !="" ? " where $where ": "");
+$res= db_query("select count(*) from $table $where",$lnkid);
+$ret = db_fetch_row($res);
+return ($ret[0]);
+}
+
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
 // les lignes sont index�s num�iquement
 // les colonnes aussi
@@ -288,8 +296,8 @@ else return (false);
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
 // les lignes sont index�s num�iquement
 // les colonnes sont indexe par les noms des colonnes
-function db_qr_comprass($req) {
-$res=db_query($req);
+function db_qr_comprass($req,$lnkid="") {
+$res=db_query($req,$lnkid);
 $i=0;
 if (db_num_rows($res)) {
 	while ($rep=db_fetch_assoc($res)) {
@@ -302,8 +310,8 @@ else return (false);
 }
 
 // fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau indic�numeriquement
-function db_qr_res($req) {
-	$res=db_query($req);
+function db_qr_res($req,$lnkid="") {
+	$res=db_query($req,$lnkid);
 	if (db_num_rows($res) >0 ) 	{
 		$ret=db_fetch_row($res);
 	} else {
@@ -312,7 +320,7 @@ function db_qr_res($req) {
 	return ($ret);
 }
 // fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau ASSOCIATIF
-function db_qr_rass($req) {
+function db_qr_rass($req,$lnkid) {
 	$res=db_query($req);
 	if (db_num_rows($res) >0 ) 	{
 		$ret=db_fetch_assoc($res);
@@ -337,12 +345,16 @@ foreach ($set as $chp=>$val) {
 	}
 return(" ".implode(",",$lchp)." ");
 }
+// doubles les cotes pour insert ds Oracle
+function dblslashes($str) {
+	return(str_replace("'","''",$str));
+}
 
 // fonction qui r�up�e un libell�dans une table fonction de la cl�// sert aussi �tester si un enregistrement existe (renvoie faux sinon)
 function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {
 $wheresup=($wheresup!="" ? " AND ".$wheresup : "");
 $req="SELECT $ChpCle, $ChpLib FROM $CSpIC$Table$CSpIC WHERE $ChpCle='$ValCle' $wheresup";
-$reqRL=msq($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? "":$lnkid));
+$reqRL=db_query($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? "":$lnkid));
 if (db_num_rows($reqRL)>0) {
   $resRL=db_fetch_row($reqRL);
   return($resRL[1]);
@@ -422,7 +434,7 @@ table; les param�res sont  indiqu� dans les caract�istiques d'�ition de 
 		$nmchp=substr ($nmchp,1); // enl�e le @
 		$orderby=" order by $nmchp "; 
 		}
-     	 $rqvc=msq("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
+     	 $rqvc=db_query("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
       	 $resvc=db_fetch_row($rqvc);
      	 $valbchain[$nbca+1]=$resvc[0];
     	}
