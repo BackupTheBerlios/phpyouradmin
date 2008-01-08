@@ -127,7 +127,7 @@ self.location.href=url;
 // Pomp�de phpMyAdmin 
 function insertValueQuery() {
     var myQuery = document.theform.lc_reqcust;
-    var myListBox = document.theform.elements[5];
+    var myListBox = document.getElementById('sql_words');
 
     if(myListBox.options.length > 0) {
         var chaineAj = "";
@@ -201,7 +201,7 @@ while ($res=db_fetch_row($qr))
 echo "</UL>";
 if ($admadm!="1" ) {
 JSprotectlnk();
-  ?><input type="hidden" name="lc_FirstEnr"value="0"><?
+  ?><input type="hidden" name="lc_FirstEnr" value="0"><?
   if ($ss_parenv[blair]!="1" && $ss_parenv[ro]!=true) {
     ?>
     <h2><?=trad(LT_reqcust)?></h2>
@@ -227,7 +227,7 @@ JSprotectlnk();
     	$rqrqc=msq("select * from $TBDname where NM_TABLE='__reqcust'");
     	if (db_num_rows($rqrqc)>0 ) {
 		while ($res=db_fetch_array($rqrqc)) {
-			$url=addslashes("LIST_TABLES.php?key=".$res['LIBELLE']."&action_req=-1");
+			$url = addslashes("LIST_TABLES.php?key=".$res['LIBELLE']."&action_req=-1");
 			echo "&#149; <a href=\"javascript:submrqc('".$res['COMMENT']."')\">".$res['LIBELLE']."</a>&nbsp;\n";
 			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$LT_reqdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;";
 			echo "<A HREF=\"#\" onclick=\"document.theform.lc_reqcust.value='".stripslashes($res['COMMENT'])."';document.theform.elements[2].value='".stripslashes($res['LIBELLE'])."';\" TITLE=\"$LT_reqedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"12\"></A>&nbsp;";
@@ -236,7 +236,7 @@ JSprotectlnk();
     	} // fin si il y a des r�onses
     ?>
     <h3><?=trad('LT_reqcust_cour')?></h3>
-    <b><?=trad('LT_reqcust_name')?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv['reqcust_name']?>">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="reqsave();"><img src="filesave.png" border=0></a><br><br/>
+    <b><?=trad('LT_reqcust_name')?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv['reqcust_name']?>" size="50"  MAXLENGTH="50">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="reqsave();"><img src="filesave.png" border=0></a><br><br/>
     
     <table border="0"><tr>
     <td><b><?=trad('LT_reqcust_code')?> </b><br/>
@@ -252,10 +252,10 @@ JSprotectlnk();
     $rqtb=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE NOT LIKE '__reqcust' AND NM_TABLE NOT LIKE '$id_vtb%' AND NM_CHAMP='$NmChDT'");
    
     while ($rstb=db_fetch_array($rqtb)) {
-    	$tbvalsql['" '.$rstb['NM_TABLE'].' "']=$rstb['LIBELLE'];
+    	$tbvalsql[' `'.$rstb['NM_TABLE'].'` ']=$rstb['LIBELLE'];
 	$rqchp=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE='".$rstb['NM_TABLE']."'");
 	while ($rschp=db_fetch_array($rqchp)) {
-		$tbvalsql['" '.$rschp['NM_CHAMP'].' "']="-- ".$rstb['LIBELLE'].".".$rschp['LIBELLE'];
+		$tbvalsql[' `'.$rschp['NM_CHAMP'].'` ']="-- ".$rstb['LIBELLE'].".".$rschp['LIBELLE'];
 		
 	}
     } // fin boucle sur les tables
@@ -265,7 +265,7 @@ JSprotectlnk();
     
     <SCRIPT language="JavaScript">
     // modifie l'evenement double clic de la liste
-    document.theform.elements[5].ondblclick=insertValueQuery;
+    document.theform.getElementById('sql_words').ondblclick = insertValueQuery;
     </script>
     </td>
     </tr></table>
