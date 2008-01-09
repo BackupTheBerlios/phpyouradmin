@@ -280,17 +280,16 @@ return ($ret[0]);
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
 // les lignes sont index�s num�iquement
 // les colonnes aussi
-function db_qr_compres($req) {
-$res=db_query($req);
+function db_qr_compres($req,$lnkid="") {
+$res=db_query($req,$lnkid);
 $i=0;
-if (db_num_rows($res)) {
-	while ($rep=db_fetch_row($res)) {
+	$ret = false;
+//if (db_num_rows($res)) { // car oci_num_rows ne fonctionne pas avec Oracle !!
+	while ($rep = db_fetch_row($res)) {
 		$ret[$i]=$rep;
 		$i++;
 		}
 	return($ret);
-	}
-else return (false);
 }
 
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
@@ -299,22 +298,23 @@ else return (false);
 function db_qr_comprass($req,$lnkid="") {
 $res=db_query($req,$lnkid);
 $i=0;
-if (db_num_rows($res)) {
+$ret = false;
+//if (db_num_rows($res)) { // car oci_num_rows ne fonctionne pas avec Oracle !!
 	while ($rep=db_fetch_assoc($res)) {
 		$ret[$i]=$rep;
 		$i++;
 		}
 	return($ret);
-	}
-else return (false);
+//	}
+//else return (false);
 }
 
 // fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau indic�numeriquement
 function db_qr_res($req,$lnkid="") {
-	$res=db_query($req,$lnkid);
-	if (db_num_rows($res) >0 ) 	{
-		$ret=db_fetch_row($res);
-	} else {
+
+$res=db_query($req,$lnkid);
+	$ret=db_fetch_row($res);
+	if (!$ret) 	{
 		$ret[0]="error or no record found";
 	}
 	return ($ret);
@@ -322,9 +322,8 @@ function db_qr_res($req,$lnkid="") {
 // fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau ASSOCIATIF
 function db_qr_rass($req,$lnkid="") {
 	$res=db_query($req,$lnkid);
-	if (db_num_rows($res) >0 ) 	{
-		$ret=db_fetch_assoc($res);
-	} else {
+	$ret=db_fetch_assoc($res);
+	if (!$ret) {
 		$ret[0]="error or no record found";
 	}
 	return ($ret);
@@ -355,8 +354,8 @@ function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {
 $wheresup=($wheresup!="" ? " AND ".$wheresup : "");
 $req="SELECT $ChpCle, $ChpLib FROM $CSpIC$Table$CSpIC WHERE $ChpCle='$ValCle' $wheresup";
 $reqRL=db_query($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? "":$lnkid));
-if (db_num_rows($reqRL)>0) {
-  $resRL=db_fetch_row($reqRL);
+$resRL=db_fetch_row($reqRL);
+if ($resRL) {
   return($resRL[1]);
   }
 else return (false);
@@ -486,27 +485,24 @@ if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeu
 		$whreqsup=" AND $reqsup ";
 	}
 	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid=0) $whreqsup $orderby");
-	if (db_num_rows($rql) > 0) {
-		$tabCorlb=array();
-		while ($rw=db_fetch_row($rql)) {
-			if($rw[0] !="") { // si cl�valide
-				$resaf=$rw[2];
-				for ($k=2;$k<=$nbca;$k++) {
-					$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-					$resaf=$resaf.$cs.$rw[$k +1];
-					} // boucle sur chps �entuels en plus
-				$tabCorlb[$rw[0]]=$resaf;
-				rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
-				//print_r($tabCorlb);				
-				} // fin si cl�valide
-			} // fin boucle r�onses
-		} // si r�onses
-	else {
+	while ($rw=db_fetch_row($rql)) {
+		if($rw[0] !="") { // si cl�valide
+			$resaf=$rw[2];
+			for ($k=2;$k<=$nbca;$k++) {
+				$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
+				$resaf=$resaf.$cs.$rw[$k +1];
+				} // boucle sur chps �entuels en plus
+			$tabCorlb[$rw[0]]=$resaf;
+			rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
+			//print_r($tabCorlb);				
+		} // fin si cl�valide
+	} // fin boucle r�onses
+	if (!is_array($tabCorlb)) { // pas de reponses
 		$tabCorlb[err]="Error ! impossible construire l'arbre ";
-		}
+	}
 	
-	}	
-else 	{ // pas hi�archique => normal     
+		
+} else 	{ // pas hi�archique => normal     
 	$sqln="SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby LIMIT $maxrepld";
 	//echo $sqln;
 	$rql=msq($sqln);
@@ -1099,11 +1095,11 @@ global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
   $resreq=msq($req.($limit==1 ? " limit 1 " : ($limit!="no" ? " limit $limit " : "")));
   if ($limit==1) {
-  	$tbValChp=db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
+  	$tbValChp = db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
   } else {
-  	$CIL['db_num_rows']=db_num_rows($resreq);
-  	$CIL['db_resreq']=$resreq;
-	if ( $CIL['db_num_rows']== 0) return (false);
+  	$CIL['db_num_rows'] = db_num_rows($resreq);
+  	$CIL['db_resreq'] = $resreq;
+	if ($CIL['db_num_rows']== 0 && !($_SESSION['db_type'] == "oracle")) return (false); // le oci_num_rows ne fonctionne pas avec Oracle !!
   }
   
 //  print_r($tbValChp);
