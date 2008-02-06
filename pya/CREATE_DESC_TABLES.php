@@ -89,7 +89,7 @@ if (stristr(strtolower($LNmTb),strtolower($TBDname))) {
 <input type="radio" name="CREATION" value="vrai" onclick="if (this.checked) {alert ('Soyez certain de vouloir re-geneer tout ou partie de la table de description !\n Toutes les valeurs prealablement saisies seront ecrasees si elles existent !');}" >(re)generer la table (!)
 <BR></h3>
 <input type="checkbox" name="AFFALL" value="vrai">Affichage des caracteristiques <u>completes</u> de chaque champ dans l'ecran suivant<BR><BR>
-<input type="checkbox" name="VALAUTO" value="vrai"> Affectation de valeurs automatiques pour certains champs en fonction de leur nom:<BR>
+<input type="checkbox" name="VALAUTO" value="vrai" checked="checked"> Affectation de valeurs automatiques pour certains champs en fonction de leur nom:<BR>
 &#149; champs contenant <?=$dtmaj?> (variable $dtmaj) : date du jour auto<BR>
 &#149; champs contenant <?=$dtcrea?> (variable $dtcrea): date du jour auto si pas nulle avant<BR>
 &#149; champs contenant <?=$usmaj?> : code user affecte (variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et lie statique par la chaine <?=$chpperlie?> (variable $chpperlie)<BR>
