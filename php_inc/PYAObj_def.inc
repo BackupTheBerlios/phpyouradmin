@@ -647,7 +647,9 @@ function EchoEdit($DH=true) {
 	} else $tabVS=Array();
 	$retVal.='</SELECT>';
 	
-	$retVal.= '<input type="button" class="fxbutton" onclick="popup(\''.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'\',500,500)" value=" M " />';
+	// pour la compat avec gdp2 multi-onglets dans FF et bientot PYA
+	if (isset($_REQUEST['SESSION_NAME'])) $sessnreq = "&SESSION_NAME=".$_REQUEST['SESSION_NAME'];
+	$retVal.= '<input type="button" class="fxbutton" onclick="popup(\''.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).$sessnreq.'\',500,500)" value=" M " />';
 	//$retVal.= '<a target="_blank" href="'.$this->chempopl.$this->nmfpopl.'?Valeurs='.urlencode($this->Valeurs).'&NmChp='.$this->NmChamp.'&Mult='.($Mult ? 10 : 1).'">M</a>';
 
 	break;
