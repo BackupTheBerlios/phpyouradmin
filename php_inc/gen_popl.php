@@ -14,7 +14,7 @@ header('Content-type: text/html; charset='.$charset);
 
 <script language="javascript">
 
-var ajaxurl="ld_ajax_dyn.php?chp_lnk=<?=$_REQUEST['Valeurs']?>&txt2srch=";
+var ajaxurl="ld_ajax_dyn.php?chp_lnk=<?=$_REQUEST['Valeurs'].($_REQUEST['SESSION_NAME'] ? "&SESSION_NAME=".$_REQUEST['SESSION_NAME'] : "")?>&txt2srch=";
 
 function searchdb(txt2srch) {
 	
