@@ -954,7 +954,7 @@ if ($this->TypeAff=="FICFOT") {
     if ($this->TypEdit==2 && $this->OFN!="") { // copie de fiche => copie de fichier s'il y en a un
     	$cok = copy($ChemImg.$value,$ChemImg."2".$value);
     	$value = "2".$value;
-    	if (!$cok) echo "Copie du fichier impossible";
+    	if (!$cok) echo "Copie du fichier $ChemImg$value vers $ChemImg"."2"."$value impossible <br/>Cliquez sur le bouton retour arriere de votre navigateur";
     } elseif ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {// si nouveau ou modif avec fichier attach�
 	// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
 	$this->Fname = cv2purascii($this->Fname);
