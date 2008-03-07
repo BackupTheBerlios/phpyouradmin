@@ -655,7 +655,7 @@ function EchoEdit($DH=true) {
 	break;
     		
     case "FICFOT":
-      if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
+      //if ($this->TypEdit==2) $this->ValChp=""; // annule si copie
       $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"Old".$this->NmChamp."\"  ID=\"Old".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
         if ($this->ValChp!="") {  // regarde si chemin param�r�correctement
           if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
@@ -934,7 +934,7 @@ if ($this->TypeAff=="FICFOT") {
           $ChemImg="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";}
 
 	//print_r($this);
-    if ($this->TypEdit==1 || $this->TypEdit=='M') { // gestion effacement anciens fichiers attach�
+    if ($this->TypEdit==1 || $this->TypEdit=='M' || $this->TypEdit==2) { // gestion effacement anciens fichiers attach�
       // test decoche ou changement en modif
     // pour effacement de l'ancien fichier attach�
        if ($this->OFN!="" && ($this->Fok=="" || ( $this->ValChp!="none" && $this->ValChp!="" && $keycopy.$this->Fname!= $keycopy.$this->OFN)))
@@ -951,8 +951,11 @@ if ($this->TypeAff=="FICFOT") {
           }
     }   // fin gestion effacement anciens fichiers attach�
     
-    // si nouveau ou modif avec fichier attach�
-    if ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {
+    if ($this->TypEdit==2 && $this->OFN!="") { // copie de fiche => copie de fichier s'il y en a un
+    	$cok = copy($ChemImg.$value,$ChemImg."2".$value);
+    	$value = "2".$value;
+    	if (!$cok) echo "Copie du fichier impossible";
+    } elseif ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {// si nouveau ou modif avec fichier attach�
 	// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
 	$this->Fname = cv2purascii($this->Fname);
 	$this->Fname = addslashes(strtr($this->Fname," '*?$\"","______"));
