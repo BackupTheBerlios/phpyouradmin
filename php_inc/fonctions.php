@@ -166,7 +166,7 @@ function cvldlm2in ($strap,$addsl=false) {
 			if ($uid!="") $tbuids2[]=$adsl.$uid.$adsl;
 		}
 		$uidin=implode(",",$tbuids2);
-	} else $uidin=$adsl.$uids.$adsl;
+	} else $uidin=$adsl.$strap.$adsl;
 	return($uidin);
 }
 
