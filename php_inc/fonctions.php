@@ -1156,7 +1156,7 @@ return mail($destinataire, $sujet, $texte_simple.$texte_html, $entete);
 
 // envoi de mail avec pi�e jointe
 // pour l'instant utilis�seulement pour les messages anti-spam
-function mail_fj($destinataire,$sujet,$message,$from,$file) {
+function mail_fj($destinataire,$sujet,$message,$from,$file,$contentType) {
 //----------------------------------
 // Construction de l'ent�e
 //----------------------------------
@@ -1166,7 +1166,8 @@ $boundary = "-----=".md5(uniqid(rand()));
 
 // Ici, on construit un ent�e contenant les informations
 // minimales requises.
-// Version du format MIME utilis�$header = "MIME-Version: 1.0\r\n";
+// Version du format MIME utilis�
+$header = "MIME-Version: 1.0\r\n";
 // Type de contenu. Ici plusieurs parties de type different "multipart/mixed"
 // Avec un fronti�e d�inie par $boundary
 $header .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
@@ -1190,8 +1191,9 @@ $msg = "Je vous informe que ceci est un message au format MIME 1.0 multipart/mix
 $msg .= "--$boundary\r\n";
 
 // Et pour chaque partie on en indique le type
-$msg .= "Content-Type: text/plain; charset=\"iso-8859-1\"\r\n";
-// Et comment il sera cod�$msg .= "Content-Transfer-Encoding:8bit\r\n";
+$msg .= "Content-Type: text/plain; charset=\"utf-8\"\r\n";
+// Et comment il sera cod�
+$msg .= "Content-Transfer-Encoding:8bit\r\n";
 // Il est indispensable d'introduire une ligne vide entre l'ent�e et le texte
 $msg .= "\r\n";
 // Enfin, on peut �rire le texte de la 1�e partie
@@ -1205,26 +1207,33 @@ $msg .= "\r\n";
 //---------------------------------
 // Tout d'abord lire le contenu du fichier
 // le chenmin du fichier est relatif au script appelant cette fonction
+
 if ($file!="" && file_exists($file)) { // si fichier est sp�ifi�et existe ....
-	$fp = fopen($file, "rb");   // b c'est pour les windowsiens
-	$attachment = fread($fp, filesize($file));
-	fclose($fp);
+
+// 	$fp = fopen($file, "rb");   // b c'est pour les windowsiens
+// 	$attachment = fread($fp, filesize($file));
+// 	fclose($fp);
+	
+	$attachment=file_get_contents($file);
 	
 	// puis convertir le contenu du fichier en une cha�e de caract�e
 	// certe totalement illisible mais sans caract�es exotiques
 	// et avec des retours �la ligne tout les 76 caract�es
 	// pour �re conforme au format RFC 2045
 	$attachment = chunk_split(base64_encode($attachment));
-	
+	$file = basename($file);
 	// Ne pas oublier que chaque partie du message est s�ar�par une fronti�e
 	$msg .= "--$boundary\r\n";
 	// Et pour chaque partie on en indique le type
-	$msg .= "Content-Type: text/html; name=\"$file\"\r\n";
-	// Et comment il sera cod�	$msg .= "Content-Transfer-Encoding: base64\r\n";
+	$msg .= "Content-Type: $contentType; name=\"$file\"\r\n";
+	//$msg .= "Content-Type: text/html; name=\"$file\"\r\n";
+	// Et comment il sera cod�	
+	$msg .= "Content-Transfer-Encoding: base64\r\n";
 	// Petit plus pour les fichiers joints
 	// Il est possible de demander �ce que le fichier
 	// soit si possible affich�dans le corps du mail
-	$msg .= "Content-Disposition: inline; filename=\"$file\"\r\n";
+//	$msg .= "Content-Disposition: inline; filename=\"$file\"\r\n";
+	$msg .= "Content-Disposition: attachment; filename=\"$file\"\r\n";
 	// Il est indispensable d'introduire une ligne vide entre l'ent�e et le texte
 	$msg .= "\r\n";
 	// C'est ici que l'on ins�e le code du fichier lu
@@ -1235,6 +1244,7 @@ if ($file!="" && file_exists($file)) { // si fichier est sp�ifi�et existe ..
 	$msg .= "--$boundary--\r\n";
 } 
 else { // le fichier attach�n'a pas ��trouv�	$msg.="Le fichier $file qui devait etre attach��ce ce message n\'a pas  ��trouv�;
+	die("fichier $file introuvable; impossible d'envoyer le mail");
 }
 
 return mail($destinataire, $sujet, $msg,"Reply-to: $from\r\nFrom: $from\r\n".$header);
