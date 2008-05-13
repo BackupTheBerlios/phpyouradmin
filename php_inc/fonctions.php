@@ -1127,8 +1127,9 @@ function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1
 $limite = "_parties_".md5 (uniqid (rand()));
 
 $entete = "Reply-to: $from\n";
-$entete .= "From:$from\n";
-$entete .= "Date: ".date("l j F Y, G:i")."\n";
+$entete .= "From:$from\n"; 
+$entete .="Date:" . date("D, d M Y H:i:s")."\n"; 
+//$entete .= "Date: ".date("l j F Y, G:i")."\n"; // sert certainement a rien et fout la merde
 $entete .= "MIME-Version: 1.0\n";
 $entete .= "Content-Type: multipart/alternative;\n";
 $entete .= " boundary=\"----=$limite\"\n\n";
