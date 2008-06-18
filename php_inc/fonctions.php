@@ -105,6 +105,17 @@ if ($tab[2]<70) $tab[2]+=2000;
 if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
 return(mktime(0,0,0,$tab[1],$tab[0],$tab[2]));
 }
+function DateA2tstamp($DateStr) {
+if (trim($DateStr)=="" || !strstr($DateStr,"-")) return (0);
+$tab=explode("-",$DateStr);
+$tab[0]=$tab[0]+0;
+$tab[1]=$tab[1]+0;
+$tab[2]=$tab[2]+0;
+if ($tab[0]=="") $tab[0]=date("Y");
+if ($tab[0]<70) $tab[0]+=2000;
+if ($tab[0]>70 && $tab[0]<100) $tab[0]+=1900;
+return(mktime(0,0,0,$tab[1],$tab[2],$tab[0]));
+}
 
 // force affichage d'un nombre a 2 decimales (pr affichage des minutes et heures) à 2 décimales
 function c2c($nb) {
@@ -1119,6 +1130,28 @@ global $debug, $DBName;
     } // fin boucle sur les champs du r�ultat
   if ($debug) echo("Champs traites par la fct InitPOReq :".$strdbgIPOR."<br/>\n");
   return($CIL);
+}
+
+// fonction renvoyant un tableau d'objets PYA initialis� d'une table
+function InitPOTable($table,$Base="",$DirEcho=true,$TypEdit="",$co_user="") {
+	global $debug, $DBName;
+  	if ($Base=="") $Base=$DBName;
+	$reqt = db_qr_comprass("select NM_CHAMP FROM DESC_TABLES where NM_TABLE='$table' AND NM_CHAMP!='TABLE0COMM' ORDER BY ORDAFF");
+	if (!$reqt) { 
+		return(false);
+	} else {
+		foreach ($reqt as $chp) {
+			$CIL[$chp['NM_CHAMP']]=new PYAobj(); // nouvel objet
+			$CIL[$chp['NM_CHAMP']]->NmBase=$Base;
+			$CIL[$chp['NM_CHAMP']]->NmTable=$table;
+			$CIL[$chp['NM_CHAMP']]->NmChamp=$chp['NM_CHAMP'];
+			$CIL[$chp['NM_CHAMP']]->TypEdit=$TypEdit;
+			$CIL[$chp['NM_CHAMP']]->InitPO();
+			if ($DirEcho!=true) $CIL[$chp['NM_CHAMP']]->DirEcho=false;
+			if ($co_user!="" && $TypEdit!="C") $CIL[$chp['NM_CHAMP']]->InitAvMaj($co_user);
+		}
+		return($CIL);
+	}
 }
 
 // fonction envoi de mail text+HTML, pomp�sur nexen et bricol�...
