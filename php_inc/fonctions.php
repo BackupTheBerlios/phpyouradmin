@@ -202,7 +202,17 @@ function echspan($style,$text,$DirEcho=true) {
     } else {
     	return($retVal);
     }
+}
+function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer") {
+	$ret = '<a href="#" onclick="chg=document.getElementById(\''.$theid.'\').style.display=\'block\'" class="'.$theclass.'" title="'.$thetitle.'">+</a> ';
+	$ret .= '<a href="#" onclick="document.getElementById(\''.$theid.'\').style.display=\'none\'" class="'.$theclass.'" title="'.$thetitle.'">-</a><br/>';
+	
+	$ret .= '<div id="'.$theid.'" style="display:none">'.$thecontent.'</div>';
+	return($ret);
+}
 
+function makelink($url,$obj,$title="",$class="",$target="") {
+	return ('<a href="'.$url.'" '.( $target !="" ? 'target="'.$target.'" ' : ""). ( $title !="" ? 'title="'.$title.'" ' : ""). ( $class !="" ? 'class="'.$class.'" ' : "").'>'.$obj.'</a>');
 }
 
 // fonction qui echoise un champ hidden
