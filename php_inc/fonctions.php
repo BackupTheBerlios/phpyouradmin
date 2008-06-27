@@ -117,7 +117,7 @@ if ($tab[0]>70 && $tab[0]<100) $tab[0]+=1900;
 return(mktime(0,0,0,$tab[1],$tab[2],$tab[0]));
 }
 
-// force affichage d'un nombre a 2 decimales (pr affichage des minutes et heures) à 2 décimales
+// force affichage d'un nombre a 2 chiffres (pr affichage des minutes et heures) 
 function c2c($nb) {
 	if ($nb<10) $nb="0".$nb;
 	return ($nb);
