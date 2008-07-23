@@ -32,6 +32,7 @@ class PYAobj {
   var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
   var $Comment;
   var $MaxFSize; // taille max des fichiers joints !!
+  var $MaxImgWidth=0; // largeur max des images
   var $error;
 
 // methode qui initialise toutes les propriete de l'objet pour un champ
@@ -665,7 +666,7 @@ function EchoEdit($DH=true) {
 
         $NCF=$ChemFF.$this->ValChp;
         if (TestNFImg($this->ValChp)) // si c'est un fichier de type image
-          { $retVal.= "<P><IMG SRC=\"".$NCF."\"></P>";
+          { $retVal.= '<P><IMG SRC="'.$NCF.'" '.($this->MaxImgWidth > 0 ? ' width="'.$this->MaxImgWidth.'" ' : "").'></P>';
           }
         else
           { $retVal.= "Lien vers le fichier associe : <A HREF=\"".$NCF."\" ".(TestNFImg($this->ValChp) ? "TARGET=\"_blank\"" : "").">".$this->ValChp."</A><br/>";}
@@ -925,7 +926,7 @@ if ($this->TypeAff=="FICFOT") {
 
 // en php5, la varaiable $this->ValChp=$_REQUEST[toto] contient en fait $_FILES[toto] qui est un tableau...
 	if (is_array($this->ValChp)) {
-		$this->ValChp=$this->ValChp['name'];
+		$this->ValChp = $this->ValChp['name'];
 	}
 
     if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
@@ -988,8 +989,8 @@ if ($this->TypeAff=="FICFOT") {
 	if (!$this->error) $value=(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname;// ne remet la clé que si elle y est pas déjà.
 	// la valeur �stocker dans la base de donn� est (�priori) le fichier pr���de la cl�
     } // fin si nouveau ou modif avec fichier attach�
-    if ($this->TypEdit==-1 && $this->Fname!="") {// si suppression d'enregistrement on efface tous les fichiers eventuels
-        $ChemFich=$ChemImg.$this->Fname;
+    if ($this->TypEdit==-1 && $this->OFN!="") {// si suppression d'enregistrement on efface tous les fichiers eventuels
+        $ChemFich=$ChemImg.$this->OFN;
         delfich($ChemFich);
     } // fin si suppression enregistrement
     $this->ValChp=$value;
