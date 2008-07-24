@@ -51,7 +51,7 @@ $retVal="";
         $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
         if (db_num_rows($rpDF)>0) {
               $CcChp=db_fetch_assoc($rpDF);
-              $this->Libelle=stripslashes($CcChp[$ult['LIBELLE']]);
+              $this->Libelle=tradLib(stripslashes($CcChp[$ult['LIBELLE']]));
               $this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
               $this->TypeAff=$CcChp[$ult['TYPEAFF']];
               $this->Valeurs=$CcChp[$ult['VALEURS']];
@@ -127,15 +127,15 @@ $retVal="";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
   
-  //! ttes les listes sont �choix multiple (condition OR sur les valeurs)
-      case "LDC": // Liste d�oulante affichant les diff�entes valeurs du champ  
+  //! ttes les listes sont à choix multiple (condition OR sur les valeurs)
+      case "LDC": // Liste d�oulante affichant les différentes valeurs du champ  
         $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="LDM">';
 	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
         $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
-        $tbval["%"]=$VSLD."(tous)";
+        $tbval["%"]=$VSLD.$this->trad("all");
         while ($rwsq=db_fetch_row($rqldcu)) {
-          $tbval[$rwsq[0]]=$rwsq[0];
+          $tbval[$rwsq[0]]=tradLib($rwsq[0]);
           }
         asort($tbval); // tri de la liste
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
@@ -159,12 +159,12 @@ $retVal="";
            else $key=$val;
            
            if ($this->TypeAff=="LDM") $key="%,$key,%"; // filtre change si multiple (faux set)
-           $tbval[$key]=$val;
+           $tbval[$key]=tradLib($val);
            }
         asort($tbval); // tri de la liste
         //$tbval=array_merge(array("%"=>$VSLD."(tous)"),$tbval);
 				// ci-dessus � reconstruit les indices...
-				$tbval=array("%"=>$VSLD."(tous)")+$tbval;
+				$tbval=array("%"=>$VSLD.$this->trad("all")) + $tbval;
 
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
         break;
@@ -184,7 +184,7 @@ $retVal="";
         else $tabval=$tbval;*/
 	if (!is_array($tabval)) $tabval = array(); // ptit bug si la liste est vide
 				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait � le % se retrouve �la fin ..
-        $tbjok[000]=$VSLD."(tous)"; // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
+        $tbjok[000]=$VSLD.$this->trad("all"); // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
                               // quand c'est un champ num, on a 0, sinon 000
 			        //$tabval=array_merge($tbjok,$tabval);
 				// mais cette fonction reindexe le tableau et donc fout une merdre pas croyable!!
@@ -205,21 +205,21 @@ $retVal="";
       	
       	switch ($this->TypFilt) {
 		case "DANT": 
-			$clause="ant&eacute;rieure";
+			$clause=$this->trad("ante");
 			break;
 		case "DPOST":
-			$clause="post&eacute;rieure";
+			$clause=$this->trad("poste");
 			break;
 		case "VINF":
-			$clause="inf&eacute;rieur";
+			$clause=$this->trad("inf");
 			break;
 		case "VSUP":
-			$clause="sup&eacute;rieur";
+			$clause=$this->trad("sup");
 			break;
       	}
        
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
-        if ($bDL) $retVal.= "Enregistrements pour lequels $this->Libelle est $clause &agrave;";
+        if ($bDL) $retVal.= $this->trad("Enrpq").$this->Libelle.$this->trad("is").$clause.$this->trad("agrave");
         $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" ID=\"rq_".$this->NmChamp."\" $classinp VALUE=\"\">";
         break;
         
@@ -227,18 +227,18 @@ $retVal="";
       case "VIS" : // bornes sup et inf
       	if ($this->TypFilt=="DATAP") {
 	      	$classinp = ' class="dateinput" ';
-      		$lbi="post&eacute;rieure";
-      		$lbs="ant&eacute;rieure";
+      		$lbi=$this->trad("poste");
+      		$lbs=$this->trad("ante");
       	} else {
-      		$lbi="sup&eacute;rieur";
-      		$lbs="inf&eacute;rieur";
+      		$lbi=$this->trad("sup");
+      		$lbs=$this->trad("inf");
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.= "Enregistrements pour lequels $this->Libelle est <br/>$lbi &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> <br/> ET $lbs &agrave; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\" VALUE=\"%\">";
+             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\" VALUE=\"%\">";
              }
         else {
-             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> && &ly; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\"  VALUE=\"\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\"  VALUE=\"\">";
              }
         break;
   
@@ -260,7 +260,7 @@ $retVal="";
 //
 // M�hode qui affiche la case de n�ation
 function DispNeg($DE2=true) {
-        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\"> N&eacute;gation</span>";
+        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\">".$this->trad("neg")."</span>";
    if ($this->DirEcho && $DE2) {
     	echo $retVal;
     } else {
@@ -331,7 +331,7 @@ function DispNeg($DE2=true) {
           if ($HT) {
                return "<A HREF=\"".$ChemFF.$this->ValChp."\" ".(TestNFImg($this->ValChp) ? "target=\"_blank\"" : "").">".$this->ValChp."</A>";}
           else
-              {return "Fichier attache".$ChemFF.$this->ValChp;}
+              {return $this->trad("fat").$ChemFF.$this->ValChp;}
   
           }
         break;
@@ -371,7 +371,7 @@ function RVLS($EiS) {
                 $val=$valtb[1];
                 }
              else $key=$val;
-             $tbval[$key]=$val;
+             $tbval[$key]=tradLib($val);
              }
            } // fin si valeurs statiques
         $cle=$this->ValChp;
@@ -502,7 +502,7 @@ function EchoEdit($DH=true) {
       if ($this->FieldNullOk=="YES")   
         {  // si null autoris�
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
-        $tbval["NULL"]="vide(null)";
+        $tbval["NULL"]=$this->trad("null");
         }
       foreach ($defl as $val) {
         if (strstr($val,":")) {
@@ -511,12 +511,13 @@ function EchoEdit($DH=true) {
            $val=$valtb[1];
            }
         else $key=$val;
+        $val = tradLib($val);
         $val=(($key==$this->ValChp) ?  $VSLD.$val: $val);
         $tbval[$key]=stripslashes($val); // au cas ou ' dans les libelles
         $tbkey[]=$key;
       }
       if (!in_array($this->ValChp,$tbkey) && $this->ValChp!="")
-        $retVal.= "<H6>Erreur : la valeur $this->ValChp contenue dans le champ n'est pas dans la liste ! </H6>";
+        $retVal.= str_replace("###",  $this->ValChp, $this->trad("err6"));
       $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false); // lise der. non multiple
       break;
 
@@ -524,7 +525,7 @@ function EchoEdit($DH=true) {
       $defl=explode(',',$this->Valeurs);
       $tbvalm=explode(',',$this->ValChp);
       
-      if ($this->Fccr=="" || $this->Fccr=="LDF") $tbval["NULL"]="Aucun(e)"; // valeur vide
+      if ($this->Fccr=="" || $this->Fccr=="LDF") $tbval["NULL"]=$this->trad("none"); // valeur vide
       $Am1S=false; // Init au moins une valeur s�ectionn�
       foreach ($defl as $val) {
         if (strstr($val,":")) {
@@ -533,6 +534,7 @@ function EchoEdit($DH=true) {
            $val=$valtb[1];
            }
         else $key=$val;
+        $val = tradLib($val);
         if (in_array($key, $tbvalm)) {
               $val=$VSLD.$val; // indique les s�ectionn�
               $Am1S=true; // Init au moins une valeur s�ectionn�
@@ -543,7 +545,7 @@ function EchoEdit($DH=true) {
       // controle d'erreur
 
       // si aucun de s�ectionn�...
-      if (!$Am1S && ($this->Fccr=="" || $this->Fccr=="LDF")) $tbval["NULL"]=$VSLD."Aucun(e)";
+      if (!$Am1S && ($this->Fccr=="" || $this->Fccr=="LDF")) $tbval["NULL"]=$VSLD.$this->trad("none");
 
       unset($err);
       foreach ($tbvalm as $valm) {
@@ -551,7 +553,7 @@ function EchoEdit($DH=true) {
         }
       if ($err!="") {
         $err=vdc($err,2); // enl�e dernier", ";
-        $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) non presente(s) dans la liste ! </h6>";
+        $retVal.= str_replace("###", $err, $this->trad("err7"));
         }
       $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false);
       break;
@@ -564,11 +566,11 @@ function EchoEdit($DH=true) {
       if (strstr($this->Valeurs,"@@")) {  // si hierachique
 	$valnul=($this->TTC=="char" ? "''" : 0);
         $val=(($this->ValChp==$valnul) ? $VSLD.$valnul : $valnul);
-        $tbval[$valnul]="Aucun, elle-meme";
+        $tbval[$valnul]=$this->trad("none");
         }
       elseif ($this->FieldNullOk=="YES") {  // si null autorise
         $val=(($this->ValChp=="NULL") ? $VSLD."NULL" : "NULL");
-        $tbval["NULL"]="Aucun(e)";
+        $tbval["NULL"]=$this->trad("none");
         }
       $tberrck=array(); // clear tableau de controle d'erreur
       foreach ($tabCorlb as $key=>$val) {
@@ -577,7 +579,7 @@ function EchoEdit($DH=true) {
         $tbval[$key]=$val;        
           }
       if (!in_array($this->ValChp,$tberrck) && $this->ValChp!="") 
-        $retVal.= "<H6>Erreur : la valeur $this->ValChp contenue dans le champ n'est pas dans la liste ! </H6>";
+        $retVal.= str_replace("###",  $this->ValChp, $this->trad("err6"));
       $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false);
       break;
 
@@ -589,9 +591,9 @@ function EchoEdit($DH=true) {
       //dans le champ lui m�e, les valeurs cl� sont stock�s s�ar�s par des virgules
       $tbvalm=explode(',',$this->ValChp);
 
-     if (strstr($this->Valeurs,"@@")) $valsh=" ou elle-meme";
+     if (strstr($this->Valeurs,"@@")) $valsh=$this->trad("oris");
       $valnul=($this->TTC=="char" ? "''" : 0);
-      $tbval[$valnul]="Aucun(e)".$valsh;
+      $tbval[$valnul]=$this->trad("none").$valsh;
 
 
       $tberrck=array(); // clear tableau de controle d'erreur
@@ -606,7 +608,7 @@ function EchoEdit($DH=true) {
         }
 
       // si aucun de s�ectionn�...
-      if (!$Am1S) $tbval[$valnul]=$VSLD."Aucun(e)".$valsh;
+      if (!$Am1S) $tbval[$valnul]=$VSLD.$this->trad("none").$valsh;
       // controle d'erreur
       if (is_array($tbvalm)) {
         unset($err);
@@ -615,7 +617,7 @@ function EchoEdit($DH=true) {
           }
         if ($err!="") {
           $err=vdc($err,2); // enl�e dernier", ";
-          $retVal.= "<H6>Erreur : valeur(s) $err contenue(s) dans le champ non pr�ente(s) dans la liste ! </h6>";
+          $retVal.= str_replace("###", $err, $this->trad("err7"));
           }
         }        
       $retVal.=DispLD($tbval,$this->NmChamp,"yes",$this->Fccr,false); // liste d�oulante, multiple
@@ -669,13 +671,13 @@ function EchoEdit($DH=true) {
           { $retVal.= '<P><IMG SRC="'.$NCF.'" '.($this->MaxImgWidth > 0 ? ' width="'.$this->MaxImgWidth.'" ' : "").'></P>';
           }
         else
-          { $retVal.= "Lien vers le fichier associe : <A HREF=\"".$NCF."\" ".(TestNFImg($this->ValChp) ? "TARGET=\"_blank\"" : "").">".$this->ValChp."</A><br/>";}
+          { $retVal.= $this->trad("linktof")." : <A HREF=\"".$NCF."\" ".(TestNFImg($this->ValChp) ? "TARGET=\"_blank\"" : "").">".$this->ValChp."</A><br/>";}
 
         if ($this->TypEdit!="C") $retVal.= "<INPUT TYPE=\"checkbox\" NAME=\"Fok".$this->NmChamp."\" VALUE=\"".$this->ValChp."\" CHECKED>".$this->ValChp."&nbsp;";
         }// Fin si il y a un fichier associe
         if ($this->TypEdit!="C") { // saisie que si pas en �ition
            $retVal.= "<INPUT TYPE=\"file\" NAME=\"".$this->NmChamp."\" SIZE=\"30\" MAXLENGTH=\"200\">";
-           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>Pour supprimer l'image ou le fichier, decocher la case, ou choisissez-en un(e) autre. Sinon ne touchez a rien ...</font>";
+           if ($this->ValChp!="") $retVal.= "<FONT SIZE=\"-2\"><br/>".$this->trad("mes1")."</font>";
       }
       break; // fin champ de type fichier-photo
 
@@ -706,13 +708,13 @@ function EchoEdit($DH=true) {
 
     case "DT_TSTAMP_ED": 
        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"  class=\"dateinput\"  VALUE=\"".date("d/m/Y",$this->ValChp)."\" size=\"10\" maxsize=\"20\" $evJS>";
-        if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
+        if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (".$this->trad("avtmaj").": ".date("d/m/Y",$this->ValChpAvMaj).") ";
     break;
     
      case "DT_TSTAMP_VS": 
       $retVal.= date("d/m/Y",$this->ValChp);
       $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".date("d/m/Y",$this->ValChp)."\">";
-      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (Avt MAJ : ".date("d/m/Y",$this->ValChpAvMaj).") ";
+      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (".$this->trad("avtmaj").": ".date("d/m/Y",$this->ValChpAvMaj).") ";
      break;
 	
 	case "HR_MN":
@@ -727,7 +729,7 @@ function EchoEdit($DH=true) {
     default :
     	if (strstr($this->NmChamp,"_DT")) $classi=' class="dateinput" ';
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\"  $classi $size $mxsize $evJS>";
-        if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
+        if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (".$this->trad("avtmaj").": ".DispCustHT($this->ValChpAvMaj).") ";
       break;
      } // fin switch sur type d'affichage
     
@@ -974,9 +976,9 @@ if ($this->TypeAff=="FICFOT") {
 	
 	// test taille du fichier attach�    
 	if (($this->Fsize>$this->MaxFSize) && ($this->ValChp!="none")) {
-		$retVal.= "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ".$this->MaxFSize.", ";
+		$retVal.= str_replace("###",  $this->MaxFSize, $this->trad("err1")); 
 		unlink ($this->ValChp);
-		$this->error=$retVal." et le fichier attache ".$this->Fname." a une taille de ".$this->Fsize." octets. <br/>Cliquez sur le bouton retour arriere de votre navigateur";
+		$this->error=$retVal.str_replace("###",  $this->Fsize, $this->trad("err2"));
 		$this->ValChp=$value=""; // annule le nom de fichier pour qu'il ne soit mis en base...
 	} else { // fin si fichier trop gros
 		$retcopy=copy($this->ValChp,$ChemFich);
@@ -1009,6 +1011,59 @@ $cpstr=rt_carpstr($this->TTC);
   return ($rttb ? Array($this->NmChamp=>$this->ValChp) : $this->NmChamp."=".$this->ValChp.", "); // retourne le set ou un tableau associatif...;
 } // fin m�hode RetSet
 
+function trad($lib) {
+	$nolang = (isset($_SESSION["NoLang"]) ? $_SESSION["NoLang"] : 0);
+	return ($this->labels[$nolang][$lib] != "" ? $this->labels[$nolang][$lib] : "[! $lib !]");
+}
+
+var $labels = array (
+	0 => array (
+		"all" => "(tous)",
+		"ante" => "ant&eacute;rieure",
+		"poste" => "post&eacute;rieure",
+		"inf" => "inf&eacute;rieur",
+		"sup" => "sup&eacute;rieur",
+		"Enrpq" => "Enregistrements pour lequels ",
+		"is" => " est ",
+		"agrave" => " &agrave; ",
+		"and" => " ET ",
+		"neg" => "Negation",
+		"fat" => "Fichier attaché",
+		"null" => "vide (null)",
+		"err6" => "<H6>Erreur : la valeur ### contenue dans le champ n'est pas dans la liste ! </H6>",
+		"none" => "Auncun(e)",
+		"err7" => "<H6>Erreur : valeur(s) ### contenue(s) non presente(s) dans la liste ! </h6>",
+		"oris" => " ou elle-meme",
+		"linktof" => "Lien vers le fichier associe",
+		"mes1" => "Pour supprimer l'image ou le fichier, decocher la case, ou choisissez-en un(e) autre. Sinon ne touchez a rien ...",
+		"avtmaj" => "Avant MAJ",
+		"err1" => "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ###, ",
+		"err2" => " et le fichier attache a une taille de ### octets. <br/>Cliquez sur le bouton retour arriere de votre navigateur",
+	),
+	1 => array (
+		"all" => "(all)",
+		"ante" => "anterior with",
+		"poste" => "posterior with",
+		"inf" => "lower than",
+		"sup" => "greater than",
+		"Enrpq" => "Records of ",
+		"is" => " wich are ",
+		"agrave" => " ",
+		"and" => " AND ",
+		"neg" => "Negation",
+		"fat" => "Attached vile",
+		"null" => "empty (null)",
+		"err6" => "<H6>Error : value ### contained in field is not in the list ! </H6>",
+		"none" => "Auncun(e)",
+		"err7" => "<H6>Erreur : value(s) ### contained in field are not in the list ! ! </h6>",
+		"oris" => " or itself",
+		"linktof" => "Link to attached file",
+		"mes1" => "To delete image or file, uncheck the box, or select another file. If not, don't touch anything...",
+		"avtmaj" => "Before update",
+		"err1" => "<B>Impossible to join this file !</B><br/>File size is limted to ###, ",
+		"err2" => " and attached file's size is ### bytes. <br/>Click on return button of your browser",
+	)
+); // fin tableau langues
 
 } // fin objet PYAobj
 ?>

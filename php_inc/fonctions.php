@@ -509,10 +509,10 @@ if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeu
 	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid=0) $whreqsup $orderby");
 	while ($rw=db_fetch_row($rql)) {
 		if($rw[0] !="") { // si cl�valide
-			$resaf=$rw[2];
+			$resaf=tradLib($rw[2]);
 			for ($k=2;$k<=$nbca;$k++) {
 				$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-				$resaf=$resaf.$cs.$rw[$k +1];
+				$resaf=$resaf.$cs.tradLib($rw[$k +1]);
 				} // boucle sur chps �entuels en plus
 			$tabCorlb[$rw[0]]=$resaf;
 			rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
@@ -539,7 +539,7 @@ if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeu
 			$cs=($tbcs[$k]!="" ? $tbcs[$k] : ($k!=1 ? $carsepldef : ""));
 			if ($valbchain[$k]!="") {
 				$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$resl[$k]);
-			} else $resaf=$resaf.$cs.$resl[$k];
+			} else $resaf=$resaf.$cs.tradLib($resl[$k]);
 		}
 		$tabCorlb[$cle]=stripslashes($resaf); // tableau associatif de correspondance code -> libell�		
 		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
@@ -641,14 +641,14 @@ $table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (mysql_fetch_array($table_def));
 }
 
-// DispLD fonction qui affiche une liste d�oulante, ou des boutons radio ou cases �cocher
-// ceci fonction du nombre de valeurs sp�ifi�s dans la variable globale $nValRadLd
-// les valeurs selectionn�s sont pr���s de la chaine $VSLD
+// DispLD fonction qui affiche une liste deroulante, ou des boutons radio ou cases a cocher
+// ceci fonction du nombre de valeurs specifie  dans la variable globale $nValRadLd
+// les valeurs selectionnées sont precedées  de la chaine $VSLD
 // arguments :
-// - un tableau associatif cl�>valeur
+// - un tableau associatif clé>valeur
 // - le nom du controle
-// - s'il est multiple ou non (non par d�aut)
-// - 4�e argument (optionel) force  les cases �cocher ou boutons radio (=RAD) ou liste d�oulante (=LDF) qqsoit le nbre de valeur
+// - s'il est multiple ou non (non par défaut)
+// - 4ème argument (optionel) force  les cases à cocher ou boutons radio (=RAD) ou liste d�oulante (=LDF) qqsoit le nbre de valeur
 // - DirEcho: true: echo la liste ;; sinon renvoie la chaine de caractere 
 // idc= valeur de l'id au sens du terme
 function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true,$idC="") {
@@ -659,7 +659,7 @@ if (count($tbval)==0) {
    $retVal.= "<INPUT TYPE=\"hidden\" ID=\"".$idC."\"  name=\"".$nmC.($Mult!="no" ? "[]" : "")."\" value=\"\">";
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
-// liste d�oulante: nbre val suffisantes et pas de forcage 
+// liste déroulante: nbre val suffisantes et pas de forcage 
   $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" TITLE=\"Appuyez sur la touche Ctrl pour s&eacute;lectionner plusieurs valeurs\" ID=\"".$idC."\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));
   $retVal.= ($Mult!="no" ? "[]\" MULTIPLE=\"MULTIPLE\" SIZE=\"$SizeLDM\">" : "\">");
@@ -713,7 +713,17 @@ else {// boutons radio
   }
 } // fin fonction
 
- 
+/// fonction utilisée pour le multilinguisme
+// les lib contiennent liblang0£liblang1£liblang3 ...
+// le n° de langue est stocké dans la var de session $_SESSION['NoLang']
+function tradLib($lib) {
+	if (isset($_SESSION['NoLang']) && strstr($lib,"£")) {
+		$tblib = explode("£",$lib);
+		if ($tblib[$_SESSION['NoLang']] !="") {
+			return($tblib[$_SESSION['NoLang']]);
+		} else return($lib);
+	} else return($lib);
+}
 // fonction qui efface une variable de session si elle existe
 // et la d�ruit par d�aut
 function unregvar($var,$annvar=true) {
