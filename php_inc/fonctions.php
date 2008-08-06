@@ -205,7 +205,7 @@ function echspan($style,$text,$DirEcho=true) {
 }
 function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer") {
 	$ret = '<a name="AncOfTgAf'.$theid.'"/>';
-	$ret = '<input type="button" id="butOf'.$theid.'" value="+" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') {document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\';} else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';}"> <br/>';	
+	$ret = '<input title="'.$thetitle.'" type="button" id="butOf'.$theid.'" value="+" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') {document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\';} else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';}"> <br/>';	
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''."theb".'\').value=\'P\';document.getElementById(\''.$theid.'\').style.display=\'block\'" class="'.$theclass.'" title="'.$thetitle.'">+</a>&nbsp;';
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''.$theid.'\').style.display=\'none\'" class="'.$theclass.'" title="'.$thetitle.'">&nbsp;-&nbsp;</a><br/>';
 	
