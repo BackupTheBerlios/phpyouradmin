@@ -15,6 +15,8 @@ $ldajaxdynsize=10; //taille en nbre d'éléments des liste de sélection ajax dy
 $ldajaxdynwidth=250; //idem largeur en px
 $def_lang="fr";
 $tb_langs=array("fr"=>"#SEL#francais","en"=>"anglais");
+$tb_noLangs=array("fr"=>"0","en"=>"1"); // PYA se sert d'un n°
+
 $tb_encodes=array("utf-8"=>"#SEL#utf8","iso-8859-1"=>"iso-8859-1");
 
 
@@ -127,13 +129,14 @@ if (isset($lc_parenv)) { // tableau des param�res d'environnement pass� en g
    $_SESSION["ss_parenv"]=$ss_parenv; //session_register("ss_parenv");
 }
 
-if (!isset($ss_parenv[lang])) {
-	$ss_parenv[lang]=$def_lang;
-	$_SESSION["ss_parenv"]["lang"]=$ss_parenv[lang];
+if (!isset($ss_parenv['lang'])) {
+	$ss_parenv['lang']=$def_lang;
+	$_SESSION["ss_parenv"]["lang"] = $ss_parenv['lang'];
 	//session_register("ss_parenv[lang]");
 	}
+$_SESSION["NoLang"] = $tb_noLangs[$ss_parenv['lang']];
 
-require "lang_".$ss_parenv[lang].".inc";
+require "lang_".$ss_parenv['lang'].".inc";
 
 if (!isset($ss_parenv['db_type'])) {
 	$ss_parenv['db_type']="mysql";
@@ -186,5 +189,4 @@ function DispDebug() {
   echovar("ss_adrr","yes");
   echo "<PRE><u>Chaine de session:</u> ".session_encode()."</PRE>";
   }
-
 ?>

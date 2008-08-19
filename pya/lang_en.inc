@@ -3,7 +3,7 @@ function trad($mess) {
 $loc_message=Array(
 
 "IND_title"=>"Welcome in phpYourAdmin tool",
-"IND_txtacc"=>"You must fill the folowing form to access the databases<BR>
+"IND_txtacc"=>"You have to fill the folowing form to access the databases<BR>
 Please fill : ",
 "IND_bdduser"=>"Database user name",
 "IND_bddpasswd"=>"Database password",
@@ -16,7 +16,8 @@ Please fill : ",
 "LB_createDT"=>" to access the tool to parameter the databases",
 
 
-"LT_reqv"=>"Impossible d'exécuter une requête vide !",
+"LT_reqv"=>"Impossible to execute an empry query !",
+"LT_notable"=>"You have to select a table !",
 
 
 
