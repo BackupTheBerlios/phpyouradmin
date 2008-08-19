@@ -121,7 +121,7 @@ else {
 	    if ($_REQUEST['encod']=="iso") {
 		if ($objCIL->TTC=="numeric") $objCIL->ValChp = str_replace(".",",",$objCIL->ValChp);
 		echo  utf8_decode(epurelongchp($objCIL->RetVCL(false),false)).$tab;
-	    } else  echo epurelongchp($objCIL->RetVCL(false)).$tab; // affiche Valeur Champ ds Liste
+	    } else  echo epurelongchp($objCIL->RetVCL(false),false).$tab; // affiche Valeur Champ ds Liste
       }  // fin boucle sur les colonnes
       echo "\n";
     } // fin while = fin boucle sur les lignes
