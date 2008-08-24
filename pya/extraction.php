@@ -96,6 +96,7 @@ else {
   echo "N ligne\t";
   
   foreach ($CIL as $objCIL){ // boucle sur le tableau d'objets colonnes
+     $objCIL->NbCarMxCust = 5000;
      $NomChamp=$objCIL->NmChamp;
      if ($objCIL->Typaff_l!="" && $objCIL->Typaff_l!="")
      {

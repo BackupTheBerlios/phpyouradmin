@@ -373,9 +373,10 @@ function dblslashes($str) {
 }
 
 // fonction qui r�up�e un libell�dans une table fonction de la cl�// sert aussi �tester si un enregistrement existe (renvoie faux sinon)
-function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="") {
+function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="",$trace=false) {
 $wheresup=($wheresup!="" ? " AND ".$wheresup : "");
 $req="SELECT $ChpCle, $ChpLib FROM $CSpIC$Table$CSpIC WHERE $ChpCle='$ValCle' $wheresup";
+if ($trace) echo $req;
 $reqRL=db_query($req,$lnkid) or die("Requete sql de RecupLib invalide : <I>$req</I>".($lnkid=="" ? "":$lnkid));
 $resRL=db_fetch_row($reqRL);
 if ($resRL) {
