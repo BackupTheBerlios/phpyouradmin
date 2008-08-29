@@ -103,6 +103,7 @@ $tab[2]=$tab[2]+0;
 if ($tab[2]=="") $tab[2]=date("Y");
 if ($tab[2]<70) $tab[2]+=2000;
 if ($tab[2]>70 && $tab[2]<100) $tab[2]+=1900;
+if ($tab[2]>=2038) $tab[2]=2037; // bug an 2038
 return(mktime(0,0,0,$tab[1],$tab[0],$tab[2]));
 }
 function DateA2tstamp($DateStr) {
@@ -114,6 +115,7 @@ $tab[2]=$tab[2]+0;
 if ($tab[0]=="") $tab[0]=date("Y");
 if ($tab[0]<70) $tab[0]+=2000;
 if ($tab[0]>70 && $tab[0]<100) $tab[0]+=1900;
+if ($tab[0]>=2038) $tab[0]=2037; // bug an 2038
 return(mktime(0,0,0,$tab[1],$tab[2],$tab[0]));
 }
 
