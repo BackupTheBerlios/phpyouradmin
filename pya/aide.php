@@ -276,7 +276,13 @@ Les valeurs possibles sont :
 <br>
 <br><br>
 <a name="admttpdtmaj" class="boldred11px">Traitement pendant Mise à jour</a><br>
-Ceci permet de spécifier des MAJ automatiques sur les champs pendant leur affichage pour édition <br>
+Si l'on choisit une des vérifs prédéfinies, le formulaire sera checké lors du submit.<br/>
+Pour pouvoir utiliser cette option dans les applis (ainsi que les calendriers automatiques), il faut inclure les fichiers <em>css4sharedjs_inc.css.php</em> et <em>shared_inc.js.php</em>
+Exemple : <pre>
+&lt;link href="css4sharedjs_inc.css.php" rel="stylesheet" type="text/css"&gt;
+&lt;script type="text/javascript" src="shared_inc.js.php"&gt;&lt;/script&gt;
+</pre>
+Si l'on choisit <i>autre</i> et qu'on rentre une valeur, ceci permet de spécifier des MAJ automatiques sur les champs pendant leur affichage pour édition <br>
 Elle repose sur l'appel d'une fonction JavaScript, qui devra etre définie ailleurs (dans un commentaire par exemple)<br>
 Supposons que l'on veuille appeler la fonction <i>Verif();</i> lors d'un évènement de type <i>onChange</i> sur ce champ, on entrera alors dans cette case la valeur <i><b>onChange:Verif();</b></i> <br>
 Le code Javascript généré dans l'entrée de formulaire sera <i>onChange=&quot;Verif();&quot;</i><br>

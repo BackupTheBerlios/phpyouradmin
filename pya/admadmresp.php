@@ -6,7 +6,10 @@ include("globvar.inc");
 
 DBconnect($DBName);
   
-/* réponse à modif des caract d'édition d'une table
+//  echo "<PRE>";
+//  print_r($_REQUEST);
+//  die();
+/* rÃ©ponse Ã  modif des caract d'Ã©dition d'une table
 if (!db_case_sens()) {
 	$TBDname=strtolower($TBDname);
 	foreach ($nmc as $k=>$v) {
@@ -29,18 +32,18 @@ for ($i=0;$i<=$nbrows;$i++)
   $TYP_CHPt=addslashes($TYP_CHP[$i]);
   $COMMENTt=addslashes($COMMENT[$i]); 
   
-  $LIBELLEt =addslashes($LIBELLEt);
-  $ORDAFF_Lt =addslashes($ORDAFF_Lt);
-//  $TYPAFF_Lt =addslashes($TYPAFF_Lt);
-  $ORDAFFt =addslashes($ORDAFFt);
-//  $TYPEAFFt =addslashes($TYPEAFFt);
-  $VALEURSt =addslashes($VALEURSt);
-  $VAL_DEFAUTt =addslashes($VAL_DEFAUTt);
-  $TT_AVMAJt =addslashes($TT_AVMAJt);
-  $TT_PDTMAJt =addslashes($TT_PDTMAJt);
-  $TT_APRMAJt =addslashes($TT_APRMAJt);
-  $TYP_CHPt =addslashes($TYP_CHPt);
-  $COMMENTt =addslashes($COMMENTt); 
+  $LIBELLEtÂ =addslashes($LIBELLEt);
+  $ORDAFF_LtÂ =addslashes($ORDAFF_Lt);
+//  $TYPAFF_LtÂ =addslashes($TYPAFF_Lt);
+  $ORDAFFtÂ =addslashes($ORDAFFt);
+//  $TYPEAFFtÂ =addslashes($TYPEAFFt);
+  $VALEURStÂ =addslashes($VALEURSt);
+  $VAL_DEFAUTtÂ =addslashes($VAL_DEFAUTt);
+  $TT_AVMAJtÂ =addslashes($TT_AVMAJt);
+  $TT_PDTMAJtÂ =addslashes($TT_PDTMAJt);
+  $TT_APRMAJtÂ =addslashes($TT_APRMAJt);
+  $TYP_CHPtÂ =addslashes($TYP_CHPt);
+  $COMMENTtÂ =addslashes($COMMENTt); 
   
   $querupdt="UPDATE $TBDname SET 
   LIBELLE='$LIBELLEt',

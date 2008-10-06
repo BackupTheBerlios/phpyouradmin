@@ -52,7 +52,7 @@ function ConfReset() {
          if (confirm('<?=trad(ER_raz_confirm)?>')) document.theform.reset();
 }
 </script>
-<form action="amact_table.php" method="post" name="theform" ENCTYPE="multipart/form-data">
+<form action="amact_table.php" method="post" name="theform" ENCTYPE="multipart/form-data" onsubmit="return testJSValChp(this);">
 <INPUT TYPE="hidden" NAME="modif" value="<? echo $modif ?>">
 <? $keyfich=explode("=",$key);
 $keyfich = $keyfich [1];?>
@@ -92,13 +92,13 @@ if ($NM_TABLE!="__reqcust") {
      $ECT[$NM_CHAMP]->NmChamp=$NM_CHAMP;
      $ECT[$NM_CHAMP]->TypEdit=$modif;
      $ECT[$NM_CHAMP]->InitPO();
-	 if ($ECT[$NM_CHAMP]->TypeAff=="POPL") $poplex=true; // s'il existe au moins une edition en popup li�
+	 if ($ECT[$NM_CHAMP]->TypeAff=="POPL") $poplex=true; // s'il existe au moins une edition en popup li� fait tt le temps
      }
    } // fin si pas req custom
 else { // requete custom
      $ECT=InitPOReq($reqcust." ".$where,$DBName);
 }
-if ($poplex) JSpopup(); // s'il existe au moins une edition en popup li� colle le code d'ouverture d'une popup
+//if ($poplex) JSpopup(); // s'il existe au moins une edition en popup li� colle le code d'ouverture d'une popup
 ?>
 <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
 <?
@@ -141,7 +141,8 @@ foreach ($ECT as $PYAObj) {
 		<a href="<?=($poplex ? "closepop();" : "")?>javascript:ConfReset()" class="fxbutton"> <?=trad('BT_reset')?> </a>
 		<!--<A HREF="javascript:ConfReset()" title="RAZ du formulaire"><IMG SRC="./annuler.gif" border="0"></a>-->
         &nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="#" onclick="<?=($poplex ? "closepop();" : "")?>document.theform.submit();" class="fxbutton"> <?=trad('BT_valider')?> </a>
+        	
+		<input type="submit" class="fxbutton" value="<?=trad('BT_valider')?>">
 <!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
     <?} ?>
 

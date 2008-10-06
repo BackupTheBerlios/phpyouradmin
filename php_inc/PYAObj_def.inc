@@ -33,8 +33,9 @@ class PYAobj {
   var $Comment;
   var $MaxFSize; // taille max des fichiers joints !!
   var $MaxImgWidth=0; // largeur max des images
+  var $dateInpAttribs=' class="dateinput" size="8" maxlength="10" ';
   var $error;
-
+  
 // methode qui initialise toutes les propriete de l'objet pour un champ
 // simplement a partir de la definition du nom du champ, de la table et de la base
 function InitPO($Val2assign="")  {
@@ -199,7 +200,7 @@ $retVal="";
         
       case "DANT": // criteres sur date ant�ieure ou post�ieure, 
       case "DPOST":
-      	$classinp = ' class="dateinput" ';
+      	$classinp = $this->dateInpAttribs;
       case "VINF": //valeurs inf et sup
       case "VSUP":
       	
@@ -226,7 +227,7 @@ $retVal="";
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
       case "VIS" : // bornes sup et inf
       	if ($this->TypFilt=="DATAP") {
-	      	$classinp = ' class="dateinput" ';
+	      	$classinp = $this->dateInpAttribs;
       		$lbi=$this->trad("poste");
       		$lbs=$this->trad("ante");
       	} else {
@@ -235,10 +236,10 @@ $retVal="";
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
         if ($bDL) {
-             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\" VALUE=\"%\">";
+             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs." VALUE=\"%\">";
              }
         else {
-             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" class=\"dateinput\"  VALUE=\"\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs."  VALUE=\"\">";
              }
         break;
   
@@ -411,10 +412,27 @@ function EchoEditAll($DH=true) {
   else return($this->EchoEditAuto());
   }
 
+function genEditJS() {
+	global $tbEvenmtVFAutoJS;
+	if (array_key_exists($this->Tt_PdtMaj,$tbEvenmtVFAutoJS)) { // $tbEvenmtVFAutoJS tableau des evenements auto gérés; stocké ds functions.php
+		// incremente nbre de champs a tester
+		return(outJS("nbInput2test ++;
+		tbId2Verif[nbInput2test] = '".$this->NmChamp."';
+		tbTypeVerif[nbInput2test] = '".$this->Tt_PdtMaj."';
+		tbLibChp2Verif[nbInput2test] = '".$this->Libelle."';
+		"));
+	}
+}
+// fonction qui regarde si un champs est obligatoire dans les valeurs de $this->Tt_PdtMaj
+function testOblig () {
+	if (($this->Tt_PdtMaj =="notNull" || stristr($this->Tt_PdtMaj, "NN")) && $this->TypEdit!="C")  return ('<span title="Champ a renseigner obligatoirement" class="notNullField">*</span> ');
+}
 // m�hode qui affiche le controle d�ition
 // pour tes les type d'aff <> de AUT  
 function EchoEdit($DH=true) {
-  global $VSLD,$nbrtxa,$nbctxa;
+  global $VSLD,$nbrtxa,$nbctxa,$tbEvenmtVFAutoJS;
+  $retVal .= $this->genEditJS();
+   $retVal .= $this->testOblig();
   if (!strstr($this->FieldType,'date')) { 
     if ($this->TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); }
   else {
@@ -482,7 +500,8 @@ function EchoEdit($DH=true) {
    }   // fin si on est en consultation
 
    // traitement Ev�ements pendant mise �jour
-   if ($this->Tt_PdtMaj!="") {
+
+   if ($this->Tt_PdtMaj!="" && !array_key_exists($this->Tt_PdtMaj,$tbEvenmtVFAutoJS)) { // $tbEvenmtVFAutoJS tableau des evenements auto gérés; stocké ds functions.php
       $tbeven=explode(":",$this->Tt_PdtMaj);
       $evJS=" ".$tbeven[0]."=\"".$tbeven[1]."\"";
       }
@@ -707,7 +726,7 @@ function EchoEdit($DH=true) {
       break;
 
     case "DT_TSTAMP_ED": 
-       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"  class=\"dateinput\"  VALUE=\"".date("d/m/Y",$this->ValChp)."\" size=\"10\" maxsize=\"20\" $evJS>";
+       $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" ".$this->dateInpAttribs." VALUE=\"".date("d/m/Y",$this->ValChp)."\" $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (".$this->trad("avtmaj").": ".date("d/m/Y",$this->ValChpAvMaj).") ";
     break;
     
@@ -727,7 +746,10 @@ function EchoEdit($DH=true) {
         $size=(($defl[0]>0) ? " SIZE=\"$defl[0]\" ": "");
         $mxsize=(($defl[1]>0) ? " maxlength=\"$defl[1]\" " : "");
     default :
-    	if (strstr($this->NmChamp,"_DT")) $classi=' class="dateinput" ';
+    	if (strstr($this->NmChamp,"_DT")) {
+    		$classi = $this->dateInpAttribs;
+    		$size=$mxsize=0;
+    	}
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\"  $classi $size $mxsize $evJS>";
         if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= " (".$this->trad("avtmaj").": ".DispCustHT($this->ValChpAvMaj).") ";
       break;
@@ -745,7 +767,9 @@ function EchoEdit($DH=true) {
 // pour le type d'aff AUTOMATIQUE uniquement
 function EchoEditAuto() {
   global $VSLD,$nbrtxa,$nbctxa;
-
+  $retVal .= $this->genEditJS();
+  $retVal .= $this->testOblig();	
+  
   if (!strstr($this->FieldType,'date')) $this->ValChp=stripslashes($this->ValChp);
 
   if ($this->TypEdit=="C") { // en consult, on appelle la manuelle
@@ -759,6 +783,7 @@ function EchoEditAuto() {
      case "boolean": // specifique postgres
 	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" ID=\"".$this->NmChamp."\" value=\"TRUE\" $ck>vrai (true)\n";
 	$retVal.= "<input type=\"radio\" name=\"$this->NmChamp\" ID=\"".$this->NmChamp."\" value=\"FALSE\" $ck>faux (false)\n";
+	
 	break;
 
      case "enum" : // liste de valeurs
@@ -805,7 +830,7 @@ function EchoEditAuto() {
        break;
 
      case "date" : // on passe la date en fran�is
-         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" size="10" maxlength="10"  class="dateinput"/>';
+         $retVal.= '<INPUT TYPE="text" NAME="'.$this->NmChamp.'"  ID="'.$this->NmChamp.'" VALUE="'.DateF($this->ValChp).'" '.$this->dateInpAttribs.'/>';
          if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal.= "(Avt MAJ : ".DateF($this->ValChpAvMaj).") ";
 
        break;

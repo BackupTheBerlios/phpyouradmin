@@ -25,6 +25,16 @@ $NmChDT="TABLE0COMM";
 // id contenu ds les tables virtuelles ie celles qui n'existent pas en base
 $id_vtb="_vtb_";
 
+// tableau des évenements verification de formulaire auto
+$tbEvenmtVFAutoJS = array ("notNull" => "Non vide",
+    	 	"email" => "Adresse email",
+    	 	"emailNN" => "Adresse email non vide",
+    	 	"tel" =>"N° téléphone",
+    	 	"telNN" => "N°téléphone non vide",
+    	 	"number" => "Nombre",
+    	 	"numberNN" => "Nombre >0",
+    	 	);
+
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";
 
@@ -645,6 +655,26 @@ $table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (mysql_fetch_array($table_def));
 }
 
+// retourne une liste déroulante et une bonne texte
+function DispLDandTxt ($tbval,$nmC,$valC="",$DirEcho=true,$idC="") {
+global $VSLD;
+if ($idC=="") $idC=$nmC;
+$kex = false;
+foreach ($tbval as $k=>$v) {
+	if ($k == $valC) {
+		$tbval[$k] = $VSLD.$v;
+		$kex = true;
+	}
+}
+$tbval = array('OTH' => (!$kex ? $VSLD : "").($_SESSION["NoLang"] >  0 ? "Other" : "Autre")) + $tbval;
+// CheckLDandTxt est dans php_inc/jQuery/shared_inc.js.php
+$retVal .= str_replace("<SELECT",'<SELECT onchange="CheckLDandTxt(\''.$idC.'\');"',DispLD($tbval,"assLD4Txt".$idC,"no","LDF",false));
+if ($kex) {
+	$type = 'hidden';
+} else $type = 'text';
+$retVal .= '<input type="'.$type.'" value="'.$valC.'" name="'.$nmC.'" id="'.$idC.'">';
+if ($DirEcho) { echo $retVal; } else return $retVal;
+}
 // DispLD fonction qui affiche une liste deroulante, ou des boutons radio ou cases a cocher
 // ceci fonction du nombre de valeurs specifie  dans la variable globale $nValRadLd
 // les valeurs selectionnées sont precedées  de la chaine $VSLD

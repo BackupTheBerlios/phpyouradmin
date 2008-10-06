@@ -1,7 +1,7 @@
-// initialisations diverses de jQuery
-//
+/* initialisations diverses de jQuery
+//	$(".dateinput").datepicker();
+// 	$(".dateinput").datepicker({ showOn: 'focus' });
+*/
 $(document).ready(function() {
 	$(".dateinput").datepicker();
-	$(".dateinput").datepicker({ speed: '' })
-
 });

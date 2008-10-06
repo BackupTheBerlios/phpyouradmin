@@ -265,7 +265,7 @@ $table_def = db_table_defs($NM_TABLE);
     $vares=$row['TT_AVMAJ'];
     ?><TD>
     <? // Traitement avant MAJ
-    echo "Avant: <input type=\"text\" name=\"TT_AVMAJ2[$i]\" value=\"".$row['TT_AVMAJ']."\"><br>";
+    echo "Avant: <br>"; //<input type=\"text\" name=\"TT_AVMAJ2[$i]\" value=\"".$row['TT_AVMAJ']."\"
     ?>
     <select name="TT_AVMAJ[<?= $i ?>]">
       <option value=<? es(""); ?>>Aucun</option>
@@ -278,7 +278,9 @@ $table_def = db_table_defs($NM_TABLE);
     </select>
     <?
     // Traitement pendant MAJ
-    echo "<br>Pendant: <input type=\"text\" name=\"TT_PDTMAJ[$i]\" value=\"".$row['TT_PDTMAJ']."\">";
+    echo "<br>Pendant (JS):";// <input type=\"text\" name=\"TT_PDTMAJ[$i]\" value=\"".$row['TT_PDTMAJ']."\">
+    // $tbEvenmtVFAutoJS est défini dans fonctions.php
+    DispLDandTxt ($tbEvenmtVFAutoJS,"TT_PDTMAJ[$i]",$row['TT_PDTMAJ']);
     // Traitement apr� MAJ
     echo "<BR>Après: <input type=\"text\" name=\"TT_APRMAJ[$i]\" value=\"".$row['TT_APRMAJ']."\"></td>";
     

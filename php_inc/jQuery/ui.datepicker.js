@@ -51,14 +51,14 @@ function Datepicker() {
 		isRTL: false // True if right-to-left language, false if left-to-right
 	};
 	this._defaults = { // Global defaults for all the date picker instances
-		showOn: 'focus', // 'focus' for popup on focus,
+		showOn: 'button', // 'focus' for popup on focus,
 			// 'button' for trigger button, or 'both' for either
 		defaultDate: null, // Used when field is blank: actual date,
 			// +/-number for offset from today, null for today
 		appendText: '', // Display text following the input box, e.g. showing the format
-		buttonText: '...', // Text for trigger button
-		buttonImage: '', // URL for trigger button image
-		buttonImageOnly: false, // True if the image appears alone, false if it appears on a button
+		buttonText: 'Cliquez ici pour afficher le calendrier', // Text for trigger button
+		buttonImage: '/php_inc/jQuery/calend.gif', // URL for trigger button image
+		buttonImageOnly: true, // True if the image appears alone, false if it appears on a button
 		closeAtTop: true, // True to have the clear/close at the top,
 			// false to have them at the bottom
 		hideIfNoPrevNext: false, // True to hide next/previous month links
@@ -80,7 +80,7 @@ function Datepicker() {
 			// takes date and instance as parameters, returns display text
 		minDate: null, // The earliest selectable date, or null for no limit
 		maxDate: null, // The latest selectable date, or null for no limit
-		speed: 'medium', // Speed of display/closure
+		speed: '', // Speed of display/closure
 		beforeShowDay: null, // Function that takes a date and returns an array with
 			// [0] = true if selectable, false if not,
 			// [1] = custom CSS class name(s) or '', e.g. $.datepicker.noWeekends
