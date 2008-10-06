@@ -425,7 +425,7 @@ function genEditJS() {
 }
 // fonction qui regarde si un champs est obligatoire dans les valeurs de $this->Tt_PdtMaj
 function testOblig () {
-	if (($this->Tt_PdtMaj =="notNull" || stristr($this->Tt_PdtMaj, "NN")) && $this->TypEdit!="C")  return ('<span title="Champ a renseigner obligatoirement" class="notNullField">*</span> ');
+	if (($this->Tt_PdtMaj =="notNull" || stristr($this->Tt_PdtMaj, "NN")) && $this->TypEdit!="C")  return ('<span title="Champ a renseigner obligatoirement" class="notNullField">*</span>&nbsp;');
 }
 // m�hode qui affiche le controle d�ition
 // pour tes les type d'aff <> de AUT  
