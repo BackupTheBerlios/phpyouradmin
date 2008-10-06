@@ -31,7 +31,7 @@ var tbLibChp2Verif = new Array();
 var errOnField = "Erreur sur le champ ";
 var mustNoBeNull = " : il ne doit pas être vide";
 var mustBeEmail = " : ce devrait être une adresse email valide";
-var mustBeTel = " : ce devrait être un n° de tel valide";
+var mustBeTel = " : ce devrait être un n° de tel valide (+)00 00 00 00 00";
 var mustBeNumber = " : ce devrait être un nombre >0";
 
 function testJSValChp() {
@@ -42,7 +42,7 @@ function testJSValChp() {
 // 	 Explication du modèle: \\w: un caractère au début de cet email. [\\w+\.\-]*: autant de caractères que l’on veut après, plus point et tiret. @:un arobase [\\w\-]: au moins un caractère, plus tiret. \.: un point \\w: un caractère après le point [\\w+\.\-]*: autant de caractères que l’on veut après, plus point et tiret. \\w: un caractère après. $: fin de l’email.
 	regTel = new RegExp( "^[\\d+\+][\\d+ ]{9,16}$", "gi" );
 // 	 Explication du modèle: [\\d+\+]: un digit ou + au début; [\\d+ ]{9,16}: de 9 à 16 digit ou espace; $: fin du tel
-	regNum = new RegExp( "^[\\d]*$", "gi" );
+	regNum = new RegExp( "^[\\d+\.]*$", "gi" );
 
 
 	if (typeof oPopupWin != "undefined") closepop();	
