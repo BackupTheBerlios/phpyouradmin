@@ -42,7 +42,7 @@ function testJSValChp() {
 // 	 Explication du modèle: \\w: un caractère au début de cet email. [\\w+\.\-]*: autant de caractères que l’on veut après, plus point et tiret. @:un arobase [\\w\-]: au moins un caractère, plus tiret. \.: un point \\w: un caractère après le point [\\w+\.\-]*: autant de caractères que l’on veut après, plus point et tiret. \\w: un caractère après. $: fin de l’email.
 	regTel = new RegExp( "^[\\d+\+][\\d+ ]{9,16}$", "gi" );
 // 	 Explication du modèle: [\\d+\+]: un digit ou + au début; [\\d+ ]{9,16}: de 9 à 16 digit ou espace; $: fin du tel
-	regNum = new RegExp( "^[\\d+\.]*$", "gi" );
+	regNum = new RegExp( "^[\\d][\\d+\.]*$", "gi" );
 
 
 	if (typeof oPopupWin != "undefined") closepop();	
@@ -65,7 +65,7 @@ function testJSValChp() {
 			case 'email':
 				condNN = !(theValue == '' || theValue == null);
 			case 'emailNN':
-	  			if(theValue.search(regMail) == -1 || condNN) {
+	  			if(theValue.search(regMail) == -1 && condNN) {
 					alert (	errOnField + tbLibChp2Verif[i] + ' (' + theValue + ') ' + mustBeEmail);
 					formOk = false;
 				}
@@ -82,9 +82,9 @@ function testJSValChp() {
 			break;
 			
 			case 'number':
-				condNN = !(theValue == '' || theValue == null);
+				condNN = !(theValue == 0 || theValue == '' || theValue == null);
 			case 'numberNN':
-	  			if(theValue.search(regNum) == -1 || condNN) {
+	  			if(theValue.search(regNum) == -1 && condNN) {
 					alert (	errOnField + tbLibChp2Verif[i] + ' (' + theValue + ') ' + mustBeNumber);
 					formOk = false;
 				}
