@@ -98,7 +98,7 @@ if ($NM_TABLE!="__reqcust") {
 else { // requete custom
      $ECT=InitPOReq($reqcust." ".$where,$DBName);
 }
-//if ($poplex) JSpopup(); // s'il existe au moins une edition en popup li� colle le code d'ouverture d'une popup
+if ($poplex) JSpopup(); // s'il existe au moins une edition en popup li� colle le code d'ouverture d'une popup
 ?>
 <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
 <?
