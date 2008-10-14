@@ -7,6 +7,8 @@ include ("jquery.min.js");
 include ("ui.datepicker.js");
 // francisation du calendrier
 include ("ui.datepicker-fr.js");
+// RTE
+include ("jquery.rte.js");
 // init diverses JS dlcube
 include ("initjqdl3.js");
 ?>

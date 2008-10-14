@@ -718,11 +718,12 @@ function EchoEdit($DH=true) {
       break;
 
     case "TXA":
+    case "TXARTE":
         $defl=explode(',',$this->Valeurs);
         // pour les dimensions, on prend les chiffres dans le champ valeurs (nblignes, nbcolonnes)
         $ligs=(($defl[0]>0) ? $defl[0] : $nbrtxa);
         $cols=(($defl[1]>0) ? $defl[1] : $nbctxa);
-        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\">".$this->ValChp."</TEXTAREA>";
+        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="rte-zone" ' :'').">".$this->ValChp."</TEXTAREA>";
       break;
 
     case "DT_TSTAMP_ED": 

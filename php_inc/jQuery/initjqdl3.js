@@ -4,4 +4,6 @@
 */
 $(document).ready(function() {
 	$(".dateinput").datepicker();
+	$('.rte-zone').rte("", "/php_inc/jQuery/rteImgs/");
 });
+

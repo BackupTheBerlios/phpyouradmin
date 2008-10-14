@@ -4,6 +4,8 @@
 
 // styles calendrier jQuery appelé sur input date 
 include ("ui.datepicker.css"); 
+// styles rte jQuery appelé sur input de class rte-zone
+include ("rte.css"); 
 ?>
 /* On peut la modifier comme ça...
 input.dateinput {
