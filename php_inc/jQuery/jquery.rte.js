@@ -104,14 +104,17 @@ jQuery.fn.rte = function(css_url, media_url) {
         var tb = $("<div class='rte-toolbar' id='toolbar-"+iframe.title+"'><div>\
             <p>\
                 <select>\
-                    <option value=''>Bloc style</option>\
-                    <option value='p'>Paragraph</option>\
-                    <option value='h3'>Title</option>\
+                    <option value=''>Standard</option>\
+                    <option value='p'>Paragraphe</option>\
+                    <option value='h1'>Titre 1</option>\
+                    <option value='h2'>Titre 2</option>\
+                    <option value='h3'>Titre 3</option>\
                 </select>\
             </p>\
             <p>\
                 <a href='#' class='bold'><img src='"+media_url+"bold.gif' alt='bold' /></a>\
                 <a href='#' class='italic'><img src='"+media_url+"italic.gif' alt='italic' /></a>\
+                <a href='#' class='underline'>U</a>\
             </p>\
             <p>\
                 <a href='#' class='unorderedlist'><img src='"+media_url+"unordered.gif' alt='unordered list' /></a>\
@@ -127,6 +130,7 @@ jQuery.fn.rte = function(css_url, media_url) {
             }
         });
         $('.bold', tb).click(function(){ formatText(iframe, 'bold');return false; });
+        $('.underline', tb).click(function(){ formatText(iframe, 'underline');return false; });
         $('.italic', tb).click(function(){ formatText(iframe, 'italic');return false; });
         $('.unorderedlist', tb).click(function(){ formatText(iframe, 'insertunorderedlist');return false; });
         $('.link', tb).click(function(){ 
@@ -141,7 +145,7 @@ jQuery.fn.rte = function(css_url, media_url) {
             return false; });
         $('.disable', tb).click(function() {
             var txt = disableDesignMode(iframe);
-            var edm = $('<a href="#">Enable design mode</a>');
+            var edm = $('<a href="#">Activer le RTE</a>');
             tb.empty().append(edm);
             edm.click(function(){
                 enableDesignMode(txt);
