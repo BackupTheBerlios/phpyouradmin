@@ -179,9 +179,10 @@ Les valeurs possibles<ul>
 <LI>Caché : le champ n'apparait pas</li>
 <LI>Boite Texte: Sans commentaire, on peut spécifier dans la zone valeurs la 
         longueur affichée de la boite et la longueur max </li>
-<LI>Text Area: Sans commentaire, sion, que les dimensions peuvent etre spécifiées dans 
-        la   <a href="aide.php#admval">colonne valeurs 
- </a>sous la forme nb_ligne,nb_colonnes</li>
+<LI>Text Area: Sans commentaire, sinon que les dimensions peuvent etre spécifiées dans 
+        la   <a href="aide.php#admval">colonne valeurs  </a>sous la forme nb_ligne,nb_colonnes</li>
+<LI>Text Area avec RTE, cad avec éditeur de texte enrichi; les dimensions peuvent etre spécifiées dans 
+        la   <a href="aide.php#admval">colonne valeurs  </a>sous la forme hauteur en px,largeur en px</li>
 <LI>Auto: adapté en fonction du type de champ, si c'est un enum ou un set, on a une liste par exemple. Cela prend aussi en compte les NULL autorisés ou pas</li>
 <LI>Liste Deroulante, Liste  Deroul Liée, Liste Deroulante à choix multiples, Liste  Deroul Liée à choix multiples: les valeurs statiques 
         affichées ou les caract. du lien vers une autre table/base sont à rentrer dans la <a href="#admval">colonne valeurs</a> ci-après</li>
@@ -224,6 +225,7 @@ NOM_TABLE,NOM_CHAMP_CLE,NOM_CHAMP_AFF1,NOM_CHAMP_AFF2,...,NOM_CHAMP_AFFn<br><br>
 <u>Rem 1</u>: Apparu à la version 0.75: si on fait précéder du caractère &amp; le nom du champ, la valeur affichée est déduite du paramètre VALEURS de ce champ dans son enregistrement de définition<br>
 <u>Rem 2</u>: il est possible de choisir le caractère séparateur s'affichant avant chaque champ NOM_CHAMP_AFFx avec x&gt;=2: pour cela on pourra précéder le nom du champ du caractère voulu puis ! ex: <i>&quot; -!rfp_mail&quot;</i>. Les caractères , et ; sont bien entendus proscrits. Si rien n'est spécifié, le caractère par défaut <?=carsepldef?>, définit dans la variable globale $carsepldef sera utilisé.<br>
 <u>Rem 3</u>: il est possible de choisir le champ suivant lequel sera classé la liste: pour cela on mettra un caract @ devant sont nom ex: <i>@rfp_nom</i><br>
+ si l'on fait <strong>précéder le nom du champ de ~@</strong>, on classera par ordre <u>inverse</u><br/>
 <u>Rem 4</u>: On peut depuis la version 0.894 définir un champ spécifiant la structure hiérarchique de la table liée: ce champ doit contenir le pid (parent id) de l'enregistrement parent ex: <i><b>@@</b>ufo_coufosup</i>; dans ce cas la liste déroulante affiche la hiérarchie de la table<br>
 <u>Rem 5:</u> Ne pas mettre d'espaces avant ou après les , et ; <br><br>
 

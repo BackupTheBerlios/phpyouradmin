@@ -7,7 +7,7 @@ $loc_message=Array(
 Please fill : ",
 "IND_bdduser"=>"Database user name",
 "IND_bddpasswd"=>"Database password",
-"IND_pyauser"=>"User for logs",
+"IND_pyauser"=>"User for logs (if different of bdd user)",
 "IND_choilang"=>"Language",
 
 "LB_title"=>"Databases editig of server ",

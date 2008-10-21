@@ -6,7 +6,7 @@ class PYAobj {
   var $NmTable;
   var $NmChamp;
   var $Libelle;
-  var $Typaff_l; // type affichage en mode liste (tableau de plusieurs enregistrements)
+  var $Typaff_l = "NOR"; // type affichage en mode liste (tableau de plusieurs enregistrements)
   var $FieldType;
   var $TTC; 
   var $FieldValDef="";
@@ -15,7 +15,7 @@ class PYAobj {
   var $FieldNullOk; // YES ou rien
   var $FieldKey; // clePRI, index=MUL, unique=UNI
   var $FieldExtra; // auto_increment
-  var $TypeAff;
+  var $TypeAff = "AUTO";
   var $Fccr=""; // force cases a cocher/radio en place des LD. rien ou
                 // si qqchose, force. Si contient 'BR' force avec retour de lignes
                 // si contient RAD force boutons radios
@@ -449,6 +449,7 @@ function EchoEdit($DH=true) {
    //chgt en statique normale
         case "AUT": // AUto
 	case "TXT": // boite texte normale
+	case "LDTXT": // boite texte + liste déroulante
         case "TXA": // texte area
            $this->TypeAff="STA";
            break;
@@ -517,6 +518,7 @@ function EchoEdit($DH=true) {
   
     // pour indiquer qu'in ��ent est s�ectionn� met VSLD devant (#SEL#)
     case "LD": // liste d�oulante non li�
+    case "LDTXT": //liste déroulante + texte
       $defl=explode(',',$this->Valeurs);
       if ($this->FieldNullOk=="YES")   
         {  // si null autoris�
@@ -535,9 +537,13 @@ function EchoEdit($DH=true) {
         $tbval[$key]=stripslashes($val); // au cas ou ' dans les libelles
         $tbkey[]=$key;
       }
-      if (!in_array($this->ValChp,$tbkey) && $this->ValChp!="")
-        $retVal.= str_replace("###",  $this->ValChp, $this->trad("err6"));
-      $retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false); // lise der. non multiple
+      if ($this->TypeAff == "LDTXT") {
+	    	$retVal.=DispLDandTxt ($tbval,$this->NmChamp, $this->ValChp);
+      } else {
+	if (!in_array($this->ValChp,$tbkey) && $this->ValChp!="")
+		$retVal.= str_replace("###",  $this->ValChp, $this->trad("err6"));
+	$retVal.=DispLD($tbval,$this->NmChamp,"no",$this->Fccr,false); // lise der. non multiple
+      }
       break;
 
     case "LDM": // liste d�oulante non li� MULTIPLE
@@ -723,7 +729,10 @@ function EchoEdit($DH=true) {
         // pour les dimensions, on prend les chiffres dans le champ valeurs (nblignes, nbcolonnes)
         $ligs=(($defl[0]>0) ? $defl[0] : $nbrtxa);
         $cols=(($defl[1]>0) ? $defl[1] : $nbctxa);
-        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="rte-zone" ' :'').">".$this->ValChp."</TEXTAREA>";
+        $height=(($defl[0]>0) ? 'height:'.$defl[0]."px" : "");
+        $width=(($defl[1]>0) ? 'width:'.$defl[1]."px" : "");
+
+        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="rte-zone" style="'.$height.';'.$width.'" '  :'').">".$this->ValChp."</TEXTAREA>";
       break;
 
     case "DT_TSTAMP_ED": 
@@ -740,7 +749,7 @@ function EchoEdit($DH=true) {
 	case "HR_MN":
        $retVal.= "<INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."_hr\" ID=\"".$this->NmChamp."_hr\" VALUE=\"".floor($this->ValChp/100)."\" size=\"2\" maxsize=\"2\" $evJS> : <INPUT TYPE=\"text\" NAME=\"".$this->NmChamp."_mn\" ID=\"".$this->NmChamp."_mn\" VALUE=\"".c2c($this->ValChp % 100)."\" size=\"2\" maxsize=\"2\" $evJS>";		
 	break;
-
+    	
     case "TXT":
         $defl=explode(',',$this->Valeurs);
         // pour la size et maxlength , on prend les chiffres dans le champ valeurs (size,maxlength)
@@ -1004,7 +1013,8 @@ if ($this->TypeAff=="FICFOT") {
 	if (($this->Fsize>$this->MaxFSize) && ($this->ValChp!="none")) {
 		$retVal.= str_replace("###",  $this->MaxFSize, $this->trad("err1")); 
 		unlink ($this->ValChp);
-		$this->error=$retVal.str_replace("###",  $this->Fsize, $this->trad("err2"));
+		$this->error = $retVal.str_replace("###",  $this->Fsize, $this->trad("err2"));
+		die($this->error);
 		$this->ValChp=$value=""; // annule le nom de fichier pour qu'il ne soit mis en base...
 	} else { // fin si fichier trop gros
 		$retcopy=copy($this->ValChp,$ChemFich);

@@ -53,13 +53,10 @@ Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 <form action="./CREATE_DESC_TABLES.php" name="theform" method="post">
 <table>
 <tr><td><h3>Liste des tables <? echo "(serveur $LBHost $DBHost)"; ?></h3>
-<? $tbltab=db_show_tables($DBName); 
-//echovar("tblbtab");
-?>
-
 <select name="TableName[]" multiple size="10">
 <? 
-foreach($tbltab as $rst) {
+ $tbltab=db_show_tables($DBName); 
+ foreach($tbltab as $rst) {
   $LNmTb.=$rst.";"; // construit une chaine avec ts les noms de tables de la base
   if (strtolower($rst)!=strtolower($TBDname))
      echo "<OPTION VALUE=\"$rst\">$rst</OPTION>\n";
@@ -70,19 +67,6 @@ foreach($tbltab as $rst) {
 <br><a href="#" onclick="setSelectOptions('theform', 'TableName[]', false); return false;">Tout deselectionner</a>
 </td>
 <td>
-<?
-// effacement des enregistrements des tables qui n'existent plus
-// que si DESC_TABLES existe !
-if (stristr(strtolower($LNmTb),strtolower($TBDname))) {
-   $rqdt=db_query("select NM_TABLE from $TBDname group by NM_TABLE");
-   while ($rpdt=db_fetch_row($rqdt)) {
-         if (!stristr($LNmTb,$rpdt[0]) && !stristr($rpdt[0],$id_vtb)) { // effacment si y est plus ou table non virtuelle
-            db_query("delete from $TBDname where NM_TABLE='$rpdt[0]'");
-            echo "<B>Enregistrements de la table <u>".$rpdt[0]." effac�!</u></b><BR>\n";
-            }
-         }
-   }
-?>
 <br>
 <input type="radio" name="CREATION" value="false" checked>Consulter la table<br>
 <input type="radio" name="CREATION" value="MAJ">Mettre a jour la table: les nouveaux champs crees, les anciens supprimes, mais les existants inchanges<br>
@@ -92,7 +76,7 @@ if (stristr(strtolower($LNmTb),strtolower($TBDname))) {
 <input type="checkbox" name="VALAUTO" value="vrai" checked="checked"> Affectation de valeurs automatiques pour certains champs en fonction de leur nom:<BR>
 &#149; champs contenant <?=$dtmaj?> (variable $dtmaj) : date du jour auto<BR>
 &#149; champs contenant <?=$dtcrea?> (variable $dtcrea): date du jour auto si pas nulle avant<BR>
-&#149; champs contenant <?=$usmaj?> : code user affecte (variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et lie statique par la chaine <?=$chpperlie?> (variable $chpperlie)<BR>
+&#149; champs contenant <?=$usmaj?> : code user affecte (variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et lie statique par la chaine <INPUT type="text" name="usmajlnk" value="<?=$chpperlie?>"> (variable $chpperlie)<BR>
 Les variables ci-dessus sont definies dans infos.php<BR><BR>
 
 <input type="hidden" name="DBName" value="<?=$DBName?>">
@@ -120,16 +104,26 @@ if (count($TableName)>0 ) {
    // test d'abord l'existence de la table DESC_TABLES
   $tbltab=db_show_tables($DBName); 
    
- $trouve=in_array($TBDname,$tbltab);
+ $trouve=in_array($TBDname,$tbltab); // table de description trouvée
   
+  // effacement des enregistrements des tables qui n'existent plus
+// que si DESC_TABLES existe !
+if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
+   $rqdt=db_query("select NM_TABLE from $TBDname group by NM_TABLE");
+   while ($rpdt=db_fetch_row($rqdt)) {
+         if (!in_array($rpdt[0],$tbltab) && !stristr($rpdt[0],$id_vtb) && $rpdt[0]!="__reqcust") { // effacment si y est plus ou (table non virtuelle et pas requete custon
+            db_query("delete from $TBDname where NM_TABLE='$rpdt[0]'");
+            echo "<B>Enregistrements de la table <u>".$rpdt[0]." effacés!</u></b><BR>\n";
+            }
+         }
+   }
+
   if ($trouve && ($CREATION=="vrai") && count($TableName)>0) {
     // effacement des enregistrements, mais uniquement ceux des tables s�ectionn�s
     foreach ($TableName as $Table) {
       db_query("DELETE FROM $TBDname where NM_TABLE='$Table'") or die ("Req. de vidage de  invalide !");
       }
-    }   
-  
-  elseif ( !$trouve && ($CREATION!="vrai")) {
+    }  elseif ( !$trouve && ($CREATION!="vrai")) {
     echo "<BR><span class=\"normalred11px\">LA TABLE <B>$TBDname</B> n'existe pas ! Impossible de la visualiser</span><BR><br>";
     echo "<A HREF=\"CREATE_DESC_TABLES.php\"><img src=\"retour.gif\" border=\"0\"></A>";
     exit();} 
@@ -152,7 +146,8 @@ if (count($TableName)>0 ) {
      TT_PDTMAJ varchar(255),
      TT_APRMAJ varchar(255),
      TYP_CHP varchar(255),
-     COMMENT text)";
+     COMMENT text,
+      PRIMARY KEY  (`NM_TABLE`,`NM_CHAMP`))";
      /* rab , pas vraiment indispensable, et qui ne fonctionne pas avec PostGresql
      KEY NM_CHAMP (NM_CHAMP),
      KEY NM_TABLE (NM_TABLE),
@@ -246,14 +241,14 @@ if (count($TableName)>0 ) {
                elseif (stristr ($NM_CHAMP,$usmaj)) 
                  {$TYPEAFF="STAL"; // affichage statique li�(non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste
-                 $VALEURS=$chpperlie;
+                 $VALEURS=$_REQUEST['usmajlnk'];
                  $TT_AVMAJ="US";
                  $LIBELLE="MAJ par";
                  }
 	       elseif (stristr ($NM_CHAMP,$uscrea)) 
                  {$TYPEAFF="STAL"; // affichage statique li�(non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste
-                 $VALEURS=$chpperlie;
+                 $VALEURS=$_REQUEST['usmajlnk'];
                  $TT_AVMAJ="USSN";
                  $LIBELLE="Cree par";
                  }
@@ -263,7 +258,7 @@ if (count($TableName)>0 ) {
 	    if ($_SESSION[db_type]=="mysql") {
 		if (stristr(mysql_field_flags ($resf, $j),"auto_increment")) {
 		$TYPEAFF="STA";
-		$COMMENT=addslashes("Valeur auto incr�ent�, impossible �changer par l'utilisateur");
+		$COMMENT=addslashes("Valeur auto incrémentée, impossible à changer par l'utilisateur");
 		} // fin si champ auto incr�ent�	    
 	    } elseif ($_SESSION[db_type]=="pgsql") {
 	    	if (strstr(db_field_type ($resf, $j),"geometry")) {

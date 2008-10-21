@@ -92,7 +92,7 @@ if ($NM_TABLE!="__reqcust") {
      $ECT[$NM_CHAMP]->NmChamp=$NM_CHAMP;
      $ECT[$NM_CHAMP]->TypEdit=$modif;
      $ECT[$NM_CHAMP]->InitPO();
-	 if ($ECT[$NM_CHAMP]->TypeAff=="POPL") $poplex=true; // s'il existe au moins une edition en popup li� fait tt le temps
+	 if (strstr($ECT[$NM_CHAMP]->TypeAff,"POPL")) $poplex=true; // s'il existe au moins une edition en popup li� fait tt le temps
      }
    } // fin si pas req custom
 else { // requete custom

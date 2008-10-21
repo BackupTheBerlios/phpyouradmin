@@ -4,7 +4,7 @@ $dbgn2=false;
 include ("infos_conn_MySql.inc");
 $infosparsed=true; // pour savoir si ce fichier a ��pars�//include("fonctions.php"); ceci est appel�en bas ...
 $VerNum="0.895";
-$MaxFSize=1000000; //taille max des fichiers t��harg�
+//$MaxFSizeDef=1000000; //taille max des fichiers t��harg� // mis dans fonctions.php
 $jsppwd="toto"; // mot de passe pour acc�er aux pages prot��s
 // ceci est sp�ifi�dans le fichier fonctions.php
 //$CSpIC="`";
@@ -149,7 +149,10 @@ if ($lc_CO_USMAJ!=""){
   $$VarNomUserMAJ=$lc_CO_USMAJ;
   $_SESSION[$VarNomUserMAJ]=$$VarNomUserMAJ; //session_register($VarNomUserMAJ);
   }
-
+if ($$VarNomUserMAJ == "" || $_SESSION[$VarNomUserMAJ] =="") {
+	$$VarNomUserMAJ = $ss_parenv['MySqlUser'];
+	$_SESSION[$VarNomUserMAJ] =  $ss_parenv['MySqlUser'];
+}
 
 if ($lc_DBName!=""){
   $DBName=$lc_DBName;
@@ -162,7 +165,7 @@ if ($lc_where_sup!="" || $lc_NM_TABLE!="") {
   $_SESSION["NM_TABLE"]=$NM_TABLE; //session_register("where_sup", "NM_TABLE");
   }
 
-if ($verifUserisConnected && $$VarNomUserMAJ=="") { // verifie que util d�lar�  
+if ($verifUserisConnected && $_SESSION[$VarNomUserMAJ] =="") { // verifie que util d�lar�  // en fait vérifie plus
 	header ("location: ./index.php?lc_clean=1"); // sinon renvoie en page d'accueil et d�ruit la session
   }
 }

@@ -60,7 +60,7 @@ if (valc=="FICFOT"){
      document.theform.elements[indval].value='#Dossier de stockage par defaut: '+namec;
   }    
 
-else if (valc=='LDL' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL' ||valc=='POPLM' )
+else if (valc=='LDL' || valc=='LDTXT' || valc=='LDLM' || valc=='STAL' ||valc=='LD' ||valc=='LDM' ||valc=='POPL' ||valc=='POPLM' )
   {
   if ( valc=='LDM'|| valc=='LD') { // remet type aff ds liste en auto si pas lie
     document.theform.elements[indtafl].selectedIndex=3; } // auto
@@ -213,6 +213,7 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("TXARTE"); ?>> Text Area avec RTE</option>
       <option value=<? es("AUT"); ?>> Auto</option>
       <option value=<? es("LD"); ?>> Liste Deroulante</option>
+      <option value=<? es("LDTXT"); ?>>Liste Deroul. + Boite Texte</option>
       <option value=<? es("LDL"); ?>> Liste Deroul. Liée</option>
       <option value=<? es("LDM"); ?>> Liste Deroul. choix mult.</option>
       <option value=<? es("LDLM"); ?>> Liste Der. Liée choix mult.</option>

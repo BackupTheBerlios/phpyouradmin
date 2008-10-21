@@ -16,13 +16,13 @@
 
 .rte-zone
 {
-	width:350px;
 	margin:0;
 	padding:0;
-	height:160px;
 	border:1px #999 solid;
     clear:both;
 }
+/*	width:350px;
+	height:160px;*/
 
 .rte-toolbar{ overflow:hidden; }
 

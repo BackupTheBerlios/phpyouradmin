@@ -211,19 +211,6 @@ JSprotectlnk();
    	$LT_reqedit=trad("LT_reqedit");
     	$LT_reqdel=trad("LT_reqdel");
 	
-	if ($action_req=="-1") {
-		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='$key'");
-	}
-	
-	if ($lc_NM_TABLE=="reqcsave") {
-		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='".addslashes($lc_parenv['reqcust_name'])."'");
-		msq("INSERT INTO $TBDname 
-		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
-		VALUES 
-		('__reqcust','TABLE0COMM','".addslashes($lc_parenv['reqcust_name'])."','".addslashes($lc_reqcust)."')");
-		$reqcust=$lc_reqcust;
-	}
-	   
     	$rqrqc=msq("select * from $TBDname where NM_TABLE='__reqcust'");
     	if (db_num_rows($rqrqc)>0 ) {
 		while ($res=db_fetch_array($rqrqc)) {
@@ -234,6 +221,21 @@ JSprotectlnk();
 			echo "<BR/>\n";
 		}
     	} // fin si il y a des r�onses
+	
+	if ($action_req=="-1") {
+		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='$key'");
+	}
+	
+	if ($lc_NM_TABLE=="reqcsave") {
+		$norqc ++;
+		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='".addslashes($lc_parenv['reqcust_name'])."'");
+		msq("INSERT INTO $TBDname 
+		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
+		VALUES 
+		('__reqcust','".md5($lc_reqcust)."','".addslashes($lc_parenv['reqcust_name'])."','".addslashes($lc_reqcust)."')");
+		$reqcust=$lc_reqcust;
+	}
+	   
     ?>
     <h3><?=trad('LT_reqcust_cour')?></h3>
     <b><?=trad('LT_reqcust_name')?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv['reqcust_name']?>" size="50"  MAXLENGTH="50">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="reqsave();"><img src="filesave.png" border=0></a><br><br/>
@@ -249,13 +251,14 @@ JSprotectlnk();
     <td>
     <?
     $tbvalsql=array(" SELECT " =>" SELECT "," * " =>" * "," FROM " =>" FROM "," WHERE " =>" WHERE "," ORDER BY " =>" ORDER BY"," LEFT JOIN " =>" LEFT JOIN ");
-    $rqtb=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE NOT LIKE '__reqcust' AND NM_TABLE NOT LIKE '$id_vtb%' AND NM_CHAMP='$NmChDT'");
+    $rqtb=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE NOT LIKE '__reqcust' AND NM_TABLE NOT LIKE '$id_vtb%' AND NM_CHAMP='$NmChDT' ORDER BY ORDAFF_L");
    
     while ($rstb=db_fetch_array($rqtb)) {
     	$tbvalsql[' `'.$rstb['NM_TABLE'].'` ']=$rstb['LIBELLE'];
-	$rqchp=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE='".$rstb['NM_TABLE']."'");
+	$rqchp=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE='".$rstb['NM_TABLE']."' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF");
 	while ($rschp=db_fetch_array($rqchp)) {
-		$tbvalsql[' `'.$rschp['NM_CHAMP'].'` ']="-- ".$rstb['LIBELLE'].".".$rschp['LIBELLE'];
+		$tbvalsql[' `'.$rstb['NM_TABLE'].'`.`'.$rschp['NM_CHAMP'].'` ']="-- ".$rschp['LIBELLE']; // le nom de table fout la merde avec PYA ???
+		//$tbvalsql[' `'.$rschp['NM_CHAMP'].'` ']="-- ".$rschp['LIBELLE'];
 		
 	}
     } // fin boucle sur les tables

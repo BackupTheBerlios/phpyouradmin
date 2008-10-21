@@ -16,7 +16,7 @@ $carsepldef="-"; // caract�e par d�aut s�arant les valeur dans les listes 
 $maxprof=10; // prof max des hi�archies
 $CSpIC=""; // caract�e pour "isoler" les noms de champs merdiques
 // ne fonctionne qu'avec des versions r�entes de MySql
-$MaxFSizeDef="100000"; // taille max des fichiers joints par d�aut!!
+$MaxFSizeDef = 5000000; // taille max des fichiers joints par d�aut!!
 
 // Nom de la table de description des autres
 $TBDname="DESC_TABLES";
@@ -478,6 +478,10 @@ table; les param�res sont  indiqu� dans les caract�istiques d'�ition de 
          $cppid=substr ($nmchp,2); // enl�e le @@
 	 $c2aff=false;
 	 }	 
+       elseif (strstr($nmchp,"~@")) { // si classement inverse sur ce champ
+         $nmchp=substr ($nmchp,2); // enl�e le ~@
+         $orderby=" order by $nmchp DESC"; 
+        }
        elseif (strstr($nmchp,"@")) { // si classement sur ce champ
          $nmchp=substr ($nmchp,1); // enl�e le @
          $orderby=" order by $nmchp "; 
@@ -1177,7 +1181,11 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->TypEdit=$TypEdit;
-      $CIL[$NmChamp]->InitPO();
+      if (!preg_match("/sum|count|min|max|avg/i",$CIL[$NmChamp]->NmChamp)) { // requetes custom
+      	$CIL[$NmChamp]->InitPO();
+      } else {
+      	 $CIL[$NmChamp]->Libelle = $NmChamp;
+      }
       if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
       if ($TypEdit!="N" && $TypEdit!="") $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
       if ($co_user!="" && $TypEdit!="C") $CIL[$NmChamp]->InitAvMaj($co_user);

@@ -8,7 +8,7 @@ $loc_message=Array(
 Entrez ci-dessous : ",
 "IND_bdduser"=>"Le nom d'utilisateur du serveur de base de données",
 "IND_bddpasswd"=>"Le mot de passe du serveur de base de données",
-"IND_pyauser"=>"L'identifiant servant à tracer les mises à jour",
+"IND_pyauser"=>"L'identifiant servant à tracer les mises à jour (si différent du user de base de données)",
 "IND_choilang"=>"Langue utilisée",
 "IND_bddtype"=>"Type de serveur de base de donnees",
 "IND_encoding"=>"Choix de l'encodage",
