@@ -247,7 +247,11 @@ function VerifAdMail($admail) {
                   { return (true) ;}
          else return(false);
 }
-
+function tel_format($tel) {
+  $tel = str_replace(array(" ",".",","),array(),$tel);
+  $tel_format = chunk_split  ( $tel  , 2 ," " );
+  return $tel_format; 
+}
 // fonction qui convertit une chaine avec des accents en ascii pur
 function cv2purascii($text,$from_enc="UTF-8") {
 	setlocale(LC_CTYPE, 'fr_FR');
