@@ -1,5 +1,5 @@
-<? // infos connexion MySql par défaut
+<? // infos connexion MySql par dï¿½faut
 $DBHost="localhost";
-$DBUser="root"; // utilisé par défaut
-$DBPass=""; // utilisé par défaut
+$DBUser=""; // utilisï¿½ par dï¿½faut
+$DBPass=""; // utilisï¿½ par dï¿½faut
 ?>

@@ -60,12 +60,6 @@ A:visited {color: <?=$admadm_color?>}
 JSprotectlnk(); // colle le code JS d'une fonction qui prot�e un lien par un mot de passe
 ?>
 <SCRIPT language="JavaScript">
-function getIndex(what) {
-    for (var i=0;i<document.theform.elements.length;i++)
-        if (what == document.theform.elements[i]) return i;
-    return -1;
-}
-
 
 function verif(theform)
 {
@@ -108,12 +102,12 @@ function submrqc(rqc)
 
 
 function reqsave() {
-if (document.theform.elements[2].value=='') {
+if (document.theform.lc_reqcust.value=='') {
 	alert('<?=trad(LT_reqsavevide)?>');
-	document.theform.elements[2].focus;
+	document.theform.lc_reqcust.focus;
 }
 else {
-	document.theform.lc_NM_TABLE.value='reqcsave';
+	document.theform.action_req.value='save';
 	document.theform.action='LIST_TABLES.php';
 	document.theform.submit();
 }
@@ -207,38 +201,45 @@ JSprotectlnk();
     <h2><?=trad(LT_reqcust)?></h2>
     
     <?
+    	if ($_REQUEST['action_req']=="-1") {
+		msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
+	} elseif ($_REQUEST['action_req']=="load") {
+		$resrq = db_qr_rass("select * from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
+		$ss_parenv['reqcust_name'] = $resrq['LIBELLE'];
+		$reqcust = stripslashes($resrq['COMMENT']);
+		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
+	} elseif ($_REQUEST['action_req']=="save") {
+		print_r($_REQUEST);
+		if ($_REQUEST['key'] != "") msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
+		msq("INSERT INTO $TBDname 
+		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
+		VALUES 
+		('__reqcust','".md5($_REQUEST['reqcust_name'].$_REQUEST['lc_reqcust'])."','".addslashes($_REQUEST['reqcust_name'])."','".addslashes($_REQUEST['lc_reqcust'])."')");
+		$reqcust=$_REQUEST['lc_reqcust'];
+		$ss_parenv['reqcust_name'] = $_REQUEST['reqcust_name'];
+		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
+
+	}
+
     // GESTION DES REQUETES UTILISATEUR CUSTOM
    	$LT_reqedit=trad("LT_reqedit");
     	$LT_reqdel=trad("LT_reqdel");
 	
     	$rqrqc=msq("select * from $TBDname where NM_TABLE='__reqcust'");
-    	if (db_num_rows($rqrqc)>0 ) {
+    	if (db_num_rows($rqrqc)>0 ) {	
+    		echo "<UL>";
 		while ($res=db_fetch_array($rqrqc)) {
-			$url = addslashes("LIST_TABLES.php?key=".$res['LIBELLE']."&action_req=-1");
-			echo "&#149; <a href=\"javascript:submrqc('".$res['COMMENT']."')\">".$res['LIBELLE']."</a>&nbsp;\n";
-			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$LT_reqdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;";
-			echo "<A HREF=\"#\" onclick=\"document.theform.lc_reqcust.value='".stripslashes($res['COMMENT'])."';document.theform.elements[2].value='".stripslashes($res['LIBELLE'])."';\" TITLE=\"$LT_reqedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"12\"></A>&nbsp;";
-			echo "<BR/>\n";
+			$url = addslashes("LIST_TABLES.php?key=".$res['NM_CHAMP']."&action_req=-1");
+			echo "<LI> <a href=\"LIST_TABLES.php?key=".$res['NM_CHAMP']."&action_req=load\">".$res['LIBELLE']."</a>&nbsp;\n";
+			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$LT_reqdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;</LI>";
 		}
+    		echo "</UL>";
     	} // fin si il y a des r�onses
-	
-	if ($action_req=="-1") {
-		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='$key'");
-	}
-	
-	if ($lc_NM_TABLE=="reqcsave") {
-		$norqc ++;
-		msq("delete from $TBDname where NM_TABLE='__reqcust' AND LIBELLE='".addslashes($lc_parenv['reqcust_name'])."'");
-		msq("INSERT INTO $TBDname 
-		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
-		VALUES 
-		('__reqcust','".md5($lc_reqcust)."','".addslashes($lc_parenv['reqcust_name'])."','".addslashes($lc_reqcust)."')");
-		$reqcust=$lc_reqcust;
-	}
-	   
+		   
     ?>
     <h3><?=trad('LT_reqcust_cour')?></h3>
-    <b><?=trad('LT_reqcust_name')?> </b><input type="text" name="lc_parenv[reqcust_name]" value="<?=$ss_parenv['reqcust_name']?>" size="50"  MAXLENGTH="50">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="reqsave();"><img src="filesave.png" border=0></a><br><br/>
+    <input type="hidden" name="action_req">
+    <b><?=trad('LT_reqcust_name')?> </b><input type="text" name="reqcust_name" value="<?=$ss_parenv['reqcust_name']?>" size="50"  MAXLENGTH="50">&nbsp;&nbsp;<a TITLE="<?=trad("LT_reqsave")?>" href="#" onclick="reqsave();"><img src="filesave.png" border=0></a><br><br/>
     
     <table border="0"><tr>
     <td><b><?=trad('LT_reqcust_code')?> </b><br/>
