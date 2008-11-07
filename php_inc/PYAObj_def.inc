@@ -35,6 +35,11 @@ class PYAobj {
   var $MaxImgWidth=0; // largeur max des images
   var $dateInpAttribs=' class="dateinput" size="8" maxlength="10" ';
   var $error;
+// nom des classes par défaut utilisées pour EchoCompField
+  var $classDivECF = "DivECF";
+  var $classFieldECF = "FieldECF";
+  var $classLabECF = "LabECF";
+  
   
 // methode qui initialise toutes les propriete de l'objet pour un champ
 // simplement a partir de la definition du nom du champ, de la table et de la base
@@ -118,8 +123,42 @@ $retVal="";
     }
 } // fin m�hode d'initialisation$DH
 
+/// methode affichage de type <div class="classDiv"><label class="classLab"  for="theField">The Label </label>(<br/>)<span class="classField">The Field</span></div>
+/// ou "<tr class="classDivECF"><td><label class="classLabECF"  for="theField">The Label </span></td><td><span class="classFieldECF">The Field</span></td></tr>
+/// s'applique aux filtres, ou edition
+function EchoCompField($type,$tbArgs=array()) {
+	/* 
+	$type = Edit | Filt
+	$tbArgs : $modTable=false,$br=false,$dispCOmment=false
+		Pour filtre : $bDN (display négation)=true $bDL=true,$choixMult="yes"
+		Pour Echo : $DH (display Hidden) = true
+	*/
+	if ($modTable) {
+		$retVal = '<tr class="'.$this->classDivECF.'"><td>';
+	} else $retVal = '<div class="'.$this->classDivECF.'">';
+	$retVal .= '<label class="'.$this->classLabECF.'" for="'.$this->NmChamp.'">'.$this->Libelle;
+	if ($this->Comment && $tbArgs['dispCOmment']) $retVal .='<br/><small>'.tradLib($this->Comment).'</small>';
+	$retVal .= '</label>';
+	if ($tbArgs['br']) $retVal .= '<br/>';
+	if ($modTable) {
+		$retVal .= '</td><td>';
+	}
+	$retVal .= '<span class="'.$this->classFieldECF.'">';
+	if ($type == "Edit") {
+		$retVal .= $this->EchoEditAll($tbArgs['DH']);
+	} else $retVal .= $this->EchoFilt($tbArgs['bDN'],$tbArgs['bDL'],$tbArgs['choixMult']);
+	$retVal .= '</span>';
+	if ($modTable) {
+		$retVal .= "</td></tr>\n";
+	} else 	$retVal .= "</div>\n";
+	if ($this->DirEcho) {
+    		echo $retVal;
+    	} else {
+    		return($retVal);
+    	}
+}
 // m�hode d'affichage de filtre de requete
-  function EchoFilt($bDN=true,$bDL=true) { // booleens affiche n�ation et affiche libell�ie baratins sur les dates e
+  function EchoFilt($bDN=true,$bDL=true,$choixMult="yes") { // booleens affiche n�ation et affiche libell�ie baratins sur les dates e
    global $VSLD;
     switch ($this->TypFilt) {
       case "INPLIKE":
@@ -128,7 +167,7 @@ $retVal="";
         $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
         break;
   
-  //! ttes les listes sont à choix multiple (condition OR sur les valeurs)
+  //! ttes les listes sont à choix multiple (condition OR sur les valeurs) sauf si spécifié
       case "LDC": // Liste d�oulante affichant les différentes valeurs du champ  
         $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="LDM">';
 	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
@@ -139,7 +178,7 @@ $retVal="";
           $tbval[$rwsq[0]]=tradLib($rwsq[0]);
           }
         asort($tbval); // tri de la liste
-        $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
+        $retVal.=DispLD($tbval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
         break;
   
       case "LDF": // Liste d�oulante affichant les diff�entes valeurs fixes list�s dans le champ valeur, ou les valeurs du set ou enum
@@ -167,7 +206,7 @@ $retVal="";
 				// ci-dessus � reconstruit les indices...
 				$tbval=array("%"=>$VSLD.$this->trad("all")) + $tbval;
 
-        $retVal.=DispLD($tbval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
+        $retVal.=DispLD($tbval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
         break;
   
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
@@ -195,7 +234,7 @@ $retVal="";
 // 				$retVal.= $tabval[103];
 // 				$retVal.= "-->";
 //        asort($tbval); // pas de tri de la liste (sp�ifi�dans la liaison)
-        $retVal.=DispLD($tabval,"rq_".$this->NmChamp,"yes",$this->Fccr,false);
+        $retVal.=DispLD($tabval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
         break;
         
       case "DANT": // criteres sur date ant�ieure ou post�ieure, 

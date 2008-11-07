@@ -209,7 +209,6 @@ JSprotectlnk();
 		$reqcust = stripslashes($resrq['COMMENT']);
 		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
 	} elseif ($_REQUEST['action_req']=="save") {
-		print_r($_REQUEST);
 		if ($_REQUEST['key'] != "") msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
 		msq("INSERT INTO $TBDname 
 		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
