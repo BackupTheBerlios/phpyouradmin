@@ -702,7 +702,8 @@ if (count($tbval)==0) {
    }
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
 // liste déroulante: nbre val suffisantes et pas de forcage 
-  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" TITLE=\"Appuyez sur la touche Ctrl pour s&eacute;lectionner plusieurs valeurs\" ID=\"".$idC."\" NAME=\"".$nmC;
+   if ($Mult!="no") $title = "Appuyez sur la touche Ctrl pour s&eacute;lectionner plusieurs valeurs";
+  $retVal.= "<SELECT ondblclick=\"document.theform.submit();\" TITLE=\"$title\" ID=\"".$idC."\" NAME=\"".$nmC;
   $SizeLDM=min($SzLDM,count($tbval));
   $retVal.= ($Mult!="no" ? "[]\" MULTIPLE=\"MULTIPLE\" SIZE=\"$SizeLDM\">" : "\">");
   foreach ($tbval as $key =>$val) {
