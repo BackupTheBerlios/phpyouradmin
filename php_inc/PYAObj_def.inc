@@ -129,15 +129,24 @@ $retVal="";
 function EchoCompField($type,$tbArgs=array()) {
 	/* 
 	$type = Edit | Filt
-	$tbArgs : $modTable=false,$br=false,$dispCOmment=false
-		Pour filtre : $bDN (display négation)=true $bDL=true,$choixMult="yes"
-		Pour Echo : $DH (display Hidden) = true
+	$tbArgs : 
+		$modTable=false mode table
+		$br=false CR après libellé
+		$dispComment=false
+		$altLibel="": autre libellé que celui stocké en base
+	Pour filtre uniquement: 
+		$bDN (display négation)=true 
+		$bDL=true
+		$choixMult="yes"
+		$dispCSA="yes" ou n'importe quoi <> no
+	Pour Edit uniquement : 
+		$DH (display Hidden) = true
 	*/
 	if ($modTable) {
 		$retVal = '<tr class="'.$this->classDivECF.'"><td>';
 	} else $retVal = '<div class="'.$this->classDivECF.'">';
-	$retVal .= '<label class="'.$this->classLabECF.'" for="'.$this->NmChamp.'">'.$this->Libelle;
-	if ($this->Comment && $tbArgs['dispCOmment']) $retVal .='<br/><small>'.tradLib($this->Comment).'</small>';
+	$retVal .= '<label class="'.$this->classLabECF.'" for="'.($type == "Filt" ? "rq_" : "").$this->NmChamp.'">'.($tbArgs['altLibel'] ? $tbArgs['altLibel'] : $this->Libelle);
+	if ($this->Comment && $tbArgs['dispComment']) $retVal .='<br/><small>'.tradLib($this->Comment).'</small>';
 	$retVal .= '</label>';
 	if ($tbArgs['br']) $retVal .= '<br/>';
 	if ($modTable) {
@@ -148,6 +157,12 @@ function EchoCompField($type,$tbArgs=array()) {
 		$retVal .= $this->EchoEditAll($tbArgs['DH']);
 	} else $retVal .= $this->EchoFilt($tbArgs['bDN'],$tbArgs['bDL'],$tbArgs['choixMult']);
 	$retVal .= '</span>';
+	if ($type == "Filt" && $tbArgs['dispCSA']!="no" && $this->TypCSA!="") {
+		if ($modTable) {
+			$retVal .= "<td>".$this->EchoCSA()."</td>";
+		} else 	
+			$retVal .= '<div class="'.$this->classLabECF.'" >'.$this->EchoCSA(true)."</div>\n";
+	}
 	if ($modTable) {
 		$retVal .= "</td></tr>\n";
 	} else 	$retVal .= "</div>\n";
@@ -160,11 +175,13 @@ function EchoCompField($type,$tbArgs=array()) {
 // m�hode d'affichage de filtre de requete
   function EchoFilt($bDN=true,$bDL=true,$choixMult="yes") { // booleens affiche n�ation et affiche libell�ie baratins sur les dates e
    global $VSLD;
+// regarde si valeur déjà filtrée pour les listes 
+    $valDjFilt = is_array($_SESSION['memFilt']['rq_'.$this->NmChamp]) && !(in_array("%",$_SESSION['memFilt']['rq_'.$this->NmChamp]));
     switch ($this->TypFilt) {
       case "INPLIKE":
       case "EGAL":
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".$this->TypFilt."\">";
-        $retVal.= "<INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" VALUE=\"\">";
+        $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.$this->TypFilt.'">';
+        $retVal.= '<INPUT TYPE="text" NAME="rq_'.$this->NmChamp.'" VALUE="'.$_SESSION['memFilt']['rq_'.$this->NmChamp].'">';
         break;
   
   //! ttes les listes sont à choix multiple (condition OR sur les valeurs) sauf si spécifié
@@ -173,9 +190,9 @@ function EchoCompField($type,$tbArgs=array()) {
 	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
         $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
-        $tbval["%"]=$VSLD.$this->trad("all");
+        $tbval["%"]= (!$valDjFilt ? $VSLD : "").$this->trad("all");
         while ($rwsq=db_fetch_row($rqldcu)) {
-          $tbval[$rwsq[0]]=tradLib($rwsq[0]);
+          $tbval[$rwsq[0]] = (is_arr_in_array($rwsq[0],$_SESSION['memFilt']['rq_'.$this->NmChamp]) ? $VSLD : "").tradLib($rwsq[0]);
           }
         asort($tbval); // tri de la liste
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
@@ -191,24 +208,34 @@ function EchoCompField($type,$tbArgs=array()) {
             $tabval = explode('\',\'', substr($tabval, 1, -1));}
         else  $tabval=explode(",",$this->Valeurs);
         foreach ($tabval as $val) {
-           if (strstr($val,":")) {
-                $valtb=explode(":",$val);
-                $key=$valtb[0];
-                $val=$valtb[1];
+        	if (strstr($val,":")) {
+                	$valtb=explode(":",$val);
+                	$key=$valtb[0];
+                	$val=$valtb[1];
                 }
-           else $key=$val;
-           
-           if ($this->TypeAff=="LDM") $key="%,$key,%"; // filtre change si multiple (faux set)
-           $tbval[$key]=tradLib($val);
-           }
+           	else $key=$val;
+           	if ($this->TypeAff=="LDM") $key="%,$key,%"; // filtre change si multiple (faux set)
+           	$tbval[$key]=(is_arr_in_array($key,$_SESSION['memFilt']['rq_'.$this->NmChamp]) ? $VSLD : "").tradLib($val);
+        }
         asort($tbval); // tri de la liste
         //$tbval=array_merge(array("%"=>$VSLD."(tous)"),$tbval);
-				// ci-dessus � reconstruit les indices...
-				$tbval=array("%"=>$VSLD.$this->trad("all")) + $tbval;
+	// ci-dessus � reconstruit les indices...
+	 $tbval=array("%"=>(!$valDjFilt ? $VSLD : "").$this->trad("all")) + $tbval;
 
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
         break;
   
+      case "LDLLV": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeur limitées aux valeurs existantes
+	$valbrut=explode(';',$this->Valeurs);
+	if (count($valbrut)>1) { // connection �une base diff�ente
+		$lntable=$valbrut[1];
+	} else { //commme avant
+		$lntable=$valbrut[0];
+	}
+	// 0: table, 1: champ lié(clé); 2: ET SUIVANTS champs à afficher
+	$defl=explode(',',$lntable);
+
+      $this->Val2 .= ($this->Val2!="" ? " AND " : "")."(".$defl[1]." IN (SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp)) ";
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
 
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDM")."\">";
@@ -224,16 +251,21 @@ function EchoCompField($type,$tbArgs=array()) {
         else $tabval=$tbval;*/
 	if (!is_array($tabval)) $tabval = array(); // ptit bug si la liste est vide
 				//$tabval["%"]=$VSLD."(tous)"; // avant on faisait � le % se retrouve �la fin ..
-        $tbjok[000]=$VSLD.$this->trad("all"); // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
-                              // quand c'est un champ num, on a 0, sinon 000
-			        //$tabval=array_merge($tbjok,$tabval);
-				// mais cette fonction reindexe le tableau et donc fout une merdre pas croyable!!
-				//astuce ci-dessous trouv� et mise par un anonyme sur internet !!!
-				$tabval=$tbjok + $tabval;
+	$tbjok[000]=(!$valDjFilt ? $VSLD : "").$this->trad("all"); // on fait ca pour ne pas decaler les indices dans le cas o le champ est num
+        // quand c'est un champ num, on a 0, sinon 000
+	//$tabval=array_merge($tbjok,$tabval);
+	// mais cette fonction reindexe le tableau et donc fout une merdre pas croyable!!
+	//astuce ci-dessous trouv� et mise par un anonyme sur internet !!!
+	$tabval=$tbjok + $tabval;
 // 				$retVal.= "<!-- desbog";
 // 				$retVal.= $tabval[103];
 // 				$retVal.= "-->";
 //        asort($tbval); // pas de tri de la liste (sp�ifi�dans la liaison)
+        if ($valDjFilt) { // filtre mémorisé, et pas bidon
+		foreach ($tabval as $key=>$val) { // re-parcourt le tableau pour mémoriser les sélectionné
+		 	$tabval[$key]=(is_arr_in_array($key,$_SESSION['memFilt']['rq_'.$this->NmChamp]) && $key!='0' ? $VSLD : "").$val;	
+		}
+	}
         $retVal.=DispLD($tabval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
         break;
         
@@ -260,7 +292,7 @@ function EchoCompField($type,$tbArgs=array()) {
        
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
         if ($bDL) $retVal.= $this->trad("Enrpq").$this->Libelle.$this->trad("is").$clause.$this->trad("agrave");
-        $retVal.= " <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."\" ID=\"rq_".$this->NmChamp."\" $classinp VALUE=\"\">";
+        $retVal.= ' <INPUT TYPE="text" NAME="rq_'.$this->NmChamp.'" ID="rq_'.$this->NmChamp.'" '.$classinp.' VALUE="'.$_SESSION['memFilt']['rq_'.$this->NmChamp].'">';
         break;
         
       case "DATAP": // criteres sur date ant�ieure ET post�ieure
@@ -274,11 +306,11 @@ function EchoCompField($type,$tbArgs=array()) {
       		$lbs=$this->trad("inf");
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
-        if ($bDL) {
-             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs." VALUE=\"%\">";
+        if ($bDL) { // $bDL boolenn Display Libs
+             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs." VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
              }
         else {
-             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"%\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs."  VALUE=\"\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs."  VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
              }
         break;
   
@@ -300,7 +332,7 @@ function EchoCompField($type,$tbArgs=array()) {
 //
 // M�hode qui affiche la case de n�ation
 function DispNeg($DE2=true) {
-        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\">".$this->trad("neg")."</span>";
+        $retVal.= "<br/><span class=\"FdR\"><INPUT TYPE=\"checkbox\" NAME=\"neg_".$this->NmChamp."\" VALUE=\"neg\" ".($_SESSION['memFilt']['neg_'.$this->NmChamp] ? ' checked="checked" ' : '').">".$this->trad("neg")."</span>";
    if ($this->DirEcho && $DE2) {
     	echo $retVal;
     } else {
@@ -310,16 +342,16 @@ function DispNeg($DE2=true) {
         }
 
 // m�hode d'affichage de case �cocher pour affichage optionnel du champ
-  function EchoCSA() {
+  function EchoCSA($dl = false) {
     switch ($this->TypCSA) { // type d'affichage s�ectionnable
       case "OCD":
       case "ONCD":
         $nmvarAfC="AfC_".$this->NmChamp;
         $retVal.= "<input type=\"hidden\" name=\"$nmvarAfC\" value=\"no\">"; // obligatoire
-        if (isset($_SESSION[$nmvarAfC])) {
-        	$cs=($_SESSION[$nmvarAfC]=="yes" ? ' checked="checked" ' : "");
+        if (isset($_SESSION[$nmvarAfC]) || isset($_SESSION['memFilt'][$nmvarAfC])) {
+        	$cs=(($_SESSION[$nmvarAfC]=="yes" || $_SESSION['memFilt'][$nmvarAfC]=="yes") ? ' checked="checked" ' : "");
         } else $cs=($this->TypCSA=="OCD" ? ' checked="checked" ' : "");
-        $retVal.= "<input type=\"checkbox\" name=\"$nmvarAfC\" value=\"yes\" $cs>";
+        $retVal.= "<input type=\"checkbox\" name=\"$nmvarAfC\" value=\"yes\" $cs>".($dl ? $this->trad("2disp") : "");
          
       default: 
         $retVal.= "&nbsp;";
@@ -1114,6 +1146,7 @@ var $labels = array (
 		"avtmaj" => "Avant MAJ",
 		"err1" => "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ###, ",
 		"err2" => " et le fichier attache a une taille de ### octets. <br/>Cliquez sur le bouton retour arriere de votre navigateur",
+		"2disp" => "A afficher",
 	),
 	1 => array (
 		"all" => "(all)",
@@ -1137,6 +1170,7 @@ var $labels = array (
 		"avtmaj" => "Before update",
 		"err1" => "<B>Impossible to join this file !</B><br/>File size is limted to ###, ",
 		"err2" => " and attached file's size is ### bytes. <br/>Click on return button of your browser",
+		"2disp" => "To display",
 	)
 ); // fin tableau langues
 

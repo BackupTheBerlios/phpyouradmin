@@ -48,14 +48,20 @@ include ("header.php");?>
 <input type="hidden" name="lc_NM_TABLE" value="<?=$lc_NM_TABLE;?>">
 <input type="hidden" name="lc_where_sup">
 <input type="hidden" name="lc_PgReq" value="1">
-<? if (!$ss_parenv[noinfos]) { ?>
-<H3><?=strtoupper(trad(com_database).$DBName)?></H3> <? } ?>
+<? if (!$ss_parenv[noinfos]) { 
+	echovar("_SESSION['memFilt']");
+	echo var_export($_SESSION['memFilt']);
+	?>
+	<H3><?=strtoupper(trad(com_database).$DBName)?></H3> 
+<? } ?>
 <H1><?=trad(REQ_crit_select).$lc_NM_TABLE;?></H1>
-<h3><? echo trad(REQ_select_text);
+<P><? //echo trad(REQ_select_text);
+echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"req_table.php?clearCrit=true&lc_NM_TABLE=$lc_NM_TABLE\">". trad("REQ_clean_memFilt")."</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+if ($_REQUEST['clearCrit']) unset($_SESSION['memFilt']);
 if ($admadm!="1" && $ss_parenv[ro]!=true) { 
 	echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"edit_table.php?lc_NM_TABLE=$lc_NM_TABLE&lc_adrr[edit_table.php]=".$_SERVER["PHP_SELF"]."\" title=\"".trad(LT_addrecord)."\"> <img src=\"new_r.gif\"> ".trad(LT_addrecord)." </a>";
      }
-?> </h3>
+?></P>
 <TABLE>
 <TR class="THEAD">
 <TH>Champ</TH><TH>Critere</TH><TH>A Afficher</TH></TR>

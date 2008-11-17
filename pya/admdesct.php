@@ -244,6 +244,7 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("LDC"); ?>>Liste dér. Valeurs champ</option>
       <option value=<? es("LDF"); ?>>L.D. (clé>)Val. fixées, Set ou Enum</option>
       <option value=<? es("LDL"); ?>>L.D. Valeurs liées dynam.</option>
+	<option value=<? es("LDLLV"); ?>>L.D. Valeurs liées dyn. limitée vals chp</option>
       <option value=<? es("DANT"); ?>>Date antérieure</option>
       <option value=<? es("DPOST"); ?>>Date postérieure</option>
       <option value=<? es("DATAP"); ?>>Date antérieure et postérieure</option>

@@ -19,6 +19,7 @@ if (!isset($FirstEnr) || $_REQUEST['cfopl']!="" ) // && $cfp=="" on vient d'une 
   $_SESSION["tbchptri"]=$tbchptri=array(); //unregvar ("tbchptri");
   $_SESSION["tbordtri"]=$tbordtri=array(); //unregvar ("tbordtri");
   $_SESSION["FirstEnr"]=$FirstEnr=0; //session_register("FirstEnr");
+
   }  
 
   
@@ -53,29 +54,26 @@ if ($chptri!="") {
   $_SESSION["tbchptri"]=$tbchptri; //session_register("tbchptri","tbordtri","FirstEnr");
   $_SESSION["tbordtri"]=$tbordtri;
   $_SESSION["FirstEnr"]=$FirstEnr;
-  } // fin $chptri!=""
+} // fin $chptri!=""
 
 if ($tbchptri[1]!="") {
   $orderb="ORDER BY $tbchptri[1] $tbordtri[1]";
   if ($tbchptri[2]!="") $orderb.=", $tbchptri[2] $tbordtri[2]";
   if ($tbchptri[3]!="") $orderb.=", $tbchptri[3] $tbordtri[3]";
-  }
+}
 
 if ($lc_nbligpp!="") {
   $nbligpp=$lc_nbligpp;
   $_SESSION["nbligpp"]=$nbligpp; //session_register("nbligpp");
-  }
-
-else if ($nbligpp==0 || $nbligpp=="")
+} else if ($nbligpp==0 || $nbligpp=="")
   {$nbligpp=$nbligpp_def;
    $_SESSION["nbligpp"]=$nbligpp; //session_register("nbligpp");
-  }
+}
 
 if (isset($lc_PgReq)) {
     $PgReq=$lc_PgReq;
     $_SESSION["PgReq"]=$PgReq; //session_register("PgReq");
-    }
-else if(!isset($PgReq)) $PgReq=0;
+} elseif (!isset($PgReq)) $PgReq=0;
 
 $limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr LIMIT $nbligpp");
 
@@ -91,12 +89,17 @@ if ($NM_TABLE!="__reqcust") {
    $condexists=false;
    $afcexists=false;
 
+   $first = true;
    while ($rwrq=db_fetch_row($rqrq)) {
      // reconstitution nom de la var du Type Requ�e
      $NomChp=$rwrq[0];
      $nmvarTR="tf_".$NomChp;
      $nmvarVR="rq_".$NomChp; // Valeur de la Requete
      if (isset($$nmvarTR) && $$nmvarVR!="") {// si ces var non nulles, il y a forc�ent une condition
+       if ($first) {
+		unset ($_SESSION['memFilt']); // nettoie le filtre au premier coup   		
+		$first = false;
+       }
        $condexists=true;
        $cond="";
        $nmvarNEG="neg_".$NomChp; // Negation
@@ -118,6 +121,8 @@ if ($NM_TABLE!="__reqcust") {
 
        $cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
        if ($cond!="") {
+	$_SESSION['memFilt'][$nmvarVR] = $$nmvarVR;
+       $_SESSION['memFilt'][$nmvarNEG] = $$nmvarNEG;
 	$cond=str_replace("%%","%",$cond); // virer bizareries
          if ($where_sup!="") $where_sup.=" AND ";
          $where_sup.=$cond;
@@ -131,7 +136,7 @@ if ($NM_TABLE!="__reqcust") {
        $afcexists=true;
        // si affichage selectionnable ne tient pas compte de TYPAFF_L
        $tbAfC[$NomChp]=($$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif     
-       $_SESSION[$nmvarAfC]=$$nmvarAfC;
+       $_SESSION['memFilt'][$nmvarAfC]=$$nmvarAfC;
        }
      } // fin boucle sur les champs
 

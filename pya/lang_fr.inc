@@ -53,7 +53,8 @@ Merci<br><br>",
 
 "REQ_query_on_table"=>"Requête sur la table ",
 "REQ_crit_select"=>"CRITERES DE SELECTION/AFFICHAGE DE LA TABLE ",
-"REQ_select_text"=>"Sélectionnez critère(s), et option(s) d'affichage pour le(s) champ(s) ci-dessous... &nbsp;&nbsp;&nbsp;&nbsp;, ou",
+"REQ_select_text"=>"Sélectionnez critère(s) et option(s) d'affichage ",
+"REQ_clean_memFilt"=>"Nettoyez les critères ",
 "REQ_retLT"=>"Retour à la liste des tables",
 
 "LR_title"=>"Enregistrements de la table ",

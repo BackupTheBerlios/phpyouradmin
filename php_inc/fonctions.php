@@ -215,13 +215,13 @@ function echspan($style,$text,$DirEcho=true) {
     	return($retVal);
     }
 }
-function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer") {
+function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer",$initDisp=false) {
 	$ret = '<a name="AncOfTgAf'.$theid.'"/>';
-	$ret = '<input title="'.$thetitle.'" type="button" id="butOf'.$theid.'" value="+" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') {document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\';} else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';}"> <br/>';	
+	$ret = '<input title="'.$thetitle.'" type="button" id="butOf'.$theid.'" value="'.(!$initDisp ? "+" : "-").'" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') {document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\';} else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';}"> <br/>';	
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''."theb".'\').value=\'P\';document.getElementById(\''.$theid.'\').style.display=\'block\'" class="'.$theclass.'" title="'.$thetitle.'">+</a>&nbsp;';
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''.$theid.'\').style.display=\'none\'" class="'.$theclass.'" title="'.$thetitle.'">&nbsp;-&nbsp;</a><br/>';
 	
-	$ret .= '<div id="'.$theid.'" style="display:none">'.$thecontent.'</div>';
+	$ret .= '<div id="'.$theid.'" style="display:'.($initDisp ? "block" : "none").'">'.$thecontent.'</div>';
 	return($ret);
 }
 
@@ -423,6 +423,8 @@ function ttChpLink($valb0,$reqsup="",$valc=""){
 global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname,$maxrepld;
 //$valb0=str_replace (' ','',$valb0); // enl�e espaces ind�irables
 $valbrut=explode(';',$valb0);
+/// en cas de modif de la syntaxe, checker aussi PYAObj
+/// methode echoFilt, case LDLLV qui se sert de la chaine valb0 pour une requete imbriquée  
 if (count($valbrut)>1) { // connection �une base diff�ente
   $lntable=$valbrut[1];
   $defdb=explode(',',$valbrut[0]);
@@ -610,6 +612,17 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 	} // fin boucle sur les r�onses
 	return;
 }
+// qq fonctions taleaau arrangées qui déclenchent une erreur si l'argument n'est pas un tableau..
+function is_arr_implode($glue,$pieces) {
+	if (is_array($pieces)) 	return(implode($glue,$pieces));
+}
+
+function is_arr_in_array($needle,$haystack) {
+	if (is_array($haystack)) {
+		return(in_array($needle,$haystack));
+	} else return(false);
+}
+
 function array_concat($tb1,$tb2) {
 if (!$tb2) return($tb1);
 foreach ($tb1 as $k=>$v) {
@@ -967,42 +980,6 @@ function poploup(image,titre,commentaire) {
 </script>
 <?
 }
-//
-// fonction d'affichage de valeur(s) d'une variable, eventuellement tableau, eventuellement associatif
-// la d�ection du format est automatique
-function echovar($nom_var,$ass="no",$echov=true) {
-global $$nom_var;
-$strres="<PRE><em> Variable $".$nom_var."</em>\n";
-$strres.=var_export($$nom_var,true)."</PRE>";
-if ($echov) 
-	{echo $strres;}
-	else return($strres);
-} 
-
-function retvar($var2ret,$ass="no",$echov=true) {
-if (is_array($var2ret)) {
-  $strres="Tableau".($ass!="no" ? " associatif":"")." \$var2ret: ";
-  if ($ass!="no") { //tableau associatif 
-    foreach ($var2ret as $key=>$val) {
-      $strres.= $key."=>".retvar($val,$ass,$echov)."<br/>";
-      }
-    } // fin si associatif
-  else {
-    $i=0;
-    foreach ($var2ret as $val) {
-      $strres.=$i."=>".$val.";";
-      $i++; }
-     }
-  }
-else { // pas tableau
-  $strres="Variable \$var2ret:".$var2ret." (".gettype($var2ret).")";
-}
-if ($echov) 
-	{echo $strres."<br/>\n";}
-	else return($strres);
-} 
-
-
 // Fonction de definition de condition
 // appel� pour les def de liste
  function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
