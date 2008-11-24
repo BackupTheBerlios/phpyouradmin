@@ -201,7 +201,7 @@ JSprotectlnk();
     ?>
     <h2><?=trad(LT_reqcust)?></h2>
     
-    <?
+    <? $ss_parenv['reqcust_name']= $_SESSION['reqcust_name'];
     	if ($_REQUEST['action_req']=="-1") {
 		msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
 	} elseif ($_REQUEST['action_req']=="load") {
@@ -219,7 +219,7 @@ JSprotectlnk();
 		$reqcust=$_REQUEST['lc_reqcust'];
 		$ss_parenv['reqcust_name'] = $_REQUEST['reqcust_name'];
 		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
-	} else $ss_parenv['reqcust_name']= $_SESSION['reqcust_name'];
+	}
 
     // GESTION DES REQUETES UTILISATEUR CUSTOM
    	$LT_reqedit=trad("LT_reqedit");
