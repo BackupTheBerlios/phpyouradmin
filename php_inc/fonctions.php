@@ -983,6 +983,7 @@ function poploup(image,titre,commentaire) {
 // Fonction de definition de condition
 // appel� pour les def de liste
  function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
+ 
  if ($ValF!=NULL && $ValF!="%") {
     switch ($TypF) { // switch sur type de filtrage
       case "EGAL" : // special
@@ -1022,9 +1023,12 @@ function poploup(image,titre,commentaire) {
         
       case "LDMEG" : // liste �choix multiples de valeurs ds ce cas la valeur est un tableau
        // la condition r�ultante est un NomChp ='Val1' or NomChp ='Val2' etc ...
+
         if (is_array($ValF)) {  // teste Valf est un tabelau
            foreach ($ValF as $valf) {
              if ($valf=="%" || $valf=="000") {
+             	// ya un bug avec les enum qui contiennent '0'; arrive pas à le résoudre
+       		//if ($NomChp == "ECR_POINTAGE") { echo "$NomChp , the val ($TypF) : " ; print_r($ValF);}
                 $cond="";
                 break; // pas de condition s'il y a %
                 }
@@ -1109,12 +1113,17 @@ function poploup(image,titre,commentaire) {
         if ($ValF[1]!="%" && $ValF[1]!="") {
            $cond=($cond=="" ? "" : $cond." AND ");
            if ($typChpNum) { //
-        	 	$cond="$NomChp <= ".$ValF[1]."";
+        	 	$cond.="$NomChp <= ".$ValF[1]."";
         	 } else 
         		$cond.="$NomChp <= '".$ValF[1]."'";
            }
         break;
 
+      case "NOTNUL" : // inf et sup
+      	$cond = "(".$NomChp ." IS NOT NULL AND ".($typChpNum ? "$NomChp!=0" : "$NomChp!=''"). ") ";
+        
+      break;
+      
       default :
         $cond="";
         break;

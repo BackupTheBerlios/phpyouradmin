@@ -116,7 +116,7 @@ if ($NM_TABLE!="__reqcust") {
 	$tbCIL[$NomChp]->NmChamp=$NomChp;
 	$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
 	
-	// verrue pour avoir une requete égalité au de recherche en like %val% comme avant
+	// verrue pour avoir une requete égalité au lieu de recherche en like %val% comme avant
 	if ($$nmvarTR=="LDM" && ($tbCIL[$NomChp]->TypeAff!="LDLM" && $tbCIL[$NomChp]->TypeAff!="POPLM")) $$nmvarTR="LDMEG";
 
        $cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");

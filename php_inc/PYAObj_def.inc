@@ -233,13 +233,17 @@ function EchoCompField($type,$tbArgs=array()) {
 		$lntable=$valbrut[0];
 	}
 	// 0: table, 1: champ lié(clé); 2: ET SUIVANTS champs à afficher
-	$defl=explode(',',$lntable);
+	$defl=explode(',',$lntable);$retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.$this->TypFilt.'">';
+        $retVal.= '<INPUT TYPE="text" NAME="rq_'.$this->NmChamp.'" VALUE="'.$_SESSION['memFilt']['rq_'.$this->NmChamp].'">';
 
-      $this->Val2 .= ($this->Val2!="" ? " AND " : "")."(".$defl[1]." IN (SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp)) ";
+      $val2spcllv = "(".$defl[1]." IN (SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp)) ";
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
 
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDM")."\">";
-        $tabval=ttChpLink($this->Valeurs,$this->Val2);
+        if ($val2spcllv!="" &&  $this->Val2!="") {
+        	$val2spcllv = $val2spcllv." AND ".$this->Val2;
+        } else $val2spcllv.= $this->Val2;
+        $tabval=ttChpLink($this->Valeurs,$val2spcllv);
 /*	if ($this->TypeAff=="LDLM") // si liaison multiple, la cle de recherche est %,cl�%
             {
             foreach ($tbval as $key=>$val)
@@ -305,7 +309,7 @@ function EchoCompField($type,$tbArgs=array()) {
       		$lbi=$this->trad("sup");
       		$lbs=$this->trad("inf");
       	}
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"DATAP\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
         if ($bDL) { // $bDL boolenn Display Libs
              $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs." VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
              }
@@ -313,6 +317,12 @@ function EchoCompField($type,$tbArgs=array()) {
              $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs."  VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
              }
         break;
+      
+      case "NOTNUL":
+      	$retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.$this->TypFilt.'">';
+        $retVal.= '<INPUT TYPE="checkbox" NAME="rq_'.$this->NmChamp.'" VALUE="y" '.($_SESSION['memFilt']['rq_'.$this->NmChamp]!="" ? ' checked="checked" ': '').'> '.$this->trad("notnul");
+        $bDN = false;
+      break;
   
       default:
         $retVal= "&nbsp;";
@@ -847,7 +857,7 @@ function EchoEdit($DH=true) {
 // m�hode qui affiche le controle d�ition
 // pour le type d'aff AUTOMATIQUE uniquement
 function EchoEditAuto() {
-  global $VSLD,$nbrtxa,$nbctxa;
+  global $VSLD,$nbrtxa,$nbctxa,$nValRadLd;
   $retVal .= $this->genEditJS();
   $retVal .= $this->testOblig();	
   
@@ -1128,8 +1138,8 @@ var $labels = array (
 		"all" => "(tous)",
 		"ante" => "ant&eacute;rieure",
 		"poste" => "post&eacute;rieure",
-		"inf" => "inf&eacute;rieur",
-		"sup" => "sup&eacute;rieur",
+		"inf" => "inf&eacute;rieur ou égal",
+		"sup" => "sup&eacute;rieur ou égal",
 		"Enrpq" => "Enregistrements pour lequels ",
 		"is" => " est ",
 		"agrave" => " &agrave; ",
@@ -1147,13 +1157,14 @@ var $labels = array (
 		"err1" => "<B>Impossible de joindre le fichier !</B><br/>La taille des fichiers attaché est limitée à  ###, ",
 		"err2" => " et le fichier attache a une taille de ### octets. <br/>Cliquez sur le bouton retour arriere de votre navigateur",
 		"2disp" => "A afficher",
+		"notnul" => "Signifiant (Non nul, >0, !='')"
 	),
 	1 => array (
 		"all" => "(all)",
 		"ante" => "anterior with",
 		"poste" => "posterior with",
-		"inf" => "lower than",
-		"sup" => "greater than",
+		"inf" => "lower or equal than",
+		"sup" => "greater or equal than",
 		"Enrpq" => "Records of ",
 		"is" => " wich are ",
 		"agrave" => " ",
@@ -1171,6 +1182,7 @@ var $labels = array (
 		"err1" => "<B>Impossible to join this file !</B><br/>File size is limted to ###, ",
 		"err2" => " and attached file's size is ### bytes. <br/>Click on return button of your browser",
 		"2disp" => "To display",
+		"notnul" => "Significant (Not null, >0, !='')"
 	)
 ); // fin tableau langues
 

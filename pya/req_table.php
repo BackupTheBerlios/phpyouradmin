@@ -49,11 +49,9 @@ include ("header.php");?>
 <input type="hidden" name="lc_where_sup">
 <input type="hidden" name="lc_PgReq" value="1">
 <? if (!$ss_parenv[noinfos]) { 
-	echovar("_SESSION['memFilt']");
-	echo var_export($_SESSION['memFilt']);
-	?>
-	<H3><?=strtoupper(trad(com_database).$DBName)?></H3> 
-<? } ?>
+	//echo var_export($_SESSION['memFilt']);
+	echo "<H3>".strtoupper(trad(com_database).$DBName)."</H3>";
+} ?>
 <H1><?=trad(REQ_crit_select).$lc_NM_TABLE;?></H1>
 <P><? //echo trad(REQ_select_text);
 echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"req_table.php?clearCrit=true&lc_NM_TABLE=$lc_NM_TABLE\">". trad("REQ_clean_memFilt")."</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -79,7 +77,7 @@ while ($res=db_fetch_array($qr))
   $FCobj->EchoFilt();
   echo "</TD><TD>";
   $FCobj->EchoCSA();
-  echo "</TD></TR>";
+  echo "</TD></TR>\n";
   }
 ?>
 <tr><td colspan="3" align="center"><br>

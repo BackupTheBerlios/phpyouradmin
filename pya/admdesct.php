@@ -241,6 +241,7 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es(""); ?>> Aucun</option>
       <option value=<? es("INPLIKE"); ?>>Entrée (Like)</option>
       <option value=<? es("EGAL"); ?>>Entrée (=)</option>
+      <option value=<? es("NOTNUL"); ?>>Non nul (>0, !='')</option>
       <option value=<? es("LDC"); ?>>Liste dér. Valeurs champ</option>
       <option value=<? es("LDF"); ?>>L.D. (clé>)Val. fixées, Set ou Enum</option>
       <option value=<? es("LDL"); ?>>L.D. Valeurs liées dynam.</option>

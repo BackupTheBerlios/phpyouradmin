@@ -96,7 +96,7 @@ while ($res1=db_fetch_row($rq1))
      $VarOldFName="Old".$NOMC;
      $PYAoMAJ->OFN=$$VarOldFName;
      if ($modif==-1) { // suppression de l'enregistrement
-        $rqncs=msq("select ".$PYAoMAJ->NmChamp." from ".$PYAoMAJ->NmTable." where $key ");
+        $rqncs=msq("select ".$PYAoMAJ->NmChamp." from ".$PYAoMAJ->NmTable." where ".stripslashes($key));
         $rwncs=db_fetch_row($rqncs);
         $PYAoMAJ->Fname=$rwncs[0];
         }
