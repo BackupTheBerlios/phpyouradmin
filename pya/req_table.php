@@ -16,6 +16,8 @@ $_SESSION["where_sup"]=$where_sup; //session_register("where_sup");
 
 $reqcust=$lc_reqcust;
 $_SESSION["reqcust"]=$reqcust; //session_register("reqcust");
+$_SESSION["reqcust"]=$reqcust; //session_register("reqcust");
+$_SESSION["reqcust_name"]=$_REQUEST['reqcust_name'];
 
 // reset des variables de session de tri, d'ordre, d'enregistrement de d�ut et d'affichage des colonnes
 unregvar ("where_sup");

@@ -93,9 +93,10 @@ if (confirm('<?=trad(LT_confirm_del_vtb)?>')) {
 	   }
 }	   
 
-function submrqc(rqc)
+function submrqc(rqc,rqname)
 { // attention, document. est n��saire pour Mozilla
   document.theform.lc_reqcust.value=rqc;
+  document.theform.reqcust_name.value=rqname;
   document.theform.lc_NM_TABLE.value='__reqcust';
   document.theform.submit();
 }
@@ -209,16 +210,16 @@ JSprotectlnk();
 		$reqcust = stripslashes($resrq['COMMENT']);
 		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
 	} elseif ($_REQUEST['action_req']=="save") {
-		if ($_REQUEST['key'] != "") msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
+		$key = md5($_REQUEST['reqcust_name']);
+		msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$key."'");
 		msq("INSERT INTO $TBDname 
 		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
 		VALUES 
-		('__reqcust','".md5($_REQUEST['reqcust_name'].$_REQUEST['lc_reqcust'])."','".addslashes($_REQUEST['reqcust_name'])."','".addslashes($_REQUEST['lc_reqcust'])."')");
+		('__reqcust','".$key."','".addslashes($_REQUEST['reqcust_name'])."','".addslashes($_REQUEST['lc_reqcust'])."')");
 		$reqcust=$_REQUEST['lc_reqcust'];
 		$ss_parenv['reqcust_name'] = $_REQUEST['reqcust_name'];
 		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
-
-	}
+	} else $ss_parenv['reqcust_name']= $_SESSION['reqcust_name'];
 
     // GESTION DES REQUETES UTILISATEUR CUSTOM
    	$LT_reqedit=trad("LT_reqedit");
@@ -230,7 +231,8 @@ JSprotectlnk();
 		while ($res=db_fetch_array($rqrqc)) {
 			$url = addslashes("LIST_TABLES.php?key=".$res['NM_CHAMP']."&action_req=-1");
 			echo "<LI> <a href=\"LIST_TABLES.php?key=".$res['NM_CHAMP']."&action_req=load\">".$res['LIBELLE']."</a>&nbsp;\n";
-			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$LT_reqdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;</LI>";
+			echo "<A HREF=\"javascript:submrqc('".addslashes($res['COMMENT'])."','".addslashes($res['LIBELLE'])."');\" TITLE=\"Execute requete\" class=\"fxbutton\"> !</A>&nbsp;";
+			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"Supprimer la requete\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;</LI>";
 		}
     		echo "</UL>";
     	} // fin si il y a des r�onses
@@ -257,7 +259,7 @@ JSprotectlnk();
     	$tbvalsql[' `'.$rstb['NM_TABLE'].'` ']=$rstb['LIBELLE'];
 	$rqchp=msq("select NM_TABLE,NM_CHAMP,LIBELLE from $TBDname where NM_TABLE='".$rstb['NM_TABLE']."' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF");
 	while ($rschp=db_fetch_array($rqchp)) {
-		$tbvalsql[' `'.$rstb['NM_TABLE'].'`.`'.$rschp['NM_CHAMP'].'` ']="-- ".$rschp['LIBELLE']; // le nom de table fout la merde avec PYA ???
+		$tbvalsql[' `'.$rstb['NM_TABLE'].'`.`'.$rschp['NM_CHAMP'].'` ']="-- ".tradLib($rschp['LIBELLE']); // le nom de table fout la merde avec PYA ???
 		//$tbvalsql[' `'.$rschp['NM_CHAMP'].'` ']="-- ".$rschp['LIBELLE'];
 		
 	}
