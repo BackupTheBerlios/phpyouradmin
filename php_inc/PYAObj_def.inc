@@ -39,6 +39,7 @@ class PYAobj {
   var $classDivECF = "DivECF";
   var $classFieldECF = "FieldECF";
   var $classLabECF = "LabECF";
+  var $classCSAECF = "CSAECF";
   
   
 // methode qui initialise toutes les propriete de l'objet pour un champ
@@ -142,14 +143,14 @@ function EchoCompField($type,$tbArgs=array()) {
 	Pour Edit uniquement : 
 		$DH (display Hidden) = true
 	*/
-	if ($modTable) {
+	if ($tbArgs['modTable']) {
 		$retVal = '<tr class="'.$this->classDivECF.'"><td>';
 	} else $retVal = '<div class="'.$this->classDivECF.'">';
 	$retVal .= '<label class="'.$this->classLabECF.'" for="'.($type == "Filt" ? "rq_" : "").$this->NmChamp.'">'.($tbArgs['altLibel'] ? $tbArgs['altLibel'] : $this->Libelle);
 	if ($this->Comment && $tbArgs['dispComment']) $retVal .='<br/><small>'.tradLib($this->Comment).'</small>';
 	$retVal .= '</label>';
 	if ($tbArgs['br']) $retVal .= '<br/>';
-	if ($modTable) {
+	if ($tbArgs['modTable']) {
 		$retVal .= '</td><td>';
 	}
 	$retVal .= '<span class="'.$this->classFieldECF.'">';
@@ -158,12 +159,12 @@ function EchoCompField($type,$tbArgs=array()) {
 	} else $retVal .= $this->EchoFilt($tbArgs['bDN'],$tbArgs['bDL'],$tbArgs['choixMult']);
 	$retVal .= '</span>';
 	if ($type == "Filt" && $tbArgs['dispCSA']!="no" && $this->TypCSA!="") {
-		if ($modTable) {
+		if ($tbArgs['modTable']) {
 			$retVal .= "<td>".$this->EchoCSA()."</td>";
 		} else 	
-			$retVal .= '<div class="'.$this->classLabECF.'" >'.$this->EchoCSA(true)."</div>\n";
+			$retVal .= '<div class="'.$this->classCSAECF.'" >'.$this->EchoCSA(true)."</div>\n";
 	}
-	if ($modTable) {
+	if ($tbArgs['modTable']) {
 		$retVal .= "</td></tr>\n";
 	} else 	$retVal .= "</div>\n";
 	if ($this->DirEcho) {
@@ -238,8 +239,7 @@ function EchoCompField($type,$tbArgs=array()) {
 
       $val2spcllv = "(".$defl[1]." IN (SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp)) ";
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
-
-        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDM")."\">";
+        $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDMEG")."\">";
         if ($val2spcllv!="" &&  $this->Val2!="") {
         	$val2spcllv = $val2spcllv." AND ".$this->Val2;
         } else $val2spcllv.= $this->Val2;
@@ -311,10 +311,10 @@ function EchoCompField($type,$tbArgs=array()) {
       	}
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"$this->TypFilt\">";
         if ($bDL) { // $bDL boolenn Display Libs
-             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs." VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
+             $retVal.=  $this->trad("Enrpq"). $this->Libelle . $this->trad("is")." <br/>$lbi".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> <br/> ".$this->trad("and")." $lbs ".$this->trad("agrave")." <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
              }
         else {
-             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" ".$this->dateInpAttribs."  VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
+             $retVal.= $this->Libelle." &gt;  <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[0]\" ID=\"rq_".$this->NmChamp."0\" $classinp VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][0] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][0] : "%")."\"> ".$this->trad("and")." &lt; <INPUT TYPE=\"text\" NAME=\"rq_".$this->NmChamp."[1]\" ID=\"rq_".$this->NmChamp."1\" $classinp  VALUE=\"".($_SESSION['memFilt']['rq_'.$this->NmChamp][1] != "" ? $_SESSION['memFilt']['rq_'.$this->NmChamp][1] : "%")."\">";
              }
         break;
       
@@ -794,12 +794,13 @@ function EchoEdit($DH=true) {
       case "STA": // statique  simple
      // remplace caract�e merdiques et converti adresses mail en cliquables pour le HTML
       $Val2Af=DispCustHT($this->ValChp);
-      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $Val2Af.= " (Avt MAJ : ".DispCustHT($this->ValChpAvMaj).") ";
+      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $Val2Af = DispCustHT($this->ValChpAvMaj); // on affiche plus la valeur courante, on s'en branle
       $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
 
     case "STAL": // statique li�
       $retVal.= (ttChpLink($this->Valeurs,"",$this->ValChp));
+      if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $retVal = ttChpLink($this->Valeurs,"",$this->ValChpAvMaj); // on affiche plus la valeur courante, on s'en branle
       $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">";
 
       break;

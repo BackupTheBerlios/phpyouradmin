@@ -282,7 +282,7 @@ else // si nbr�ultat>0
 	$nbpk=0;  // nbre de champs cl� primaires
 	for($Idf=0;$Idf<db_num_fields($req);$Idf++) {
 	//echo mysql_field_flags($req,$Idf)." <BR/>";
-	if (stristr(mysql_field_flags($req,$Idf),"primary_key")) {
+	if (stristr(mysql_field_flags($req,$Idf),"primary")) {
 		$tbpk[$nbpk]=mysql_field_name($req,$Idf);
 		$nbpk++;
 		} // fin si champ est une cl�primaire

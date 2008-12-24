@@ -216,8 +216,10 @@ function echspan($style,$text,$DirEcho=true) {
     }
 }
 function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer",$initDisp=false) {
+	$initDisp = $initDisp || $_SESSION['hidPosOf'.$theid];
 	$ret = '<a name="AncOfTgAf'.$theid.'"/>';
-	$ret = '<input title="'.$thetitle.'" type="button" id="butOf'.$theid.'" value="'.(!$initDisp ? "+" : "-").'" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') {document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\';} else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';}"> <br/>';	
+	$ret .= '<input type="hidden" name="hidPosOf'.$theid.'" id="hidPosOf'.$theid.'" value="'.$initDisp.'"/>';
+	$ret .= '<input title="'.$thetitle.'" type="button" id="butOf'.$theid.'" value="'.(!$initDisp ? "+" : "-").'" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') { document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\'; document.getElementById(\'hidPosOf'.$theid.'\').value=\'1\'; } else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';document.getElementById(\'hidPosOf'.$theid.'\').value=\'0\';}"> <br/>';	
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''."theb".'\').value=\'P\';document.getElementById(\''.$theid.'\').style.display=\'block\'" class="'.$theclass.'" title="'.$thetitle.'">+</a>&nbsp;';
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''.$theid.'\').style.display=\'none\'" class="'.$theclass.'" title="'.$thetitle.'">&nbsp;-&nbsp;</a><br/>';
 	
@@ -471,7 +473,10 @@ table; les param�res sont  indiqu� dans les caract�istiques d'�ition de 
         }
        	if (strstr($nmchp,"&")) { // si chainage
    	 $nmchp=substr ($nmchp,1); // enl�e le &
-		if (strstr($nmchp,"@")) { // si classement en plus sur ce champ
+		if (strstr($nmchp,"~@")) { // si classement inverse en plus sur ce champ
+		$nmchp=substr ($nmchp,2); // enl�e le @
+		$orderby=" order by $nmchp DESC "; 
+		} elseif (strstr($nmchp,"@")) { // si classement en plus sur ce champ
 		$nmchp=substr ($nmchp,1); // enl�e le @
 		$orderby=" order by $nmchp "; 
 		}
@@ -532,12 +537,14 @@ if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeu
 	}
 	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid=0) $whreqsup $orderby");
 	while ($rw=db_fetch_row($rql)) {
-		if($rw[0] !="") { // si cl�valide
+		if($rw[0] !="") { // si cle valide
 			$resaf=tradLib($rw[2]);
 			for ($k=2;$k<=$nbca;$k++) {
 				$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-				$resaf=$resaf.$cs.tradLib($rw[$k +1]);
-				} // boucle sur chps �entuels en plus
+				if ($valbchain[$k]!="") {
+					$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$rw[$k + 1]);
+				} else $resaf=$resaf.$cs.tradLib($rw[$k +1]);
+			} // boucle sur chps �entuels en plus
 			$tabCorlb[$rw[0]]=$resaf;
 			rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
 			//print_r($tabCorlb);				
@@ -676,7 +683,7 @@ $table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (mysql_fetch_array($table_def));
 }
 
-// retourne une liste déroulante et une bonne texte
+// retourne une liste déroulante et une boite texte
 function DispLDandTxt ($tbval,$nmC,$valC="",$DirEcho=true,$idC="") {
 global $VSLD;
 if ($idC=="") $idC=$nmC;
