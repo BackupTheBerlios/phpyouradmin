@@ -15,7 +15,7 @@ class PYAobj {
   var $FieldNullOk; // YES ou rien
   var $FieldKey; // clePRI, index=MUL, unique=UNI
   var $FieldExtra; // auto_increment
-  var $TypeAff = "AUTO";
+  var $TypeAff = "AUT";
   var $Fccr=""; // force cases a cocher/radio en place des LD. rien ou
                 // si qqchose, force. Si contient 'BR' force avec retour de lignes
                 // si contient RAD force boutons radios
@@ -512,26 +512,30 @@ function testOblig () {
 // pour tes les type d'aff <> de AUT  
 function EchoEdit($DH=true) {
   global $VSLD,$nbrtxa,$nbctxa,$tbEvenmtVFAutoJS;
+  $htmlspecialchars = true; // épuration du html par défaut en TypEdit= C
   $retVal .= $this->genEditJS();
    $retVal .= $this->testOblig();
   if (!strstr($this->FieldType,'date')) { 
-    if ($this->TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); }
-  else {
+    if ($this->TypeAff!="HID") $this->ValChp=stripslashes($this->ValChp); 
+  } else {
   	$this->ValChp=DateF($this->ValChp);
   	if ($this->ValChpAvMaj!="") $this->ValChpAvMaj=DateF($this->ValChpAvMaj);
   	$size=' SIZE="10" ';
   	$mxsize=' maxlength="10" ';
-  	}
+  }
 
   if ($this->TypEdit=="C") { // si on est en consultation, on passe tout en STA ou STAL ou rien
 
-   if ($this->ValChp=="00/00/2000") $this->ValChp="-";
+   if ($this->ValChp=="00/00/2000" || (strstr($this->ValChp,"/") && ($this->ValChp + 0) == 0)) $this->ValChp="-";
    switch ($this->TypeAff) {
    //chgt en statique normale
+	case "TXARTE":
+		$htmlspecialchars = false; // (surtout) pas d'épuration du html
         case "AUT": // AUto
 	case "TXT": // boite texte normale
 	case "LDTXT": // boite texte + liste déroulante
         case "TXA": // texte area
+	case "TXARTE":
            $this->TypeAff="STA";
            break;
 
@@ -793,7 +797,7 @@ function EchoEdit($DH=true) {
 
       case "STA": // statique  simple
      // remplace caract�e merdiques et converti adresses mail en cliquables pour le HTML
-      $Val2Af=DispCustHT($this->ValChp);
+      $Val2Af = DispCustHT($this->ValChp,$htmlspecialchars);
       if ($this->ValChpAvMaj!="" && $this->ValChpAvMaj!=$this->ValChp) $Val2Af = DispCustHT($this->ValChpAvMaj); // on affiche plus la valeur courante, on s'en branle
       $retVal.= $Val2Af."<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
@@ -865,6 +869,7 @@ function EchoEditAuto() {
   if (!strstr($this->FieldType,'date')) $this->ValChp=stripslashes($this->ValChp);
 
   if ($this->TypEdit=="C") { // en consult, on appelle la manuelle
+
      $this->TypeAff="STA";
      return($this->EchoEdit());
      } // fin edition consult (ro)
@@ -1043,7 +1048,7 @@ if ($this->TypeAff=="FICFOT") {
     //print_r($_FILES);
     $value=$this->OFN; // valeur du set par d�aut
 
-// en php5, la varaiable $this->ValChp=$_REQUEST[toto] contient en fait $_FILES[toto] qui est un tableau...
+// en php5, la variable $this->ValChp=$_REQUEST[toto] contient en fait $_FILES[toto] qui est un tableau...
 	if (is_array($this->ValChp)) {
 		$this->ValChp = $this->ValChp['name'];
 	}

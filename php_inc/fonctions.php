@@ -271,7 +271,7 @@ function encJSmail ($admail,$DirEcho=true) {
     }
 }
 // fonction qui affiche du HTML customis�fonction d'une chaine de car
-function DispCustHT($Val2Af) {
+function DispCustHT($Val2Af,$htmlspecialchars=true) {
    // si dans la chaine il y a un @, pas d'espaces ni de retour chariot, alors c'est une adressemail 
    if (VerifAdMail($Val2Af))
       {
@@ -286,9 +286,12 @@ function DispCustHT($Val2Af) {
       $Val2Af="<A HREF=\"http://".$Val2Af."\" target=\"_blank\">".$Val2Af."</a>";
       }
   else {  // sinon traitement divers
-      $Val2Af=ereg_replace("<","&lt;", $Val2Af);
-      $Val2Af=ereg_replace(">","&gt;", $Val2Af);
-      $Val2Af=ereg_replace("\n","<br/>", $Val2Af);
+  	if ($htmlspecialchars) {
+		$Val2Af=ereg_replace("<","&lt;", $Val2Af);
+		$Val2Af=ereg_replace(">","&gt;", $Val2Af);
+		//$Val2Af = htmlspecialchars($Val2Af);
+		$Val2Af = ereg_replace("\n","<br/>", $Val2Af);
+	}
       $Val2Af=($Val2Af=="" ? "&nbsp;" : $Val2Af);
       }
 return ($Val2Af);
@@ -1179,7 +1182,7 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->TypEdit=$TypEdit;
-      if (!preg_match("/sum|count|min|max|avg/i",$CIL[$NmChamp]->NmChamp)) { // requetes custom
+      if (!preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$CIL[$NmChamp]->NmChamp)) { // requetes custom
       	$CIL[$NmChamp]->InitPO();
       } else {
       	 $CIL[$NmChamp]->Libelle = $NmChamp;
@@ -1193,7 +1196,7 @@ global $debug, $DBName;
   return($CIL);
 }
 
-// fonction renvoyant un tableau d'objets PYA initialis� d'une table
+// fonction renvoyant un tableau d'objets PYA initialisé d'une table
 function InitPOTable($table,$Base="",$DirEcho=true,$TypEdit="",$co_user="") {
 	global $debug, $DBName;
   	if ($Base=="") $Base=$DBName;
@@ -1213,6 +1216,72 @@ function InitPOTable($table,$Base="",$DirEcho=true,$TypEdit="",$co_user="") {
 		}
 		return($CIL);
 	}
+}
+
+// fonction qui met à jour l'enregistrement d'une table; inclut la MAJ des fichiers
+function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
+	// construction du set, necessite uniquement le nom du champ ..
+	$rq1=db_query("SELECT NM_CHAMP from DESC_TABLES where NM_TABLE='$table' AND NM_CHAMP!='TABLE0COMM' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
+	
+	$key = implode("_",$tbKeys)."_";
+	
+	$PYAoMAJ=new PYAobj();
+	$PYAoMAJ->NmBase=$DB;
+	$PYAoMAJ->NmTable=$table;
+	$PYAoMAJ->TypEdit=$typedit;
+	if (MaxFileSize>0) $PYAoMAJ->MaxFSize=MaxFileSize;
+	
+	$tbset = array();
+	$tbWhK = array();
+	while ($res1=db_fetch_row($rq1)) {
+		$NOMC=$res1[0]; // nom variable=nom du champ
+		$PYAoMAJ->NmChamp=$NOMC;
+		$PYAoMAJ->InitPO($_REQUEST[$NOMC]); // init l'objet et sa valeur
+		if (array_key_exists($NOMC,$tbKeys)) {
+			$tbWhK = array_merge($tbWhK,$PYAoMAJ->RetSet($key."_",true));
+		} 
+		$PYAoMAJ->ValChp=$_REQUEST[$NOMC]; // sinon en new ca bugue
+		if ($PYAoMAJ->TypeAff=="FICFOT") {
+			if ($_FILES[$NOMC]['name']!="" && $_FILES[$NOMC]['error']!="0") {
+				$error=$_FILES[$NOMC]['error'];
+				$err_lbl="Erreur sur le champ $NOMC de type http";
+			}
+			$PYAoMAJ->ValChp=($_FILES[$NOMC]['tmp_name']!="" ? $_FILES[$NOMC]['tmp_name'] : $PYAoMAJ->ValChp);
+			$PYAoMAJ->Fok=$_REQUEST["Fok".$NOMC];
+			$PYAoMAJ->Fname=$_FILES[$NOMC]['name'];
+			$PYAoMAJ->Fsize=$_FILES[$NOMC]['size'];
+			$PYAoMAJ->OFN=$_REQUEST["Old".$NOMC];
+			// recup infos pour les pj dans le mail     
+			$size=($PYAoMAJ->Fsize >0 ? " (".round($PYAoMAJ->Fsize / 1000)."Ko) " : "");
+			$chemfich="http://".$_SERVER["SERVER_NAME"].str_replace(basename($_SERVER['SCRIPT_NAME']),"",$_SERVER['SCRIPT_NAME']).$PYAoMAJ->Valeurs;
+			$fich=($PYAoMAJ->Fname != "" ? $key."_".$PYAoMAJ->Fname : $PYAoMAJ->ValChp);
+		}
+		$tbset=array_merge($tbset,$PYAoMAJ->RetSet($key."_",true)); // key sert �la gestion des fichiers li�
+		if ($PYAoMAJ->error) {
+			$error=true;
+			$err_lbl="Erreur sur le champ $NOMC genree par pya :".$PYAoMAJ->error;
+			$PYAoMAJ->error="";
+		}
+	} // fin boucle sur les champs
+	
+//	print_r($tbWhK);
+	foreach ($tbWhK as $chp=>$val) {
+	$lchp[]=$chp."=$val";
+	}
+	$where= " where ".implode(" AND ",$lchp);
+
+	// GROS BUG  $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
+	//echovar("_REQUEST['typeditrcr']");
+	if ($typedit=="M") { // UPDATE
+		$strqaj="UPDATE $table SET ".tbset2set($tbset)." $where";
+	} elseif ($typedit==-1) { // SUPPRESSION
+		$strqaj="DELETE FROM $table $where";
+	} elseif ($typedit=="N") { //INSERTION
+		$strqaj="INSERT INTO $table ".tbset2insert($tbset);
+	}
+	//echo "requete sql: $strqaj";
+	db_query($strqaj);
+	if ($typedit == "N") return(mysql_insert_id());
 }
 
 // fonction envoi de mail text+HTML, pomp�sur nexen et bricol�...
