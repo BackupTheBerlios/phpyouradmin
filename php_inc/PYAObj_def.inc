@@ -629,7 +629,7 @@ function EchoEdit($DH=true) {
         $tbkey[]=$key;
       }
       if ($this->TypeAff == "LDTXT") {
-	    	$retVal.=DispLDandTxt ($tbval,$this->NmChamp, $this->ValChp);
+	    	$retVal.=DispLDandTxt ($tbval,$this->NmChamp, $this->ValChp,false);
       } else {
 	if (!in_array($this->ValChp,$tbkey) && $this->ValChp!="")
 		$retVal.= str_replace("###",  $this->ValChp, $this->trad("err6"));
