@@ -600,7 +600,13 @@ function EchoEdit($DH=true) {
     case "HID": // on affiche un champ cach�que si $DH=true, sinon rien
       if ($DH) $retVal.= "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".htmlspecialchars($this->ValChp)."\">";
       break;
-  
+
+    case "CKBX": //check box
+	$defl=explode(',',$this->Valeurs);
+  	$val0 = explode(':',$defl[0]); 
+	$retVal = '<INPUT TYPE="checkbox" NAME="'.$this->NmChamp.'" ID="'.$this->NmChamp.'" VALUE="'.$val0[0].'" '.($this->ValChp == $val0[0] ? ' checked="checked" ' : '').($this->TypEdit=="C" ? ' disabled="disabled" ' : '').'/> '.tradLib($val0[1]);
+	break;
+
     // pour indiquer qu'in ��ent est s�ectionn� met VSLD devant (#SEL#)
     case "LD": // liste d�oulante non li�
     case "LDTXT": //liste déroulante + texte

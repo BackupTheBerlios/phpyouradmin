@@ -184,6 +184,7 @@ Les valeurs possibles<ul>
 <LI>Text Area avec RTE, cad avec éditeur de texte enrichi; les dimensions peuvent etre spécifiées dans 
         la   <a href="aide.php#admval">colonne valeurs  </a>sous la forme hauteur en px,largeur en px</li>
 <LI>Auto: adapté en fonction du type de champ, si c'est un enum ou un set, on a une liste par exemple. Cela prend aussi en compte les NULL autorisés ou pas</li>
+<LI>Case à cocher: la valeur stockée dans le champ si la case est cochée sera celle spécifiée dans le champs Valeurs sous la forme valeur_stockée:valeur_affichée</li>
 <LI>Liste Deroulante, Liste  Deroul Liée, Liste Deroulante à choix multiples, Liste  Deroul Liée à choix multiples: les valeurs statiques 
         affichées ou les caract. du lien vers une autre table/base sont à rentrer dans la <a href="#admval">colonne valeurs</a> ci-après</li>
 <LI>Statique: la valeur du champ apparait mais n'est pas éditable par l'utilisateur</li>

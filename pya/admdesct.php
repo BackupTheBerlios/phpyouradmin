@@ -212,6 +212,7 @@ $table_def = db_table_defs($NM_TABLE);
       <option value=<? es("TXA"); ?>> Text Area</option>
       <option value=<? es("TXARTE"); ?>> Text Area avec RTE</option>
       <option value=<? es("AUT"); ?>> Auto</option>
+      <option value=<? es("CKBX"); ?>> Case à cocher</option>
       <option value=<? es("LD"); ?>> Liste Deroulante</option>
       <option value=<? es("LDTXT"); ?>>Liste Deroul. + Boite Texte</option>
       <option value=<? es("LDL"); ?>> Liste Deroul. Liée</option>
