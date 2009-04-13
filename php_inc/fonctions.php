@@ -206,6 +206,24 @@ function tronqstrww ($strac,$long=50,$strsuite=" [...]") {
          return($tbstrac[0].$strsuite);
 }
 
+// magic_quotes_gpc est maintenant à On par défaut
+function unescape($text)
+{
+  if(get_magic_quotes_gpc())
+  {
+    $text = stripslashes($text);
+  }
+  return($text);
+} 
+function escape($text)
+{
+  if(!get_magic_quotes_gpc())
+  {
+    $text = addslashes($text);
+  }
+  return($text);
+} 
+
 // fonction qui echoise un texte dans un style
 function echspan($style,$text,$DirEcho=true) {
     $retVal.= "<span class=\"$style\">$text</span>";
@@ -217,7 +235,7 @@ function echspan($style,$text,$DirEcho=true) {
 }
 function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer",$initDisp=false) {
 	$initDisp = $initDisp || $_SESSION['hidPosOf'.$theid];
-	$ret = '<a name="AncOfTgAf'.$theid.'"/>';
+	$ret = '<a name="AncOfTgAf'.$theid.'"></a>';
 	$ret .= '<input type="hidden" name="hidPosOf'.$theid.'" id="hidPosOf'.$theid.'" value="'.$initDisp.'"/>';
 	$ret .= '<input title="'.$thetitle.'" type="button" id="butOf'.$theid.'" value="'.(!$initDisp ? "+" : "-").'" class="'.$theclass.'" onclick="if (document.getElementById(\''.$theid.'\').style.display==\'none\') { document.getElementById(\'butOf'.$theid.'\').value=\'-\';document.getElementById(\''.$theid.'\').style.display=\'block\'; document.getElementById(\'hidPosOf'.$theid.'\').value=\'1\'; } else {document.getElementById(\'butOf'.$theid.'\').value=\'+\';document.getElementById(\''.$theid.'\').style.display=\'none\';document.getElementById(\'hidPosOf'.$theid.'\').value=\'0\';}"> <br/>';	
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''."theb".'\').value=\'P\';document.getElementById(\''.$theid.'\').style.display=\'block\'" class="'.$theclass.'" title="'.$thetitle.'">+</a>&nbsp;';
@@ -1265,11 +1283,12 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	} // fin boucle sur les champs
 	
 //	print_r($tbWhK);
-	foreach ($tbWhK as $chp=>$val) {
-	$lchp[]=$chp."=$val";
+	if (count($tbWhK)>0) {
+		foreach ($tbWhK as $chp=>$val) {
+		$lchp[]=$chp."=$val";
+		}
+		$where= " where ".implode(" AND ",$lchp);
 	}
-	$where= " where ".implode(" AND ",$lchp);
-
 	// GROS BUG  $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
 	//echovar("_REQUEST['typeditrcr']");
 	if ($typedit=="M") { // UPDATE

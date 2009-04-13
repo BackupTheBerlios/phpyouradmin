@@ -443,7 +443,7 @@ function DispNeg($DE2=true) {
 // m�hode commune aux 2 m�hodes liste et �ition, qui affiche les valeurs li�s en statique
 function RVLS($EiS) {
         // LnkTb=true si liste li� �une table, false si liste de valeurs fixes
-        $LnkTb=!($this->TypeAff=="LD" || $this->TypeAff=="LDM");
+        $LnkTb=!($this->TypeAff=="LD" || $this->TypeAff=="LDM" || $this->TypeAff=="CKBX");
         if (!$LnkTb) { // si liste de valeurs, construit directement un tableau de hachage cle=>valeurs
            $defl=explode(',',$this->Valeurs);
            foreach ($defl as $val) {
