@@ -526,7 +526,7 @@ function EchoEdit($DH=true) {
 
   if ($this->TypEdit=="C") { // si on est en consultation, on passe tout en STA ou STAL ou rien
 
-   if ($this->ValChp=="00/00/2000" || (strstr($this->ValChp,"/") && ($this->ValChp + 0) == 0)) $this->ValChp="-";
+   if ($this->TTC == "date" && ($this->ValChp=="00/00/2000" || (strstr($this->ValChp,"/") && ($this->ValChp + 0) == 0))) $this->ValChp="-";
    switch ($this->TypeAff) {
    //chgt en statique normale
 	case "TXARTE":
@@ -1141,11 +1141,14 @@ $cpstr=rt_carpstr($this->TTC);
 } // fin m�hode RetSet
 
 function trad($lib) {
+	global $labels;
 	$nolang = (isset($_SESSION["NoLang"]) ? $_SESSION["NoLang"] : 0);
-	return ($this->labels[$nolang][$lib] != "" ? $this->labels[$nolang][$lib] : "[! $lib !]");
+//	return ($this->labels[$nolang][$lib] != "" ? $this->labels[$nolang][$lib] : "[! $lib !]");
+	return ($labels[$nolang][$lib] != "" ? $labels[$nolang][$lib] : "[! $lib !]");
 }
+} // fin objet PYAobj
 
-var $labels = array (
+$labels = array (
 	0 => array (
 		"all" => "(tous)",
 		"ante" => "ant&eacute;rieure",
@@ -1197,6 +1200,4 @@ var $labels = array (
 		"notnul" => "Significant (Not null, >0, !='')"
 	)
 ); // fin tableau langues
-
-} // fin objet PYAobj
 ?>
