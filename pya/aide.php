@@ -1,7 +1,6 @@
 <? require("infos.php");
 $title="Aide de phpYourAdmin";
 include ("header.php"); ?>
-<meta name="generator" content="Namo WebEditor v5.0(Trial)">
 
 <span class="titrered20px"><a name="haut"></a>SOMMAIRE DE L'AIDE phpYourAdmin</span><br><br>
 <span class="chapitrered12px">&#149; <a href="#intro">Généralités...</a><br>
@@ -220,11 +219,12 @@ Les valeurs de liste sont de 3 grands types:<br>
 &#149; une liste de valeurs <i>pêchées</i> dans une autre table de la base ou même d'une autre base. Ceci est le cas lorsque le type d'édition est positionné sur <u>liste déroulante liée</u>, <u>liste déroulante à choix multiple liée</u>, ou sur <u>statique liée</u>: dans ce cas le système va afficher la ou les valeur(s) d'une autre table (voir ci-dessous) en fonction de la valeur courante du champ qui représentera la clé. C'est dans ce cas que la syntaxe est la plus complexe....<br><br>
 <u>La syntaxe de liaison est :</u><ul>
 <li> si les valeurs sont situées dans une autre table de la même base, on rentrera:<br>
-NOM_TABLE,NOM_CHAMP_CLE,NOM_CHAMP_AFF1,NOM_CHAMP_AFF2,...,NOM_CHAMP_AFFn<br><br>
+NOM_TABLE,NOM_CHAMP_CLE,NOM_CHAMP_AFF1,NOM_CHAMP_AFF2,...,NOM_CHAMP_AFFn([[ expr where suppl)<br><br>
 &#149; NOM_CHAMP_CLE est le champ de la table NOM_TABLE qui aura la valeur du champ courant (clé)<br>
-&#149; NOM_CHAMP_AFF1...,NOM_CHAMP_AFFn seront les champs de la table NOM_TABLE affichés à la suite les uns des autres, séparés par défaut par un <?=$carsepldef?> (contenu de la variable globale $carsepldef)<br><br>
-<u>Rem 1</u>: Apparu à la version 0.75: si on fait précéder du caractère &amp; le nom du champ, la valeur affichée est déduite du paramètre VALEURS de ce champ dans son enregistrement de définition<br>
-<u>Rem 2</u>: il est possible de choisir le caractère séparateur s'affichant avant chaque champ NOM_CHAMP_AFFx avec x&gt;=2: pour cela on pourra précéder le nom du champ du caractère voulu puis ! ex: <i>&quot; -!rfp_mail&quot;</i>. Les caractères , et ; sont bien entendus proscrits. Si rien n'est spécifié, le caractère par défaut <?=carsepldef?>, définit dans la variable globale $carsepldef sera utilisé.<br>
+&#149; NOM_CHAMP_AFF1...,NOM_CHAMP_AFFn sont les champs de la table NOM_TABLE affichés à la suite les uns des autres, séparés par défaut par un <?=$carsepldef?> (contenu de la variable globale $carsepldef)<br><br>
+&#149;[[ expr where suppl est une clause where optionelle (par ex. <I>uid > 3 OR libelle='tata'</I> )
+<u>Rem 1</u>: si on fait précéder du caractère &amp; le nom du champ, la valeur affichée est déduite du paramètre VALEURS de ce champ dans son enregistrement de définition<br>
+<u>Rem 2</u>: il est possible de choisir le caractère séparateur s'affichant avant chaque champ NOM_CHAMP_AFFx avec x&gt;=2: pour cela on pourra précéder le nom du champ du ou des caractère(s) voulu(s) puis ! ex: <i>&quot; -!rfp_mail&quot;</i>. Les caractères , et ; sont bien entendus proscrits. Si rien n'est spécifié, le caractère par défaut <?=carsepldef?>, définit dans la variable globale $carsepldef sera utilisé.<br>
 <u>Rem 3</u>: il est possible de choisir le champ suivant lequel sera classé la liste: pour cela on mettra un caract @ devant sont nom ex: <i>@rfp_nom</i><br>
  si l'on fait <strong>précéder le nom du champ de ~@</strong>, on classera par ordre <u>inverse</u><br/>
 <u>Rem 4</u>: On peut depuis la version 0.894 définir un champ spécifiant la structure hiérarchique de la table liée: ce champ doit contenir le pid (parent id) de l'enregistrement parent ex: <i><b>@@</b>ufo_coufosup</i>; dans ce cas la liste déroulante affiche la hiérarchie de la table<br>

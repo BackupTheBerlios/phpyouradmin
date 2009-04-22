@@ -465,6 +465,17 @@ else { //commme avant
    $newbase=false;
    $newconnect=false;
    }
+// gestion condition AND depuis PYA
+$valb2 = explode("[[",$lntable);
+if (count($valb2)>1) {
+	$lntable=$valb2[0];
+	if ($reqsup!="") {
+		$reqsup= "(".$this->Val2." AND ".$valb2[1].")";
+	} else $reqsup = $valb2[1];
+}
+// si une seule valeur a chercher, on ignore $reqsup sinon ça met la merde
+if ($valc != "") $reqsup = "";
+
 // 0: table, 1: champ li�(cl�; 2: ET SUIVANTS champs affich�
 $defl=explode(',',$lntable);
 $nbca=0; // on regarde les suivants pour construire la requete

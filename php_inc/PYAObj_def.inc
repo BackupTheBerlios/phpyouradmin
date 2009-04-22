@@ -233,8 +233,18 @@ function EchoCompField($type,$tbArgs=array()) {
 	} else { //commme avant
 		$lntable=$valbrut[0];
 	}
+	// gestion condition AND depuis PYA
+	$valb2 = explode("[[",$lntable);
+	if (count($valb2)>1) {
+		$lntable=$valb2[0];
+		if ($this->Val2!="") {
+			$this->Val2 = "(".$this->Val2." AND ".$valb2[1].")";
+		} else $this->Val2 = $valb2[1];
+	}
+	
 	// 0: table, 1: champ lié(clé); 2: ET SUIVANTS champs à afficher
-	$defl=explode(',',$lntable);$retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.$this->TypFilt.'">';
+	$defl=explode(',',$lntable);
+	   $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.$this->TypFilt.'">';
         $retVal.= '<INPUT TYPE="text" NAME="rq_'.$this->NmChamp.'" VALUE="'.$_SESSION['memFilt']['rq_'.$this->NmChamp].'">';
 
       $val2spcllv = "(".$defl[1]." IN (SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp)) ";
