@@ -834,7 +834,7 @@ function EchoEdit($DH=true) {
         $height=(($defl[0]>0) ? 'height:'.$defl[0]."px" : "");
         $width=(($defl[1]>0) ? 'width:'.$defl[1]."px" : "");
 
-        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="rte-zone" style="'.$height.';'.$width.'" '  :'').">".$this->ValChp."</TEXTAREA>";
+        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="jqrte2" style="'.$height.';'.$width.'" '  :'').">".$this->ValChp."</TEXTAREA>";
       break;
 
     case "DT_TSTAMP_ED": 

@@ -9,6 +9,11 @@ include ("ui.datepicker.js");
 include ("ui.datepicker-fr.js");
 // RTE
 include ("jquery.rte.js");
+// Toolbars du RTE
+include ("jquery.rte.tb.js");
+// script de customisation
+if ($_REQUEST['custJS']) {
+	echo urldecode($_REQUEST['custJS']);}
 // init diverses JS dlcube
 include ("initjqdl3.js");
 ?>
