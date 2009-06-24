@@ -808,6 +808,14 @@ else {// boutons radio
   }
 } // fin fonction
 
+function echCheckBox($name,$value,$direcho=true,$checked=false,$id="",$disabled=false) {
+	if ($id=="") $id = $name;
+	$ret = '<input name="'.$name.'" type="checkbox" value="'.$value.'" '.($checked ? 'checked="checked" ' : '').' '.($disabled ? 'disabled="disabled" ' : '').' id="'.$id.'"/>';
+	if ($direcho) {
+		echo $ret;
+	} else return ($ret);
+}
+
 /// fonction utilisée pour le multilinguisme
 // les lib contiennent liblang0£liblang1£liblang3 ...
 // le n° de langue est stocké dans la var de session $_SESSION['NoLang']

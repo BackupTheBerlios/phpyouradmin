@@ -16,6 +16,8 @@ if ($_REQUEST['custJS']) {
 	echo urldecode($_REQUEST['custJS']);}
 // init diverses JS dlcube
 include ("initjqdl3.js");
+//include ("runonload.js");
+
 ?>
 /* test activation/désactivation entrée de type LDandTxt*/
 function CheckLDandTxt(theId) {
@@ -56,7 +58,7 @@ function testJSValChp() {
 	for (i=1; i<=nbInput2test; i++) {
 		theValue = '';
 		if (document.getElementById(tbId2Verif[i]).type =="checkbox" || document.getElementById(tbId2Verif[i]).type =="radio") {
-			for( j=0; j<document.getElementsByName(tbId2Verif[i]).length; j++) { /* tt ça pr les boutons radio ou les checkbox */
+			for( j=0; j < document.getElementsByName(tbId2Verif[i]).length; j++) { /* tt ça pr les boutons radio ou les checkbox */
 				theValue = theValue + document.getElementsByName(tbId2Verif[i]).item(j).value;
 			}
 		} else { theValue =  document.getElementById(tbId2Verif[i]).value;}
