@@ -68,7 +68,8 @@ Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 </td>
 <td>
 <br>
-<input type="radio" name="CREATION" value="false" checked>Consulter la table<br>
+<input type="radio" name="CREATION" value="false">Consulter la table<br>
+<input type="radio" name="CREATION" value="check" checked>Vérifier la table, ie indiquer les différences entre les champs et tables présents dans <? echo $TBDname; ?> et ceux effectivement présents dans la base <? echo $DBName; ?><br>
 <input type="radio" name="CREATION" value="MAJ">Mettre a jour la table: les nouveaux champs crees, les anciens supprimes, mais les existants inchanges<br>
 <input type="radio" name="CREATION" value="vrai" onclick="if (this.checked) {alert ('Soyez certain de vouloir re-geneer tout ou partie de la table de description !\n Toutes les valeurs prealablement saisies seront ecrasees si elles existent !');}" >(re)generer la table (!)
 <BR></h3>
@@ -86,13 +87,53 @@ Les variables ci-dessus sont definies dans infos.php<BR><BR>
 </form>
 <?
 }
-else if ($STEP=="2") 
-{
-if ($CREATION=="vrai" || $CREATION=="MAJ") {
-  echo "<H2>(RE)GENERATION DE LA TABLE $TBDname</H2>"; }
-else {
+else if ($STEP=="2") {
+/// AFFICHAGE OU MODIF DE LA TABLE
+if ($CREATION=="check") {
+	echo "<H2>CHECK de la base $DBName et de sa table de description $TBDname</H2><pre>";
+	$tbltab=db_show_tables($DBName);
+	$trouve = in_array($TBDname,$tbltab); // table de description trouvée
+
+	if (!$trouve) {
+		echo "<H3>table de description $TBDname non trouvée dans la bdd $DBName, veuillez la géréner</H3>";
+	} else {
+		echo "<H3> Test BDD -> $TBDname</H3>";
+		foreach ($tbltab as $rt) {
+			if ($rt != $TBDname) { // pas de test de la table de description
+				$err = false;
+				echo "<H4>Table $rt </H4>";
+				$TbFieldList = db_qr_comprass("SHOW FIELDS FROM ".$rt);
+				foreach ($TbFieldList as $InfoField) {
+					if (!db_qr_comprass("select * from $TBDname where NM_TABLE='$rt' AND NM_CHAMP ='".$InfoField['Field']."'")) {
+						echo "Champ ".$InfoField['Field']." (".$InfoField['Type'].",".$InfoField['Null'].",".$InfoField['Key'].",".$InfoField['Default'].",".$InfoField['Extra'].") absent de $TBDname<br/>";
+						$err = true;
+					}
+					$tbTbChpBdd[$rt][$InfoField['Field']] = 1; // pr la suite
+				} // fin boucle sur champs
+				if (!$err) echo "==>OK<br/>";
+			} // fin si pas table de desc
+		} // fin boucle sur tables
+		echo "<H3> Test $TBDname -> BDD</H3>";
+		$tbd = db_qr_comprass("select * from $TBDname where NM_TABLE NOT LIKE '_vtb_%' AND NM_CHAMP != 'TABLE0COMM' ORDER BY NM_TABLE,NM_CHAMP");
+		
+		foreach ($tbd as $InfoField) {
+			if ($InfoField['NM_TABLE'] != $tabprec) {
+				if ($tabprec!="" && !$err) echo "==>OK<br/>";
+				$tabprec = $InfoField['NM_TABLE'];
+				$err = false;
+				echo "<H4>Table $tabprec </H4>";
+			}
+			if ($tbTbChpBdd[$tabprec][$InfoField['NM_CHAMP']] != 1) {
+				echo "Champ ".$InfoField['NM_CHAMP']." (Libelle:".$InfoField['LIBELLE'].", typeAff:".$InfoField['TYPEAFF'].", Valeurs".$InfoField['VALEURS'].") absent de la BDD<br/>";
+				$err = true;
+			}
+		}
+	}
+} elseif ($CREATION=="vrai" || $CREATION=="MAJ") {
+  echo "<H2>(RE)GENERATION DE LA TABLE $TBDname</H2>";
+} else {
   echo "<H2>VISUALISATION DE LA BASE $DBName</H2>";
-  }
+}
 if (count($TableName)>0 ) {
    if ($AFFALL=="vrai") {
       echo "<H3>Tables selectionnees : </H3><UL>";
@@ -328,7 +369,7 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
   <P>Cliquez <b><a href="LIST_TABLES.php?lc_DBName=<? echo $DBName; ?>">ICI</a></b> pour editer le CONTENU des tables.....<br>
   <?
   } // si nbre tables selectionnn�s >0
-else echo "<H3> Vous devez selectionner au moins une table !</H3>";
+elseif ($CREATION!="check") echo "<H3> Vous devez selectionner au moins une table !</H3>";
 
 } // fin tests sur step
 ?>

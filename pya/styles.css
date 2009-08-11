@@ -1,4 +1,4 @@
-/* Définition de règle */
+/* Dï¿½finition de rï¿½gle */
 @charset "iso-8859-1";
 
 A, A:visited {font-weight: bold;text-decoration: none;
@@ -53,7 +53,7 @@ BIG {
 .backwhiten {
     background-color: #ffffff;
 	}
-/* case a cocher négation requete 	*/
+/* case a cocher nï¿½gation requete 	*/
 .FdR {
 	font-weight: bold;
   padding-right: 2px;
@@ -93,6 +93,7 @@ H3 {
 H4 {
     font-size: 12px;
     line-height: 14px;
+	color : #444444}
 	}
 H5 {
     font-size: 11px;

@@ -22,7 +22,7 @@ function ahah(url,target) {
            req.open(\"GET\", url, true);
            req.send();
        }
-   }
+   } 
 }
 function ahahDone(target) {
    // only if req is loaded

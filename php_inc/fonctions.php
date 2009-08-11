@@ -245,6 +245,26 @@ function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="affiche
 	return($ret);
 }
 
+function JStoggleAffOngl($totNum=10) {
+	
+	$ret .="
+function ToggleAffOngl(theid) {
+	for(var icid=1;icid<=$totNum;icid++) {
+		if (document.getElementById('ongl' + icid)) {
+			if (icid != theid) {
+				document.getElementById('divongl' + icid).style.display='none';
+				document.getElementById('ongl' + icid).className='onglPassif';
+			} else {
+				document.getElementById('divongl' + icid).style.display='block';
+				document.getElementById('ongl' + icid).className='onglActif';
+			}
+		}
+	}
+}
+	";
+	return(outJS($ret));
+}
+
 function makelink($url,$obj,$title="",$class="",$target="") {
 	return ('<a href="'.$url.'" '.( $target !="" ? 'target="'.$target.'" ' : ""). ( $title !="" ? 'title="'.$title.'" ' : ""). ( $class !="" ? 'class="'.$class.'" ' : "").'>'.$obj.'</a>');
 }
@@ -844,16 +864,20 @@ global $$var;
 }
 
 // fonction qui met les bonnes balises Javascript
-function outJS($myjs) {
-return('
-<script type="text/javascript">
-	/*<![CDATA[*/
-<!--
-'.$myjs.'
-// -->
-	/*]]>*/
-</script>
-');
+function outJS($myjs,$direcho=false) {
+	$theret = '
+	<script type="text/javascript">
+		/*<![CDATA[*/
+	<!--
+	'.$myjs.'
+	// -->
+		/*]]>*/
+	</script>
+	'
+	;
+	if ($direcho) {
+		echo $theret;
+	} else return($theret);
 }
 
 // fonction JAVASCRIPT qui remplace un caract�e a par b dans une chaine
