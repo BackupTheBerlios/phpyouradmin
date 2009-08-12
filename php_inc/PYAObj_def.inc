@@ -431,6 +431,12 @@ function DispNeg($DE2=true) {
         case "DT_TS":
           return date("d/m/Y",$this->ValChp);
         break;
+
+	case "CKBX" :
+		$defl=explode(',',$this->Valeurs);
+		$val0 = explode(':',$defl[0]); 
+		$retVal = '<INPUT TYPE="checkbox" NAME="'.$this->NmChamp.'" ID="'.$this->NmChamp.'" VALUE="'.$val0[0].'" '.($this->ValChp == $val0[0] ? ' checked="checked" ' : '').' disabled="disabled" /> '.tradLib($val0[1]);
+	break;
         
       default: 
         // nbre de car max par d�aut, ou pass�en propri��
@@ -539,21 +545,21 @@ function EchoEdit($DH=true) {
    if ($this->TTC == "date" && ($this->ValChp=="00/00/2000" || (strstr($this->ValChp,"/") && ($this->ValChp + 0) == 0))) $this->ValChp="-";
    switch ($this->TypeAff) {
    //chgt en statique normale
-	case "TXARTE":
+		case "TXARTE":
 		$htmlspecialchars = false; // (surtout) pas d'épuration du html
-        case "AUT": // AUto
-	case "TXT": // boite texte normale
-	case "LDTXT": // boite texte + liste déroulante
-        case "TXA": // texte area
-	case "TXARTE":
+        	case "AUT": // AUto
+		case "TXT": // boite texte normale
+		case "LDTXT": // boite texte + liste déroulante
+        	case "TXA": // texte area
+		case "TXARTE":
            $this->TypeAff="STA";
            break;
 
-	case "DT_TSTAMP_ED" :
- 	   $this->TypeAff="DT_TSTAMP_VS";
+		case "DT_TSTAMP_ED" :
+ 	   	  $this->TypeAff="DT_TSTAMP_VS";
            break;
 
-	case "HR_MN":
+		case "HR_MN":
         $Val2Af= DispHRMN($this->ValChp);
            $retVal.= $Val2Af.($DH ? "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">" : "");
 	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
@@ -569,27 +575,27 @@ function EchoEdit($DH=true) {
 
 		
    //chgt en statique normale forc� (on recherche les paires cl�: valeurs dans this->Valeurs
-        case "LD": // liste d�oulante non li�
-        case "LDM": // liste d�oulante non li� MULTIPLE
-        case "LDL":
-        case "LDLM":
+        	case "LD": // liste d�oulante non li�
+        	case "LDM": // liste d�oulante non li� MULTIPLE
+        	case "LDL":
+        	case "LDLM":
 		case "POPL":
 		case "POPLM":
-        // on est en consultation forc�.
-        // Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur �afficher
-        // est certainement �piocher dans une liste cl�valeurs et non �afficher telle quelle
-           $Val2Af=DispCustHT($this->RVLS("&nbsp;"));
-           $retVal.= $Val2Af.($DH ? "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">" : "");
-	// on sort direct, pour ne pas modifier la valeur de ->TypeAff
-	// si on le fait, si on rappelle deux fois la m�hode pour le m�e champ ds une page
-	// � plante 
-		if ($this->DirEcho) {
-			echo $retVal;
-			return;
-		} else {
-			return($retVal);
-		}
-           break;
+		// on est en consultation forc�.
+		// Ici on regarde si dans les valeurs s'il y a : et, ce qui implique que la valeur �afficher
+		// est certainement �piocher dans une liste cl�valeurs et non �afficher telle quelle
+			$Val2Af=DispCustHT($this->RVLS("&nbsp;"));
+			$retVal.= $Val2Af.($DH ? "<INPUT TYPE=\"hidden\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\" VALUE=\"".$this->ValChp."\">" : "");
+		// on sort direct, pour ne pas modifier la valeur de ->TypeAff
+		// si on le fait, si on rappelle deux fois la m�hode pour le m�e champ ds une page
+		// � plante 
+			if ($this->DirEcho) {
+				echo $retVal;
+				return;
+			} else {
+				return($retVal);
+			}
+			break;
 	
      // le reste on change pas, les photos sont trait�s dans la proc elle-meme
      } // fin switch
