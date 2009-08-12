@@ -50,9 +50,21 @@ function InitPO($Val2assign="")  {
 // nom du champ contenant les caracteristiques globales a la table
 // morceua de chaine identifiant une table virtuelle
 global $TBDname,$NmChDT,$id_vtb;
+$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
 $retVal="";
+	// verrue pour les req custom: dans le cas d'un UNION, ce con de mysql est buggué, la fonction db_field_table($resreq,$i) ne mache pas !!
+	// on cherche donc à retrouver le nom de la table via la table de description
+	if ($this->NmTable=="") {
+		$rpDF=msq("select * from $TBDname where  NM_CHAMP='$this->NmChamp'");
+		if (db_num_rows($rpDF) == 1) {
+              $CcChp=db_fetch_assoc($rpDF);
+			$this->NmTable = $CcChp[$ult['NM_TABLE']];
+		} else {
+			$retval = "Impossible de déterminer automatiquement la table du champ ".$this->NmChamp;
+		}
+	}
     if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
-    	$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
+    
     	// normallement on est deconnecte
         //mysql_select_db($this->NmBase) or die ("Impossible d'ouvrir la base de donnees $this->NmBase.");
         $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
@@ -114,9 +126,9 @@ $retVal="";
 	    } else $this->ValChp=$Val2assign;
 	      
             } // fin si champ trouv�
-        else $retVal= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouve dans la table de description";
+        else $retVal .= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouve dans la table de description";
         }
-    else $retVal = "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie"; 
+    else $retVal .= "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie; NmChamp=".$this->NmChamp."; NmTable=".$this->NmTable."; NmBase=".$this->NmBase."<br/>\n"; 
     if ($this->DirEcho) {
     	echo $retVal;
     } else {
