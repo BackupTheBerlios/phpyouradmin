@@ -85,7 +85,7 @@ while ($res=db_fetch_array($qr))
 <tr><td colspan="3" align="center"><br>
 <?=trad(LT_nblig_aff_ppage)?> <input type="text" name="lc_nbligpp" size="3" maxlength="3" value="<? echo ($nbligpp>0 ? $nbligpp : $nbligpp_def) ?>"><br><?=ret_adrr($_SERVER["PHP_SELF"],true,'REQ_retLT')?>
 <img src="./shim.gif" height="1" width="10">
-<a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad('BT_valider')?> </a>
+<input type="submit" value="<?=trad('BT_valider')?>" class="fxbutton"/> 
 </td></tr>
 </TABLE>
 </form>
