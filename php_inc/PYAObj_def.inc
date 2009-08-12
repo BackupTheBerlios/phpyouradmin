@@ -431,27 +431,26 @@ function DispNeg($DE2=true) {
 		case "DT_TS":
 			return date("d/m/Y",$this->ValChp);
 		break;
-
-		case "CKBX" :
-			$defl=explode(',',$this->Valeurs);
-			$val0 = explode(':',$defl[0]); 
-			$retVal = '<INPUT TYPE="checkbox" NAME="'.$this->NmChamp.'" ID="'.$this->NmChamp.'" VALUE="'.$val0[0].'" '.($this->ValChp == $val0[0] ? ' checked="checked" ' : '').' disabled="disabled" /> '.tradLib($val0[1]);
-		break;
-        
+    
 		default: 
-		// nbre de car max par d�aut, ou pass�en propri��
-		$NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust : $nbcarmxlist);
-		$Val2Af =  $this->ValChp;
-		$Val2Af=stripslashes($Val2Af);
-		if ($NbCarMax<=50) $Val2Af =  str_replace("\n","",strip_tags($Val2Af)) ; // si peu de caractères autorisés, on affiche pas le HTML ni les sauts de ligne
-		$Val2Af=tronqstrww ($Val2Af,$NbCarMax); // + malin,
-		//$Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caract�es
-		if ($HT) { 
-			$Val2Af=DispCustHT($Val2Af);
-			$Val2Af=($Val2Af=="" ? "$EiS" : $Val2Af);
-		} else 
-			$Val2Af = strip_tags($Val2Af) ;
-		return ($Val2Af);
+			if ($HT && $this->TypeAff == "CKBX") {
+				$defl=explode(',',$this->Valeurs);
+				$val0 = explode(':',$defl[0]); 
+				return('<INPUT TYPE="checkbox" NAME="'.$this->NmChamp.'" ID="'.$this->NmChamp.'" VALUE="'.$val0[0].'" '.($this->ValChp == $val0[0] ? ' checked="checked" ' : '').' disabled="disabled" /> '.tradLib($val0[1]));
+			}
+			// nbre de car max par d�aut, ou pass�en propri��
+			$NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust : $nbcarmxlist);
+			$Val2Af =  $this->ValChp;
+			$Val2Af=stripslashes($Val2Af);
+			if ($NbCarMax<=50) $Val2Af =  str_replace("\n","",strip_tags($Val2Af)) ; // si peu de caractères autorisés, on affiche pas le HTML ni les sauts de ligne
+			$Val2Af=tronqstrww ($Val2Af,$NbCarMax); // + malin,
+			//$Val2Af=substr($Val2Af, 0, $NbCarMax); // au max xx caract�es
+			if ($HT) { 
+				$Val2Af=DispCustHT($Val2Af);
+				$Val2Af=($Val2Af=="" ? "$EiS" : $Val2Af);
+			} else 
+				$Val2Af = strip_tags($Val2Af) ;
+			return ($Val2Af);
 		break;
        } // fin du switch
   } // fin methode EchoVCL

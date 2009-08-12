@@ -3,7 +3,7 @@
 define("servldap_url_prod",'http://xinf-ldaplinux/ldapsweb/');
 define("servldap_url_test",'http://xinf-testlinux1/ldapsweb/');
 
-include('nusoap_okphp5.php');
+require_once('nusoap_okphp5.php');
 
 // fonction d'authentification
 function auth ($parametres,$mprod=true) {

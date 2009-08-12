@@ -1243,7 +1243,7 @@ global $debug, $DBName;
       $CIL[$NmChamp]->NmTable=$NTBL;
       $CIL[$NmChamp]->NmChamp=$NmChamp;
       $CIL[$NmChamp]->TypEdit=$TypEdit;
-      if (!preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$CIL[$NmChamp]->NmChamp)) { // requetes custom
+      if (!(preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$CIL[$NmChamp]->NmChamp) || preg_match("/[0-9]*/i",$CIL[$NmChamp]->NmChamp))) { // requetes custom
       	$CIL[$NmChamp]->InitPO();
       } else {
       	 $CIL[$NmChamp]->Libelle = $NmChamp;
