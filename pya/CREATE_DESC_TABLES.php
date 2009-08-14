@@ -348,7 +348,7 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
       echo "</TR>";
       } // fin boucle sur les champs de la table
     echo "</TABLE>";
-    
+    echo '<p><a href="admdesct.php?lc_NM_TABLE='.$NM_TABLE.'">Editer les propriétés de cette table</a></p>';
     // en MAJ on enl�e les champs plus existants
     if ($CREATION=="MAJ") {
         $rqLCE=db_query("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT'");

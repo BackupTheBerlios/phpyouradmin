@@ -88,6 +88,7 @@ Merci<br><br>",
 
 "BT_retour"=>" << Retour ",
 "BT_valider"=>"Valider",
+"BT_maj"=>"Mise à jour",
 "BT_reset"=>"R.A.Z.",
 "BT_click"=>"Cliquez",
 "BT_here"=>" ICI ",

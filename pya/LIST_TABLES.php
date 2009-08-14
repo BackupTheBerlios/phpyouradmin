@@ -33,12 +33,16 @@ if (isset($_REQUEST['lc_NM_VTB2C'])) {
 // lc_NM_TABLE='+table+'&lc_NM_VTB2C=
 // $TBDname $NmChDT'
 	if (strstr($_REQUEST['lc_NM_VTB2C'],$id_vtb)) { // verifie que le nom entré contient bien l'id de table virtuelle
-		$rw=db_qr_comprass("SELECT * FROM $TBDname WHERE NM_TABLE='".$_REQUEST['lc_NM_TABLE']."'");
-		foreach($rw as $enr) {
-			$enr['NM_TABLE']=$_REQUEST['lc_NM_VTB2C'];
-			if ($enr['NM_CHAMP']==$NmChDT) $enr['LIBELLE'].=" ! virtual : ".$_REQUEST['lc_NM_VTB2C'];
-			foreach ($enr as $chp=>$val) $enr[$chp]="'".addslashes($val)."'";
-			db_query("INSERT INTO $TBDname ".tbset2insert($enr));
+		if ($_REQUEST['lc_NM_TABLE'] != "newvtable") {
+			$rw=db_qr_comprass("SELECT * FROM $TBDname WHERE NM_TABLE='".$_REQUEST['lc_NM_TABLE']."'");
+			foreach($rw as $enr) {
+				$enr['NM_TABLE']=$_REQUEST['lc_NM_VTB2C'];
+				if ($enr['NM_CHAMP']==$NmChDT) $enr['LIBELLE'].=" ! virtual : ".$_REQUEST['lc_NM_VTB2C'];
+				foreach ($enr as $chp=>$val) $enr[$chp]="'".addslashes($val)."'";
+				db_query("INSERT INTO $TBDname ".tbset2insert($enr));
+			}
+		} else { // nvlle table virtuelle
+			db_query("INSERT INTO $TBDname (NM_TABLE,NM_CHAMP,LIBELLE,TYPAFF_L) VALUES ('".$_REQUEST['lc_NM_VTB2C']."','TABLE0COMM','Nouvelle table virtuelle','AUT')");
 		}
 	} else echo "<H1>".trad("LT_err_cvtb").$id_vtb."</H1>";
 }
@@ -194,8 +198,9 @@ while ($res=db_fetch_row($qr))
 // commentaire affich�maintenant en bulle
   } // fin boucle sur les tables
 echo "</UL>";
-if ($admadm!="1" ) {
-JSprotectlnk();
+
+if ($admadm!="1") {
+  JSprotectlnk();
   ?><input type="hidden" name="lc_FirstEnr" value="0"><?
   if ($ss_parenv[blair]!="1" && $ss_parenv[ro]!=true) {
     ?>
@@ -292,6 +297,8 @@ JSprotectlnk();
     } // fin si admadm<>1
    else
    { // admadm=1
+	echo "<p>&nbsp;&nbsp;<a href=\"javascript:js_create_vtb('newvtable');\" title=\"".trad('LT_creer_vtb')."\"> Nouvelle table virtuelle <IMG SRC=\"vtb_icon.png\" border=\"0\"> </a></p>";
+
    ?>
   <small><br><br>&#149; <?=trad('BT_click')?> <A class="fxsmallbutton" HREF="LIST_TABLES.php?admadm=0"><?=trad('BT_here')?></A> <?=trad(LT_goback_content_table_edit)?>
   <br><br>&#149; <?=trad("BT_click")?> <a class="fxsmallbutton" href="CREATE_DESC_TABLES.php?DBName=<?=$DBName?>"><?=trad("BT_here")?></a> <?=trad("LB_createDT")?></small>

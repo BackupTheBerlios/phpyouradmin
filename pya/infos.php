@@ -172,9 +172,9 @@ if ($verifUserisConnected && $_SESSION[$VarNomUserMAJ] =="") { // verifie que ut
 
 // fonction qui transforme les *cl�* d'un tableau qui ne sont pas en majuscule en majuscule
 function case_kup($tb) {
-	foreach ($tb as $cle=>$val) {
+	if (is_array($tb)) { foreach ($tb as $cle=>$val) {
 		$ret[strtoupper($cle)]=$val;
-	}
+	}}
 	return($ret);
 }
 // fonction d'affichage de d�ogage

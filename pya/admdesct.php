@@ -7,6 +7,8 @@ include_once("reg_glob.inc");
 
 DBconnect(); 
 
+// si champ à supprimer 
+if ($_REQUEST['chp2sup']) db_query("delete from $TBDname where NM_CHAMP='".$_REQUEST['chp2sup']."' AND  NM_TABLE='$NM_TABLE'");
 // On compte le nombre d'enregistrement total correspondant �la table
 // on realise la requ�e
 $req1="SELECT * FROM $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' order by ORDAFF";
@@ -94,7 +96,10 @@ Propriétés d'édition de la table <?= $LB_TABLE." (".$NM_TABLE?>) </span>
 <br>
 <?
 echo "<H2>Caractéristiques globales de la table $NM_TABLE</H2>";
-if (strstr($NM_TABLE,$id_vtb)) echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
+if (strstr($NM_TABLE,$id_vtb)) {
+	echo "<H3>Attention, cette table est VIRTUELLE et n'existe pas en base</H3>";
+	$bvtb = true;
+}
 ?>
 <form name="theform" action="./admadmresp.php" method="post">
 <? // propri�� g��ales de la table
@@ -127,9 +132,7 @@ echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$row['NM_CHAMP']."\
 // construction de tableaux associatif de hachage contenant 
 // diverses infos sur les champs (type, null, auto_inc, val defaut)
 // seulement si pas table virtuelle
-if (!strstr($NM_TABLE,$id_vtb)) {
-$table_def = db_table_defs($NM_TABLE);
-} // fin si pas table virtuelle  
+if (!$bvtb) 	$table_def = db_table_defs($NM_TABLE);
 ?>
 </TABLE>
 <br><H3><?= $nbrows; ?> champs dans cette table: </H3><br>
@@ -160,18 +163,30 @@ $table_def = db_table_defs($NM_TABLE);
     <TD class="th">Commentaires sur ce champ....</TD>
   </TR>
   <? $i=1;
-  while ($row=db_fetch_assoc($result)) {
+$chpvide4vtb = $bvtb;
+$onemorerow = ($row=db_fetch_assoc($result));
+$bcle = $onemorerow || $chpvide4vtb;
+
+  while ($bcle) {
     $row=case_kup($row); // verrue �cause de PgSql dont les noms de champs sont insensibles �la case
 
     echo "<TR>";
-    // Nom du champ (inchangeable)
-    $NM_CHAMP=$row['NM_CHAMP'];
-    echo "<TD><B>".$NM_CHAMP."</b><BR>";
-    echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$NM_CHAMP."\">";
+    if (!$onemorerow && $chpvide4vtb) {
+		$chpvide4vtb = false; // 1 seule ligne vide en plus, donc apres on arrete
+		echo "<TD><input type=\"text\" name=\"NM_CHAMP[$i]\" value=\"\"><BR>";
+		$row['ORDAFF'] = $lastval + 1;
+    } else {
+    // Nom du champ (inchangeable sf en derniere ligne de vtb)
+	$NM_CHAMP=$row['NM_CHAMP'];
+	$btSuppr = ($bvtb ? '<a href="admdesct.php?lc_NM_TABLE='.$NM_TABLE.'&chp2sup='.$NM_CHAMP.'" class="fxbutton">!Suppr!</a> ': "");
+	echo "<TD>$btSuppr<B>".$NM_CHAMP."</b><BR>";
+	echo "<input type=\"hidden\" name=\"NM_CHAMP[$i]\" value=\"".$NM_CHAMP."\">";
+    }
+
     // Libell�du champ
     echo "<input type=\"text\" name=\"LIBELLE[$i]\" value=\"".stripslashes($row['LIBELLE'])."\">";
     // Caract�istiques du champ (inchangeables), et affich�s que si tble non virtuelle
-    if (!strstr($NM_TABLE,$id_vtb)) {
+    if (!$bvtb) {
     	echo "<BR><span style=\"font: 9px\">".$table_def[$NM_CHAMP][FieldType]."&nbsp;; ".$table_def[$NM_CHAMP][FieldValDef]."&nbsp;; ".$table_def[$NM_CHAMP][FieldNullOk]."&nbsp;;".$table_def[$NM_CHAMP][FieldKey]."&nbsp;; ".$table_def[$NM_CHAMP][FieldExtra]."\n";
 	} // fin si table pas virtuelle
 
@@ -201,6 +216,7 @@ $table_def = db_table_defs($NM_TABLE);
     $val=$row['ORDAFF'];
     if (strlen($val)==1) $val="0".$val;
     echo stripslashes($val);
+	$lastval = $val;
     echo "\" size=\"5\">";
 
     // Type d'affichage ds �ition
@@ -293,12 +309,19 @@ $table_def = db_table_defs($NM_TABLE);
     echo "<TD><TEXTAREA cols=\"30\" rows=\"4\" name=\"COMMENT[$i]\">".stripslashes($row['COMMENT'])."</TEXTAREA></td>";
     echo "</TR>\n";
     $i++;
+    $onemorerow = ($row=db_fetch_assoc($result));
+    $bcle = $onemorerow || $chpvide4vtb;
+
     }?>
 </table>
   <br>
   <a href="./LIST_TABLES.php?admadm=1" class="fxbutton"><?=trad(BT_retour)?></a> 
+<input type="hidden" name="formmaj" id="formmaj"/>
         &nbsp;&nbsp;&nbsp;&nbsp;
   <a href="#" onclick="document.theform.submit()" class="fxbutton"> <?=trad(BT_valider)?> </a>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#" onclick="document.theform.formmaj.value=1;document.theform.submit()" class="fxbutton"> <?=trad(BT_maj)?> </a>
+
 <!--<INPUT TYPE="image" SRC="./valider.gif" border="0" onmouseover="self.status='Valider';return true">-->
   
   

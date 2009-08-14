@@ -23,6 +23,7 @@ Please fill : ",
 
 "BT_retour"=>"Back",
 "BT_valider"=>"Submit",
+"BT_maj"=>"Update",
 "BT_click"=>"Click",
 "BT_here"=>" here ",
 
