@@ -257,6 +257,7 @@ function ToggleAffOngl(theid) {
 			} else {
 				document.getElementById('divongl' + icid).style.display='block';
 				document.getElementById('ongl' + icid).className='onglActif';
+				document.getElementById('idOnglAct').value = icid;
 			}
 		}
 	}
@@ -792,7 +793,7 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
   $retVal.= "</SELECT>";
   //$retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour s&eacute;lectionner plusieurs valeurs</small>" : "");
   } // fin liste deroulante
-else if ($Mult!="no" && !stristr($Fccr,"RAD") ) // cases �cocher si multiple ou pas de for�ge en radio
+else if ($Mult!="no" && !stristr($Fccr,"RAD") || $Fccr == "CKBX") // cases �cocher si multiple ou pas de for�ge en radio
   { 
   foreach ($tbval as $key =>$val) {
     if ($key!="") {
