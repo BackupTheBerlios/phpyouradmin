@@ -411,6 +411,12 @@ function db_qr_rass($req,$lnkid="") {
 	}
 	return ($ret);
 }
+// fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau ASSOCIATIF
+function db_qr_rass2($req,$lnkid="") {
+	$res=db_query($req,$lnkid);
+	return (db_fetch_assoc($res));
+}
+
 // fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL INSERT 
 function tbset2insert($set) {
 foreach ($set as $chp=>$val) {
