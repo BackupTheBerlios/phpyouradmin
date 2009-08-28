@@ -44,14 +44,13 @@ class PYAobj {
   
 // methode qui initialise toutes les propriete de l'objet pour un champ
 // simplement a partir de la definition du nom du champ, de la table et de la base
-function InitPO($Val2assign="")  {
-
-// Nom de la table de description des autres
-// nom du champ contenant les caracteristiques globales a la table
-// morceua de chaine identifiant une table virtuelle
-global $TBDname,$NmChDT,$id_vtb;
-$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
-$retVal="";
+function InitPO($Val2assign="",$CcChp=false)  {
+	// Nom de la table de description des autres
+	// nom du champ contenant les caracteristiques globales a la table
+	// morceua de chaine identifiant une table virtuelle
+	global $TBDname,$NmChDT,$id_vtb;
+	$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
+	$retVal="";
 	// verrue pour les req custom: dans le cas d'un UNION, ce con de mysql est buggué, la fonction db_field_table($resreq,$i) ne mache pas !!
 	// on cherche donc à retrouver le nom de la table via la table de description
 	if ($this->NmTable=="") {
@@ -63,77 +62,58 @@ $retVal="";
 			$retval = "Impossible de déterminer automatiquement la table du champ ".$this->NmChamp;
 		}
 	}
-    if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
-    
-    	// normallement on est deconnecte
-        //mysql_select_db($this->NmBase) or die ("Impossible d'ouvrir la base de donnees $this->NmBase.");
-        $rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
-        if (db_num_rows($rpDF)>0) {
-              $CcChp=db_fetch_assoc($rpDF);
-              $this->Libelle=tradLib(stripslashes($CcChp[$ult['LIBELLE']]));
-              $this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
-              $this->TypeAff=$CcChp[$ult['TYPEAFF']];
-              $this->Valeurs=$CcChp[$ult['VALEURS']];
-	      if (substr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hi�archique, force les listes d�oulante
-              $this->Tt_AvMaj=$CcChp[$ult['TT_AVMAJ']];
-              $this->Tt_PdtMaj=$CcChp[$ult['TT_PDTMAJ']];
-              $this->Tt_AprMaj=$CcChp[$ult['TT_APRMAJ']];
-              $this->TypFilt=$CcChp[$ult['VAL_DEFAUT']];
-              $this->TypCSA=$CcChp[$ult['TYP_CHP']];
-              $this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
-	      
-	      if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caract�iser le champ que s'il n'est pas dans une table virtuelle
-		$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
-//		print_r($TbDescChp);
-		$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
-		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ �ur�sans les valeurs (enum, varchar, etc ...)
-		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
-		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
-		if (stristr($TTC,"int") || stristr($TTC,"decimal")|| stristr($TTC,"float")|| stristr($TTC,"double"))  $TTC="numeric";
-		$this->TTC=$TTC;
-		$this->FieldValDef=$TbDescChp[$this->NmChamp]['FieldValDef'];
-		// si nouvel enregistrement, affecte la valeur par d�au
-		$this->FieldNullOk=strtoupper($TbDescChp[$this->NmChamp]['FieldNullOk']); // YES ou rien
-		$this->FieldKey=$TbDescChp[$this->NmChamp]['FieldKey']; // cl�PRI, index=MUL, unique=UNI
-		$this->FieldExtra=$TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
-		// si champ auto increment et pas cach� on le met en statique
-		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
-		/*
-					$ret[$NM_CHAMP]['FieldValDef']=($row_table_def['Default']!="" ? $row_table_def['Default'] : "" );
-					// si nouvel enregistrement, affecte la valeur par d�aut
-					$ret[$NM_CHAMP]['FieldNullOk']=($row_table_def['Null']=="YES" ? "yes" : "no"); // YES ou rien
-					$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : ""); // cl�PRI, index=MUL, unique=UNI
-					$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment 
+	if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
+		if (!$CcChp) { // les args de champ ne sont pas passés
+			$rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
+			if (db_num_rows($rpDF)>0) {
+				$CcChp=db_fetch_assoc($rpDF);
+			} else {
+				$retVal .= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouve dans la table de description";
+				$CcChp = false;
+			}
+		}
 		
-		$TbDescChp=ShowField($this->NmChamp,$this->NmTable);
-		$this->FieldType=$TbDescChp['Type'];
-		$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ �ur�sans les valeurs (enum, varchar, etc ...)
-		if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
-		if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
-		$this->TTC=$TTC;
-		$this->FieldValDef=$TbDescChp['Default'];
-		// si nouvel enregistrement, affecte la valeur par d�aut
-		if ($this->TypEdit=="") { $this->ValChp=$TbDescChp['Default']; }
-		$this->FieldNullOk=$TbDescChp['Null']; // YES ou rien
-		$this->FieldKey=$TbDescChp['Key']; // cl�PRI, index=MUL, unique=UNI
-		$this->FieldExtra=$TbDescChp['Extra']; // auto_increment
-		// si champ auto increment et pas cach� on le met en statique
-		if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
-		*/
-	      } // fin si pas champ dans une table virtuelle
-	    if ($this->TypEdit=="" || $this->TypEdit=="N") {
-		$this->ValChp=$this->FieldValDef; 
-	    } else $this->ValChp=$Val2assign;
-	      
-            } // fin si champ trouv�
-        else $retVal .= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouve dans la table de description";
-        }
-    else $retVal .= "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie; NmChamp=".$this->NmChamp."; NmTable=".$this->NmTable."; NmBase=".$this->NmBase."<br/>\n"; 
-    if ($this->DirEcho) {
-    	echo $retVal;
-    } else {
-    	return($retVal);
-    }
+		if ($CcChp) {
+			$this->Libelle=tradLib(stripslashes($CcChp[$ult['LIBELLE']]));
+			$this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
+			$this->TypeAff=$CcChp[$ult['TYPEAFF']];
+			$this->Valeurs=$CcChp[$ult['VALEURS']];
+			if (substr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hi�archique, force les listes d�oulante
+			$this->Tt_AvMaj=$CcChp[$ult['TT_AVMAJ']];
+			$this->Tt_PdtMaj=$CcChp[$ult['TT_PDTMAJ']];
+			$this->Tt_AprMaj=$CcChp[$ult['TT_APRMAJ']];
+			$this->TypFilt=$CcChp[$ult['VAL_DEFAUT']];
+			$this->TypCSA=$CcChp[$ult['TYP_CHP']];
+			$this->Comment=stripslashes($CcChp[$ult['COMMENT']]);
+			if (!stristr($this->NmTable,$id_vtb)) { // on cherche a caracteriser le champ que s'il n'est pas dans une table virtuelle
+				$TbDescChp=db_table_defs($this->NmTable,$this->NmChamp);
+		//		print_r($TbDescChp);
+				$this->FieldType=$TbDescChp[$this->NmChamp]['FieldType'];
+				$TTC= ereg_replace('\\(.*', '', $this->FieldType); // Type de champ �ur�sans les valeurs (enum, varchar, etc ...)
+				if (stristr($TTC,"blob") || stristr($TTC,"text")) $TTC="txtblob"; 
+				if (stristr($TTC,"varchar") || stristr($TTC,"char")) $TTC="char";
+				if (stristr($TTC,"int") || stristr($TTC,"decimal")|| stristr($TTC,"float")|| stristr($TTC,"double"))  $TTC="numeric";
+				$this->TTC=$TTC;
+				$this->FieldValDef = $TbDescChp[$this->NmChamp]['FieldValDef'];
+				// si nouvel enregistrement, affecte la valeur par d�au
+				$this->FieldNullOk = strtoupper($TbDescChp[$this->NmChamp]['FieldNullOk']); // YES ou rien
+				$this->FieldKey = $TbDescChp[$this->NmChamp]['FieldKey']; // cl�PRI, index=MUL, unique=UNI
+				$this->FieldExtra = $TbDescChp[$this->NmChamp]['FieldExtra']; // auto_increment
+				// si champ auto increment et pas caché on le met en statique
+				if (stristr($this->FieldExtra,"auto_increment") && $this->TypeAff!="HID") $this->TypeAff="STA";
+			} // fin si pas champ dans une table virtuelle
+			if ($this->TypEdit=="" || $this->TypEdit=="N" || !$Val2assign) {
+					$this->ValChp=$this->FieldValDef; 
+			} else $this->ValChp=$Val2assign;
+		} else {
+			$retVal .= "Champ non trouvé ou paramètres non passés en arguments";
+		} // fin si champ trouvé ou renseigné
+	} else $retVal .= "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie; NmChamp=".$this->NmChamp."; NmTable=".$this->NmTable."; NmBase=".$this->NmBase."<br/>\n"; 
+	if ($this->DirEcho) {
+		echo $retVal;
+	} else {
+		return($retVal);
+	}
 } // fin m�hode d'initialisation$DH
 
 /// methode affichage de type <div class="classDiv"><label class="classLab"  for="theField">The Label </label>(<br/>)<span class="classField">The Field</span></div>

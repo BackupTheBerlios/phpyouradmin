@@ -1291,10 +1291,9 @@ function InitPOTable($table,$Base="",$DirEcho=true,$TypEdit="",$co_user="") {
 // fonction qui met à jour l'enregistrement d'une table; inclut la MAJ des fichiers
 function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	// construction du set, necessite uniquement le nom du champ ..
-	$rq1=db_query("SELECT NM_CHAMP from DESC_TABLES where NM_TABLE='$table' AND NM_CHAMP!='TABLE0COMM' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
+	$rq1=db_query("SELECT * from DESC_TABLES where NM_TABLE='$table' AND NM_CHAMP!='TABLE0COMM' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
 	
 	$key = implode("_",$tbKeys)."_";
-	
 	$PYAoMAJ=new PYAobj();
 	$PYAoMAJ->NmBase=$DB;
 	$PYAoMAJ->NmTable=$table;
@@ -1303,10 +1302,10 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	
 	$tbset = array();
 	$tbWhK = array();
-	while ($res1=db_fetch_row($rq1)) {
-		$NOMC=$res1[0]; // nom variable=nom du champ
-		$PYAoMAJ->NmChamp=$NOMC;
-		$PYAoMAJ->InitPO($_REQUEST[$NOMC]); // init l'objet et sa valeur
+	while ($res1 = db_fetch_array($rq1)) {
+		$NOMC = $res1['NM_CHAMP']; // nom variable=nom du champ
+		$PYAoMAJ->NmChamp = $NOMC;
+		$PYAoMAJ->InitPO($_REQUEST[$NOMC],$res1); // init l'objet, sa valeur, lui passe le tableau d'infos du champ pr éviter une requete suppl.
 		if (array_key_exists($NOMC,$tbKeys)) {
 			$tbWhK = array_merge($tbWhK,$PYAoMAJ->RetSet($key."_",true));
 		} 
@@ -1334,11 +1333,9 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 		}
 	} // fin boucle sur les champs
 	
-//	print_r($tbWhK);
 	if (count($tbWhK)>0) {
-		foreach ($tbWhK as $chp=>$val) {
-		$lchp[]=$chp."=$val";
-		}
+		foreach ($tbWhK as $chp=>$val) $lchp[]=$chp."=$val";
+		
 		$where= " where ".implode(" AND ",$lchp);
 	}
 	// GROS BUG  $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
@@ -1350,7 +1347,7 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	} elseif ($typedit=="N") { //INSERTION
 		$strqaj="INSERT INTO $table ".tbset2insert($tbset);
 	}
-	//echo "requete sql: $strqaj";
+//	echo "requete sql: $strqaj";
 	db_query($strqaj);
 	if ($typedit == "N") return(mysql_insert_id());
 }
