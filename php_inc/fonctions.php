@@ -418,18 +418,17 @@ function db_qr_rass2($req,$lnkid="") {
 }
 
 // fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL INSERT 
-function tbset2insert($set) {
+function tbset2insert($set,$addquotes=false) {
 foreach ($set as $chp=>$val) {
-	$lchp[]=$chp;
-	$vchp[]=$val;
-	//$vchp[]="'$val'";
+	$lchp[] = $chp;
+	$vchp[] = $addquotes ? "'$val'" : $val;
 	}
 return("(".implode(",",$lchp).") VALUES (".implode(",",$vchp).")");
 }
 // fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL SET 
-function tbset2set($set) {
+function tbset2set($set,$addquotes=false) {
 foreach ($set as $chp=>$val) {
-	$lchp[]=$chp."=$val";
+	$lchp[] = $chp. ($addquotes ? "='$val'" : "=$val");
 	}
 return(" ".implode(",",$lchp)." ");
 }
