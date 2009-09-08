@@ -437,6 +437,30 @@ function dblslashes($str) {
 	return(str_replace("'","''",$str));
 }
 
+function table2htmlTable($tb,$echodir=true) {
+	$str.='<table border="1">';
+	$first = true;
+	foreach ($tb as $row) {
+		if ($first) {
+			$str .= "<thead>";
+			foreach ($row as $f=>$v) {
+				$str.= "<th>$f</th>";
+			}
+			$str .= "</thead>\n";
+			$first= false;
+		}
+		$str .= "<tr>";
+		foreach ($row as $f=>$v) {
+			if ($v=="") $v = "&nbsp;";
+			$str.= "<td>$v</td>";
+		}
+		$str .= "</tr>\n";
+	}
+	$str.="</table>\n";
+if ($echodir) echo $str;
+return($str);
+}
+
 // fonction qui r�up�e un libell�dans une table fonction de la cl�// sert aussi �tester si un enregistrement existe (renvoie faux sinon)
 function RecupLib($Table, $ChpCle, $ChpLib, $ValCle,$lnkid="",$wheresup="",$trace=false) {
 $wheresup=($wheresup!="" ? " AND ".$wheresup : "");
