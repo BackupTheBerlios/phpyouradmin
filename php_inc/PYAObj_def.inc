@@ -78,7 +78,7 @@ function InitPO($Val2assign="",$CcChp=false)  {
 			$this->Typaff_l=$CcChp[$ult['TYPAFF_L']];
 			$this->TypeAff=$CcChp[$ult['TYPEAFF']];
 			$this->Valeurs=$CcChp[$ult['VALEURS']];
-			if (substr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hi�archique, force les listes d�oulante
+			if (strstr($this->Valeurs,"@@")) $this->Fccr="LDF"; // si hi�archique, force les listes d�oulante
 			$this->Tt_AvMaj=$CcChp[$ult['TT_AVMAJ']];
 			$this->Tt_PdtMaj=$CcChp[$ult['TT_PDTMAJ']];
 			$this->Tt_AprMaj=$CcChp[$ult['TT_APRMAJ']];

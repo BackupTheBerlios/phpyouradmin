@@ -174,6 +174,26 @@ if (file_exists($file)) {
 	return (false);
 	}
 }
+// fonction qui trime ts les éléments d'un tableau (réentrante)
+function trimtbl($tb) {
+	if (is_array($tb)) {
+		foreach ($tb as $c=>$v) $tb[$c] = trimtbl($v);
+		return($tb);
+	} else return (trim($tb));
+}
+// fonction qui convertit un tableau associatif en XML; ré-entrante (à peaufiner..)
+function table2XML($tbl,$xmlbal = true,$niv=0) {
+	$niv +=3;
+	if (is_array($tbl)) {
+		foreach ($tbl as $c=>$v) {
+			if (is_array($v)) {
+				$ret .= str_repeat(" ",$niv)."<$c>\n".table2XML($v,false,$niv).str_repeat(" ",$niv)."</$c>\n";
+			} else $ret .= str_repeat(" ",$niv)."<$c>$v</$c>\n";
+		}
+	} else $ret .= $tbl;
+	
+	if ($xmlbal) { return ("<XML>\n$ret\n</XML>\n"); } else return ("$ret");
+}
 // fonction qui vire les x derniers car d'une chaine
 function vdc($strap,$nbcar) {
 return (substr($strap,0,strlen($strap)-$nbcar));
@@ -822,7 +842,7 @@ elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") {
   $retVal.= "</SELECT>";
   //$retVal.= (($Mult!="no" && $DispMsg) ? "<br/><small>Appuyez sur Ctrl pour s&eacute;lectionner plusieurs valeurs</small>" : "");
   } // fin liste deroulante
-else if ($Mult!="no" && !stristr($Fccr,"RAD") || $Fccr == "CKBX") // cases �cocher si multiple ou pas de for�ge en radio
+  else if ($Mult!="no" && !stristr($Fccr,"RAD") || $Fccr == "CKBX") // cases �cocher si multiple ou pas de for�ge en radio
   { 
   foreach ($tbval as $key =>$val) {
     if ($key!="") {

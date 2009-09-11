@@ -117,6 +117,7 @@ function db_close($lnk) {
 }
 
 function db_query($req,$lnkid="",$mserridrq=""){
+	//echo $req."\n";
 	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> a la page precedente";
 	switch($_SESSION['db_type']) {
 	case "pgsql":
