@@ -1396,12 +1396,13 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 }
 
 // fonction envoi de mail text+HTML, pomp�sur nexen et bricol�...
-function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1")
+function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1",$addheader="")
 {
 $limite = "_parties_".md5 (uniqid (rand()));
 
 $entete = "Reply-to: $from\n";
-$entete .= "From:$from\n"; 
+$entete .= "From:$from\n";
+$entete .= $addheader; // on peut y mettre des gaziers en Cc ou Cci... par ex.
 $entete .="Date:" . date("D, d M Y H:i:s")."\n"; 
 //$entete .= "Date: ".date("l j F Y, G:i")."\n"; // sert certainement a rien et fout la merde
 $entete .= "MIME-Version: 1.0\n";

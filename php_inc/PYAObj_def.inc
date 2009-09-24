@@ -828,10 +828,11 @@ function EchoEdit($DH=true) {
         // pour les dimensions, on prend les chiffres dans le champ valeurs (nblignes, nbcolonnes)
         $ligs=(($defl[0]>0) ? $defl[0] : $nbrtxa);
         $cols=(($defl[1]>0) ? $defl[1] : $nbctxa);
-        $height=(($defl[0]>0) ? 'height:'.$defl[0]."px" : "");
-        $width=(($defl[1]>0) ? 'width:'.$defl[1]."px" : "");
+        // dans le cas des TXA c'est des dim css
+        $height=(($defl[0]>0) ? 'height:'.$defl[0].(ereg("[:alpha:]",$defl[0]) ? "" : "px") : "");
+        $width=(($defl[1]>0) ? 'width:'.$defl[1].(ereg("em|px|%",$defl[1]) ? "" : "px") : "");
 
-        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="jqrte2" style="'.$height.';'.$width.'" '  :'').">".$this->ValChp."</TEXTAREA>";
+        $retVal.= "<TEXTAREA COLS=\"$cols\" ROWS=\"$ligs\" NAME=\"".$this->NmChamp."\" ID=\"".$this->NmChamp."\"".($this->TypeAff=="TXARTE" ? ' class="jqrte2" style="'.$height.';'.$width.'" ' :'').">".$this->ValChp."</TEXTAREA>"; 
       break;
 
     case "DT_TSTAMP_ED": 
