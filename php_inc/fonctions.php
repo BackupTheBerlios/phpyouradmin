@@ -743,6 +743,7 @@ foreach ($tb2 as $k=>$v) {
 return($tb3);
 }
 // FIN ENSEMBLE DE FONCTIONS NECESSAIRES A ttChpLink
+
 // convertit une chaine de type 0:Non demandé,1:Refusé,2:Accepté,3:A revoir en tableau de hachage
 function hash_explode($string,$sep1=":",$sep2=",") {
 	$tbvrac=explode($sep2,$string);
@@ -751,6 +752,16 @@ function hash_explode($string,$sep1=":",$sep2=",") {
 		$res[$tbe[0]]=$tbe[1];
 	}
 	return($res);
+}
+// l'inverse..
+function hash_implode($array,$sep1=":",$sep2=",") {
+	if (is_array($array) && count($array)>0) {
+		foreach($array as $k=>$v) {
+			if ($k!="") $res.=$k.$sep1.$v.$sep2;
+		}
+		$res = vdc($res,1);
+		return($res);
+	}
 }
 // info serveur
 function pinfserv() {
