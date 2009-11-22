@@ -15,7 +15,7 @@ foreach ($resb as $tresb) {
 	$DBName=$tresb;
 	DBconnect($DBName);
 	$dbg=db_show_tables("`".$tresb."`");
-	//echovar ("dbg");
+	echovar ("dbg");
   	$admok=($dbg && in_array($TBDname,$dbg));
   // n'affiche le lien pour �ition que si la table d'admin existe dans la base
   if ($admok) {
