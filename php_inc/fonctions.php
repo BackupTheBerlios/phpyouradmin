@@ -1402,7 +1402,7 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	} elseif ($typedit==-1) { // SUPPRESSION
 		$strqaj="DELETE FROM $table $where";
 	} elseif ($typedit=="N") { //INSERTION
-		$strqaj="INSERT INTO $table ".tbset2insert($tbset);
+		$strqaj="INSERT INTO $table ".tbset2insert($tbset)." ON DUPLICATE KEY UPDATE ".tbset2set($tbset);
 	}
 //	echo "requete sql: $strqaj";
 	db_query($strqaj);
