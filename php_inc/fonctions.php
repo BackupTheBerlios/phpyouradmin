@@ -1312,7 +1312,10 @@ global $debug, $DBName;
       	 $CIL[$NmChamp]->Libelle = $NmChamp;
       }
       if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
-      if ($TypEdit!="N" && $TypEdit!="") $CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+      if ($TypEdit!="N" && $TypEdit!="") {
+      	$CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+      	//echo $NmChamp."->".$tbValChp[$NmChamp];
+      }
       if ($co_user!="" && $TypEdit!="C") $CIL[$NmChamp]->InitAvMaj($co_user);
 	$strdbgIPOR.=$NmChamp.", ";
     } // fin boucle sur les champs du r�ultat
@@ -1407,38 +1410,50 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 }
 
 // fonction envoi de mail text+HTML, pomp�sur nexen et bricol�...
-function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1",$addheader="")
-{
+function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1",$addheader="") {
+//die("$destinataire, $sujet , $messhtml,  $from, $encod,$addheader");
+/// Grosse simplification, ça ne marchait plus sur le nouveau www avce tout ce qu'il y a dessous
+/// par contre il n'y a plus d'envoi en texte simple, pas sur que ça marche avec les clients texte simple...
+$sepligne = "\r\n";
+$entete .= "MIME-Version: 1.0$sepligne";
+$entete .= "Content-Type: text/html; charset=\"$encod\"$sepligne";
+$entete .= "To:$destinataire$sepligne";
+$entete .= "From:$from$sepligne";
+$entete .= $addheader; // on peut y mettre des gaziers en Cc ou Cci... par ex.
+//$entete .= "Date: ".date("l j F Y, G:i")."$sepligne"; // sert certainement a rien et fout la merde
+//$texte_html .= "Content-Type: text/html; charset=\"$encod\"$sepligne";
+$texte_html .= $messhtml;
+return mail($destinataire, $sujet, $texte_simple.$texte_html, $entete);
+
+/*
+
 $limite = "_parties_".md5 (uniqid (rand()));
 
-$entete = "Reply-to: $from\n";
-$entete .= "From:$from\n";
+$entete .= "MIME-Version: 1.0$sepligne";
+$entete .= 'Content-Type: multipart/alternative'."$sepligne";
+$entete .= "From:$from$sepligne";
 $entete .= $addheader; // on peut y mettre des gaziers en Cc ou Cci... par ex.
-$entete .="Date:" . date("D, d M Y H:i:s")."\n"; 
-//$entete .= "Date: ".date("l j F Y, G:i")."\n"; // sert certainement a rien et fout la merde
-$entete .= "MIME-Version: 1.0\n";
-$entete .= "Content-Type: multipart/alternative;\n";
-$entete .= " boundary=\"----=$limite\"\n\n";
+//$entete .= "Date: ".date("l j F Y, G:i")."$sepligne"; // sert certainement a rien et fout la merde
+$entete .= " boundary=\"----=$limite\"$sepligne$sepligne";
 
 //Le message en texte simple pour les navigateurs qui
 //n'acceptent pas le HTML
-$texte_simple = "This is a multi-part message in MIME format.\n";
-$texte_simple .= "Ceci est un message est au format MIME.\n";
-$texte_simple .= "------=$limite\n";
-$texte_simple .= "Content-Type: text/plain; charset=\"$encod\"\r\n";
-$texte_simple .= "Content-Transfer-Encoding: 8bit\n\n";
+$texte_simple = "This is a multi-part message in MIME format.$sepligne";
+$texte_simple .= "Ceci est un message est au format MIME.$sepligne";
+$texte_simple .= "------=$limite$sepligne";
+$texte_simple .= "Content-Type: text/plain; charset=\"$encod\"$sepligne";
+$texte_simple .= "Content-Transfer-Encoding: 8bit$sepligne$sepligne";
 //$texte_simple .=  "Procurez-vous un client de messagerie qui sait afficher le HTML !!";
-$texte_simple .=  strip_tags(eregi_replace("<br/>", "\n", $messhtml)) ;
-$texte_simple .= "\n\n";
+$texte_simple .=  strip_tags(eregi_replace("<br/>", "$sepligne", $messhtml)) ;
+$texte_simple .= "$sepligne$sepligne";
 
 //le message en html original
-$texte_html = "------=$limite\n";
-$texte_html .= "Content-Type: text/html; charset=\"$encod\"\r\n";
-$texte_html .= "Content-Transfer-Encoding: 8bit\n\n";
+$texte_html = "------=$limite$sepligne";
+$texte_html .= "Content-Transfer-Encoding: 8bit$sepligne$sepligne";
 $texte_html .= $messhtml;
-$texte_html .= "\n\n\n------=$limite--\n";
+$texte_html .= "$sepligne$sepligne$sepligne------=$limite--$sepligne";
 
-return mail($destinataire, $sujet, $texte_simple.$texte_html, $entete);
+return mail($destinataire, $sujet, $texte_simple.$texte_html, $entete);*/
 }
 
 // envoi de mail avec pi�e jointe
