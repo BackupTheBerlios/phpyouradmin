@@ -167,7 +167,9 @@ function EchoCompField($type,$tbArgs=array()) {
 }
 // m�hode d'affichage de filtre de requete
   function EchoFilt($bDN=true,$bDL=true,$choixMult="yes") { // booleens affiche n�ation et affiche libell�ie baratins sur les dates e
-   global $VSLD;
+   global $VSLD,$id_vtb;
+	$id_vtb = $id_vtb != "" ? $id_vtb : "_vtb_";
+	$nmtable = str_replace($id_vtb,"",$CSpIC.$this->NmTable.$CSpIC);
 // regarde si valeur déjà filtrée pour les listes 
     $valDjFilt = is_array($_SESSION['memFilt']['rq_'.$this->NmChamp]) && !(in_array("%",$_SESSION['memFilt']['rq_'.$this->NmChamp]));
     switch ($this->TypFilt) {
@@ -181,7 +183,7 @@ function EchoCompField($type,$tbArgs=array()) {
       case "LDC": // Liste d�oulante affichant les différentes valeurs du champ  
         $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="LDM">';
 	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
-        $rqldcu=msq("SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp");
+        $rqldcu=msq("SELECT $this->NmChamp from $nmtable $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
         $tbval["%"]= (!$valDjFilt ? $VSLD : "").$this->trad("all");
         while ($rwsq=db_fetch_row($rqldcu)) {
@@ -239,7 +241,7 @@ function EchoCompField($type,$tbArgs=array()) {
 	   $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="'.$this->TypFilt.'">';
         $retVal.= '<INPUT TYPE="text" NAME="rq_'.$this->NmChamp.'" VALUE="'.$_SESSION['memFilt']['rq_'.$this->NmChamp].'">';
 
-      $val2spcllv = "(".$defl[1]." IN (SELECT $this->NmChamp from $CSpIC$this->NmTable$CSpIC $whsup group by $this->NmChamp order by $this->NmChamp)) ";
+      $val2spcllv = "(".$defl[1]." IN (SELECT $this->NmChamp from $nmtable $whsup group by $this->NmChamp order by $this->NmChamp)) ";
       case "LDL": // Liste d�oulante affichant les diff�entes valeurs li�s par le champ valeurs
         $retVal= "<INPUT TYPE=\"hidden\" NAME=\"tf_".$this->NmChamp."\" VALUE=\"".($this->TypeAff=="LDLM" ? "LDM_SPL" : "LDMEG")."\">";
         if ($val2spcllv!="" &&  $this->Val2!="") {

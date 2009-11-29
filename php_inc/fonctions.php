@@ -372,90 +372,6 @@ function msq($req,$lnkid="",$mserridrq="") {
 	return (db_query($req,$lnkid="",$mserridrq=""));
 }
 
-// compte ligne dans table
-function db_count($table,$where="",$lnkid="") {
-$where = ($where !="" ? " where $where ": "");
-$res= db_query("select count(*) from $table $where",$lnkid);
-$ret = db_fetch_row($res);
-return ($ret[0]);
-}
-
-// fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
-// les lignes sont index�s num�iquement
-// les colonnes aussi
-function db_qr_compres($req,$lnkid="") {
-$res=db_query($req,$lnkid);
-$i=0;
-	$ret = false;
-//if (db_num_rows($res)) { // car oci_num_rows ne fonctionne pas avec Oracle !!
-	while ($rep = db_fetch_row($res)) {
-		$ret[$i]=$rep;
-		$i++;
-		}
-	return($ret);
-}
-
-// fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
-// les lignes sont index�s num�iquement
-// les colonnes sont indexe par les noms des colonnes
-function db_qr_comprass($req,$lnkid="") {
-$res=db_query($req,$lnkid);
-$i=0;
-$ret = false;
-//if (db_num_rows($res)) { // car oci_num_rows ne fonctionne pas avec Oracle !!
-	while ($rep=db_fetch_assoc($res)) {
-		$ret[$i]=$rep;
-		$i++;
-		}
-	return($ret);
-//	}
-//else return (false);
-}
-
-// fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau indic�numeriquement
-function db_qr_res($req,$lnkid="") {
-
-$res=db_query($req,$lnkid);
-	$ret=db_fetch_row($res);
-	if (!$ret) 	{
-		$ret[0]="error or no record found";
-	}
-	return ($ret);
-}
-// fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau ASSOCIATIF
-function db_qr_rass($req,$lnkid="") {
-	$res=db_query($req,$lnkid);
-	$ret=db_fetch_assoc($res);
-	if (!$ret) {
-		$ret[0]="error or no record found";
-	}
-	return ($ret);
-}
-// fonction qui effecture une requete et renvoie la premi�e ligne de r�onse sous forme d'un tableau ASSOCIATIF
-function db_qr_rass2($req,$lnkid="") {
-	$res=db_query($req,$lnkid);
-	return (db_fetch_assoc($res));
-}
-
-// fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL INSERT 
-function tbset2insert($set,$addquotes=false) {
-foreach ($set as $chp=>$val) {
-	$lchp[] = $chp;
-	$vchp[] = $addquotes ? "'$val'" : $val;
-	}
-return("(".implode(",",$lchp).") VALUES (".implode(",",$vchp).")");
-}
-// fonction qui transforme un tableau tb[nomchp]=valchp en instruction SQL SET 
-function tbset2set($set,$addquotes=false) {
-foreach ($set as $chp=>$val) {
-	$lchp[] = $chp. ($addquotes ? "='$val'" : "=$val");
-	}
-return(" ".implode(",",$lchp)." ");
-}
-// doubles les cotes pour insert ds Oracle
-function dblslashes($str) {
-	return(str_replace("'","''",$str));
-}
 
 function table2htmlTable($tb,$echodir=true) {
 	$str.='<table border="1">';
@@ -773,27 +689,6 @@ enregistrements sont trouv�, et FALSE si une erreur est rencontr�, ou si la 
 La liste des enregistrements MX est plac� dans le tableau mxhosts.
 	foreach ($mxhosts as $nameh)
      	{ echo $nameh." " ;} */   
-}
-
-
-// fonction qui retourne le type d'un champ
-// Utiliser plutot la fonction ShowField qui retourne un tableau avec beaucoup plus d'infos
-function mysqft ($NOMC,$NM_TABLE)
-{
-$resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
-return (db_field_type($resf,0));
-}
-// fonction qui retourne les flags d'un champ
-// Utiliser plutot la fonction ShowField qui retourne un tableau avec beaucoup plus d'infos
-function mysqff ($NOMC,$NM_TABLE)
-{
-$resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
-return (mysql_field_flags($resf,0)); 
-}
-// fonction qui retourne un tableau de hachage des caracteristiques d'un champ
-function ShowField($NOMC,$NM_TABLE) {
-$table_def = msq("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
-return (mysql_fetch_array($table_def));
 }
 
 // retourne une liste déroulante et une boite texte
@@ -1416,7 +1311,7 @@ function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1
 /// par contre il n'y a plus d'envoi en texte simple, pas sur que ça marche avec les clients texte simple...
 $sepligne = "\r\n";
 $entete .= "MIME-Version: 1.0$sepligne";
-$entete .= "Content-Type: text/html; charset=\"$encod\"$sepligne";
+$entete .= "Content-Type: text/".(stristr($messhtml,"<html") ? "html" : "plain")."; charset=\"$encod\"$sepligne";
 $entete .= "To:$destinataire$sepligne";
 $entete .= "From:$from$sepligne";
 $entete .= $addheader; // on peut y mettre des gaziers en Cc ou Cci... par ex.
