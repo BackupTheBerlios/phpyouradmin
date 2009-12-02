@@ -182,14 +182,15 @@ function EchoCompField($type,$tbArgs=array()) {
   //! ttes les listes sont à choix multiple (condition OR sur les valeurs) sauf si spécifié
       case "LDC": // Liste d�oulante affichant les différentes valeurs du champ  
         $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="LDM">';
-	if ($this->Val2!="") $whsup=" WHERE ".$this->Val2;
-        $rqldcu=msq("SELECT $this->NmChamp from $nmtable $whsup group by $this->NmChamp order by $this->NmChamp");
+	if ($this->Val2!="") $whsup=" AND ".$this->Val2;
+	// affiche que les valeurs significatives
+        $rqldcu=msq("SELECT $this->NmChamp from $nmtable WHERE $this->NmChamp!='' $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
         $tbval["%"]= (!$valDjFilt ? $VSLD : "").$this->trad("all");
         while ($rwsq=db_fetch_row($rqldcu)) {
           $tbval[$rwsq[0]] = (is_arr_in_array($rwsq[0],$_SESSION['memFilt']['rq_'.$this->NmChamp]) ? $VSLD : "").tradLib($rwsq[0]);
           }
-        asort($tbval); // tri de la liste
+        //asort($tbval); // tri de la liste // fout la merde, le % se retrouve au milieu
         $retVal.=DispLD($tbval,"rq_".$this->NmChamp,$choixMult,$this->Fccr,false);
         break;
   

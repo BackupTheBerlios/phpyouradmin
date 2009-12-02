@@ -724,6 +724,7 @@ if ($DirEcho) { echo $retVal; } else return $retVal;
 function DispLD($tbval,$nmC,$Mult="no",$Fccr="",$DirEcho=true,$idC="") {
 global $nValRadLd,$VSLD,$SzLDM,$DispMsg;
 if ($idC=="") $idC=$nmC;
+if ($VSLD=="") $VSLD = "#SEL#";
 if (count($tbval)==0) {
    if ($DispMsg) $retVal.= "<h6>Aucune liste de valeurs disponible <br/></h6>";
    $retVal.= "<INPUT TYPE=\"hidden\" ID=\"".$idC."\"  name=\"".$nmC.($Mult!="no" ? "[]" : "")."\" value=\"\">";
