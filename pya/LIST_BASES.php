@@ -45,6 +45,7 @@ if ($nbbases != 1) { // si pas une seule base affiche écran
 	<? }
 	include ("footer.php"); 
 } else {
+	// si 1 seule base va directement à la la liste des tables de cette base
 	header ("location:LIST_TABLES.php?lc_DBName=$dbok&cfLB=vrai");
 }
 ?>
