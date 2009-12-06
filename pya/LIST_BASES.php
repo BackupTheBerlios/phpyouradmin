@@ -15,11 +15,12 @@ foreach ($resb as $tresb) {
 	$DBName=$tresb;
 	DBconnect($DBName);
 	$dbg=db_show_tables("`".$tresb."`");
-	echovar ("dbg");
+	//echovar ("dbg");
   	$admok=($dbg && in_array($TBDname,$dbg));
   // n'affiche le lien pour �ition que si la table d'admin existe dans la base
   if ($admok) {
   	$theecho.= "<LI> <A HREF=\"LIST_TABLES.php?lc_DBName=$tresb&cfLB=vrai\">$tresb</A></LI>";
+  	$dbok = $tresb;
   	$nbbases ++;
   }
 }
@@ -44,6 +45,6 @@ if ($nbbases != 1) { // si pas une seule base affiche écran
 	<? }
 	include ("footer.php"); 
 } else {
-	header ("location:LIST_TABLES.php?lc_DBName=$tresb&cfLB=vrai");
+	header ("location:LIST_TABLES.php?lc_DBName=$dbok&cfLB=vrai");
 }
 ?>
