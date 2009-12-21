@@ -1246,14 +1246,14 @@ function InitPOTable($table,$Base="",$DirEcho=true,$TypEdit="",$co_user="") {
 function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	// construction du set, necessite uniquement le nom du champ ..
 	$rq1=db_query("SELECT * from DESC_TABLES where NM_TABLE='$table' AND NM_CHAMP!='TABLE0COMM' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
-	
+
 	$key = implode("_",$tbKeys)."_";
 	$PYAoMAJ=new PYAobj();
 	$PYAoMAJ->NmBase=$DB;
 	$PYAoMAJ->NmTable=$table;
 	$PYAoMAJ->TypEdit=$typedit;
 	if (MaxFileSize>0) $PYAoMAJ->MaxFSize=MaxFileSize;
-	
+
 	$tbset = array();
 	$tbWhK = array();
 	while ($res1 = db_fetch_array($rq1)) {
@@ -1312,11 +1312,12 @@ function mail_html($destinataire, $sujet , $messhtml,  $from, $encod="iso-8859-1
 /// Grosse simplification, ça ne marchait plus sur le nouveau www avce tout ce qu'il y a dessous
 /// par contre il n'y a plus d'envoi en texte simple, pas sur que ça marche avec les clients texte simple...
 $sepligne = "\r\n";
-$entete .= "MIME-Version: 1.0$sepligne";
+$entete .= "MIME-Version: 1.0".$sepligne;
 $entete .= "Content-Type: text/".(stristr($messhtml,"<html") ? "html" : "plain")."; charset=\"$encod\"$sepligne";
-$entete .= "To:$destinataire$sepligne";
-$entete .= "From:$from$sepligne";
+$entete .= "To:".$destinataire.$sepligne;
+$entete .= "From:".$from.$sepligne;
 $entete .= $addheader; // on peut y mettre des gaziers en Cc ou Cci... par ex.
+// $entete .= "CC: sombodyelse@noplace.com$sepligne";
 //$entete .= "Date: ".date("l j F Y, G:i")."$sepligne"; // sert certainement a rien et fout la merde
 //$texte_html .= "Content-Type: text/html; charset=\"$encod\"$sepligne";
 $texte_html .= $messhtml;
