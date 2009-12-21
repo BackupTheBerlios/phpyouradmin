@@ -1013,6 +1013,7 @@ function poploup(image,titre,commentaire) {
  function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
  
  if ($ValF!=NULL && $ValF!="%") {
+ 	if (!is_array($ValF)) $ValF = $typChpNum ? ($ValF + 0) : addslashes($ValF);
     switch ($TypF) { // switch sur type de filtrage
       case "EGAL" : // special
         $ValF=trim($ValF);
