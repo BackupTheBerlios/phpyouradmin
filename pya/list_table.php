@@ -77,92 +77,165 @@ if (isset($lc_PgReq)) {
 
 $limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr LIMIT $nbligpp");
 
-// on est pas en requ�e custom
-if ($NM_TABLE!="__reqcust") {
-   // recup libell�et commentaire de la table
-   $LB_TABLE=RecLibTable($NM_TABLE,0);
-   $COM_TABLE=RecLibTable($NM_TABLE,1);
+if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la donc il faut recalculer la req
+	// on est pas en requ�e custom
+	if ($NM_TABLE!="__reqcust") {
+		// recup libell�et commentaire de la table
+		$LB_TABLE=RecLibTable($NM_TABLE,0);
+		$COM_TABLE=RecLibTable($NM_TABLE,1);
 
-   // constitution du where et des colonnes �afficher en fonction des crit�es de requetes �entuels
-   $rqrq=msq("select NM_CHAMP,TYPAFF_L from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT'");
-   // on balaye les noms de champs de cette table
-   $condexists=false;
-   $afcexists=false;
+		// constitution du where et des colonnes �afficher en fonction des crit�es de requetes �entuels
+		$rqrq=msq("select NM_CHAMP,TYPAFF_L from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT'");
+		// on balaye les noms de champs de cette table
+		$condexists=false;
+		$afcexists=false;
 
-   $first = true;
-   while ($rwrq=db_fetch_row($rqrq)) {
-     // reconstitution nom de la var du Type Requ�e
-     $NomChp=$rwrq[0];
-     $nmvarTR="tf_".$NomChp;
-     $nmvarVR="rq_".$NomChp; // Valeur de la Requete
-     if (isset($$nmvarTR) && $$nmvarVR!="") {// si ces var non nulles, il y a forc�ent une condition
-       if ($first) {
-		unset ($_SESSION['memFilt']); // nettoie le filtre au premier coup   		
-		$first = false;
-       }
-       $condexists=true;
-       $cond="";
-       $nmvarNEG="neg_".$NomChp; // Negation
-       if ($dbgn2) {
-         echovar ("nmvarTR");
-         echovar ($nmvarTR);
-         echovar ("nmvarVR");
-         echovar ("nmvarNEG");
-         }
+		$first = true;
+		while ($rwrq=db_fetch_row($rqrq)) {
+			// reconstitution nom de la var du Type Requ�e
+			$NomChp=$rwrq[0];
+			$nmvarTR="tf_".$NomChp;
+			$nmvarVR="rq_".$NomChp; // Valeur de la Requete
+			if (isset($$nmvarTR) && $$nmvarVR!="") { // si ces var non nulles, il y a forc�ent une condition
+				if ($first) {
+					unset ($_SESSION['memFilt']); // nettoie le filtre au premier coup   		
+					$first = false;
+				}
+				$condexists=true;
+				$cond="";
+				$nmvarNEG="neg_".$NomChp; // Negation
+				if ($dbgn2) {
+					echovar ("nmvarTR");
+					echovar ($nmvarTR);
+					echovar ("nmvarVR");
+					echovar ("nmvarNEG");
+				}
 
-	$tbCIL[$NomChp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
-	$tbCIL[$NomChp]->NmBase=$DBName;
-	$tbCIL[$NomChp]->NmTable=$NM_TABLE;
-	$tbCIL[$NomChp]->NmChamp=$NomChp;
-	$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
-	
-	// verrue pour avoir une requete égalité au lieu de recherche en like %val% comme avant
-	if ($$nmvarTR=="LDM" && ($tbCIL[$NomChp]->TypeAff!="LDLM" && $tbCIL[$NomChp]->TypeAff!="POPLM")) $$nmvarTR="LDMEG";
+				$tbCIL[$NomChp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
+				$tbCIL[$NomChp]->NmBase=$DBName;
+				$tbCIL[$NomChp]->NmTable=$NM_TABLE;
+				$tbCIL[$NomChp]->NmChamp=$NomChp;
+				$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
+				
+				// verrue pour avoir une requete égalité au lieu de recherche en like %val% comme avant
+				if ($$nmvarTR=="LDM" && ($tbCIL[$NomChp]->TypeAff!="LDLM" && $tbCIL[$NomChp]->TypeAff!="POPLM")) $$nmvarTR="LDMEG";
 
-       $cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
-       if ($cond!="") {
-	$_SESSION['memFilt'][$nmvarVR] = $$nmvarVR;
-       $_SESSION['memFilt'][$nmvarNEG] = $$nmvarNEG;
-	$cond=str_replace("%%","%",$cond); // virer bizareries
-         if ($where_sup!="") $where_sup.=" AND ";
-         $where_sup.=$cond;
-         }
-       } // fin si il existe un crit�e sur ce champ
-       
-     // on teste maintenant l'existence de variables de colonnes �afficher
-     $tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affich�s
-     $nmvarAfC="AfC_".$NomChp;
-     if (isset($$nmvarAfC)) {// si cette var existe, colonne s�ectionnable
-       $afcexists=true;
-       // si affichage selectionnable ne tient pas compte de TYPAFF_L
-       $tbAfC[$NomChp]=($$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif     
-       $_SESSION['memFilt'][$nmvarAfC]=$$nmvarAfC;
-       }
-     } // fin boucle sur les champs
+				$cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
+				if ($cond!="") {
+					$_SESSION['memFilt'][$nmvarVR] = $$nmvarVR;
+					$_SESSION['memFilt'][$nmvarNEG] = $$nmvarNEG;
+					$cond=str_replace("%%","%",$cond); // virer bizareries
+					if ($where_sup!="") $where_sup.=" AND ";
+					$where_sup.=$cond;
+				}
+			} // fin si il existe un crit�e sur ce champ
+			// on teste maintenant l'existence de variables de colonnes �afficher
+			$tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affich�s
+			$nmvarAfC="AfC_".$NomChp;
+			if (isset($$nmvarAfC)) {// si cette var existe, colonne s�ectionnable
+				$afcexists=true;
+				// si affichage selectionnable ne tient pas compte de TYPAFF_L
+				$tbAfC[$NomChp]=($$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif
+				$_SESSION['memFilt'][$nmvarAfC]=$$nmvarAfC;
+			}
+		} // fin boucle sur les champs
+		// ne r�nregistre que si les variables ont ��d�inies ou chang�s
+		if ($condexists) $_SESSION["where_sup"]=$where_sup; //session_register ("where_sup");
+		if ($afcexists || !(isset($_SESSION["tbAfC"]))) { // enregistre si tableau n'existait pas, ou si a chang
+			//  setcookie("cktbAfC",implode(";",$tbAfC),(time()+604800)); // m�orise la config une semaine
+			$_SESSION["tbAfC"]=$tbAfC; //session_register ("tbAfC");
+		}
+		$where = ($where_sup=="" ? "" : "where ".$where_sup);
+		$result = db_query("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
 
-   // ne r�nregistre que si les variables ont ��d�inies ou chang�s
-   if ($condexists) $_SESSION["where_sup"]=$where_sup; //session_register ("where_sup");
-   if ($afcexists || !(isset($_SESSION["tbAfC"]))) { // enregistre si tableau n'existait pas, ou si a chang
-   //  setcookie("cktbAfC",implode(";",$tbAfC),(time()+604800)); // m�orise la config une semaine
-     $_SESSION["tbAfC"]=$tbAfC; //session_register ("tbAfC");
-	 }
-   $where=($where_sup=="" ? "" : "where ".$where_sup);
-   $result=msq("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
+		$EchWher="<br><small>Condition: $where</small>";
+		$TitreHP=($ss_parenv[ro]==true ? trad('com_consultation') : trad('com_edition')).trad('com_de_la_table'). $LB_TABLE;
+	} // fin si pas req custom
+	else { // req custom
 
-   $EchWher="<br><small>Condition: $where</small>";
-   $TitreHP=($ss_parenv[ro]==true ? trad('com_consultation') : trad('com_edition')).trad('com_de_la_table'). $LB_TABLE;
-   } // fin si pas req custom
+		echo ($_REQUEST['lc_reqcust']);
 
-else { // req custom
-   $result=msq($reqcust);
+		$reqcust = $_REQUEST['lc_reqcust'];
 
-   $LB_TABLE=$ss_parenv['lbreqcust'];
-   $COM_TABLE="";
-   $TitreHP=$LB_TABLE;
-   $EchWher="<br><small>$reqcust</small>";
+		$tblvarrqc = explode(",",$_REQUEST['tblvarrqc']);
+
+		print_r($tblvarrqc);
+
+		$condexists=false;
+		$afcexists=false;
+
+		$first = true;
+
+		foreach ($tblvarrqc as $varreq) {
+			// reconstitution nom de la var du Type Requ�e
+			/// ici test de si c'est un where ...
+			$NomChp = $varreq;
+			$nmvarTR = "tf_".$NomChp; // Type de filtre
+			$nmvarVR = "rq_".$NomChp; // Valeur de la Requete
+			$nmvarNuVarrqc = "nvc_".$NomChp; // N° de la variable
+			
+			if (isset($$nmvarTR) && $$nmvarVR!="") { // si ces var non nulles, il y a forc�ent une condition
+				if ($first) {
+					unset ($_SESSION['memFilt']); // nettoie le filtre au premier coup   		
+					$first = false;
+				}
+				$condexists=true;
+				$cond="";
+				$nmvarNEG="neg_".$NomChp; // Negation
+				if ($dbgn2) {
+					echovar ("nmvarTR");
+					echovar ($nmvarTR);
+					echovar ("nmvarVR");
+					echovar ("nmvarNEG");
+				}
+
+				$tbCIL[$NomChp]=new PYAobj(); // instancie un nouvel objet en tableau pour chaque champ
+				$tbCIL[$NomChp]->NmBase=$DBName;
+				$tbCIL[$NomChp]->NmTable=$NM_TABLE;
+				$tbCIL[$NomChp]->NmChamp=$NomChp;
+				$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
+				
+				// verrue pour avoir une requete égalité au lieu de recherche en like %val% comme avant
+				if ($$nmvarTR=="LDM" && ($tbCIL[$NomChp]->TypeAff!="LDLM" && $tbCIL[$NomChp]->TypeAff!="POPLM")) $$nmvarTR="LDMEG";
+
+				$cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
+				if ($cond!="") {
+					$_SESSION['memFilt'][$nmvarVR] = $$nmvarVR;
+					$_SESSION['memFilt'][$nmvarNEG] = $$nmvarNEG;
+					$cond=str_replace("%%","%",$cond); // virer bizareries
+				}
+			} // fin si il existe un crit�e sur ce champ
+			// on teste maintenant l'existence de variables de colonnes �afficher
+			$tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affich�s
+			$nmvarAfC="AfC_".$NomChp;
+			if (isset($$nmvarAfC)) {// si cette var existe, colonne s�ectionnable
+				$afcexists=true;
+				// si affichage selectionnable ne tient pas compte de TYPAFF_L
+				$tbAfC[$NomChp]=($$nmvarAfC=="yes"); //on MAJ le tableau tableau associatif
+				$_SESSION['memFilt'][$nmvarAfC]=$$nmvarAfC;
+			}
+			$reqcust = str_replace("###".$$nmvarNuVarrqc,$cond,$reqcust);
+		} // fin boucle sur les var de requete cust
+		// ne r�nregistre que si les variables ont ��d�inies ou chang�s
+		if ($afcexists || !(isset($_SESSION["tbAfC"]))) { // enregistre si tableau n'existait pas, ou si a chang
+			//  setcookie("cktbAfC",implode(";",$tbAfC),(time()+604800)); // m�orise la config une semaine
+			$_SESSION["tbAfC"] = $tbAfC; //session_register ("tbAfC");
+		}
+
+		$_SESSION['reqcust'] = $reqcust;
+	}
+}// fin si on dit recalculer la req
+
+if ($NM_TABLE == "__reqcust") {
+	$reqcust = $_SESSION['reqcust'];
+	$result = db_query($reqcust);
+	$LB_TABLE = $ss_parenv['lbreqcust'];
+	$COM_TABLE="";
+	$TitreHP=$LB_TABLE;
+	$EchWher = "<br><small>$reqcust</small>";
 }
 
-// on compte le nombre de ligne renvoy� par la requ�e
+// on compte le nombre de ligne renvoyé par la requ�e
 $nbrows=db_num_rows($result);
 
 $title=trad('LR_title'). $NM_TABLE." , ".trad('com_database')." ". $DBName;

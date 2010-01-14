@@ -34,7 +34,7 @@ $uscrea="USCREA";// idem, avec nom user effectuant la creation
 //$uscrea="cruser_id";
 
 // table et champ personne pour affichage correct de l'usmaj
-$chpperlie="PERSONNE,PER_LCIDLDAP,PER_LLPRENOMPERS,PER_LLNOMPERS, -id=!PER_LCIDLDAP, no=!PER_NUPERS";
+$chpperlie="PERSONNE,PER_UIDPERS,PER_LLPRENOMPERS,PER_LLNOMPERS, -id=!PER_UIDPERS";
 //$chpperlie="fe_users,uid,first_name, !lastname";
 // ceci ci-dessous utilis�tout le temps
 // A POSITIONNER TOUT LE TEMPS

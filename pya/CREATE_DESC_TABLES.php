@@ -75,10 +75,11 @@ Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 <BR></h3>
 <input type="checkbox" name="AFFALL" value="vrai">Affichage des caracteristiques <u>completes</u> de chaque champ dans l'ecran suivant<BR><BR>
 <input type="checkbox" name="VALAUTO" value="vrai" checked="checked"> Affectation de valeurs automatiques pour certains champs en fonction de leur nom:<BR>
-&#149; champs contenant <?=$dtmaj?> (variable $dtmaj) : date du jour auto<BR>
-&#149; champs contenant <?=$dtcrea?> (variable $dtcrea): date du jour auto si pas nulle avant<BR>
-&#149; champs contenant <?=$usmaj?> : code user affecte (variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et lie statique par la chaine <INPUT type="text" name="usmajlnk" value="<?=$chpperlie?>"> (variable $chpperlie)<BR>
-Les variables ci-dessus sont definies dans infos.php<BR><BR>
+&#149; champs contenant <input type="text" value="<?=$dtmaj?>" name="vardtmaj"> : date du jour auto<BR>
+&#149; champs contenant <input type="text" value="<?=$dtcrea?>" name="vardtcrea">: date du jour auto si pas nulle avant<BR>
+&#149; champs contenant <input type="text" value="<?=$usmaj?>" name="varusmaj"> : code user affecte à la MAJ (variable $VarNomUserMAJ=<?=$VarNomUserMAJ?>, et lie statique par la chaine <INPUT type="text" name="usmajlnk" value="<?=$chpperlie?>"> (variable $chpperlie)<BR>
+&#149; champs contenant <input type="text" value="<?=$uscrea?>" name="varuscrea"> : code user affecte (variable $VarNomUserCREA=<?=$VarNomUserCREA?>, et lie statique par la chaine <INPUT type="text" name="uscrealnk" value="<?=$chpperlie?>"> (variable $chpperlie)<BR>
+Les variables par défaut ci-dessus sont definies dans infos.php<BR><BR>
 
 <input type="hidden" name="DBName" value="<?=$DBName?>">
 <input type="hidden" name="STEP" value="2">
@@ -267,29 +268,29 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
             $LIBELLE=$NM_CHAMP;
             $VALEURS="";
             if ($VALAUTO=="vrai") {
-               if (stristr ($NM_CHAMP,$dtmaj))
+               if (stristr ($NM_CHAMP,$_REQUEST['vardtmaj']))
                  {$TYPEAFF="STA"; // affichage statique (non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste 
                  $TT_AVMAJ="DJ"; // mise �jour auto de la date de MAJ
                  $LIBELLE="MAJ le";
                  }
-               elseif (stristr ($NM_CHAMP,$dtcrea)) 
+               elseif (stristr ($NM_CHAMP,$_REQUEST['vardtcrea']))
                  {$TYPEAFF="STA"; // affichage statique (non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste 
                  $TT_AVMAJ="DJSN";// mise �jour auto de la date de creation
                  $LIBELLE="Date Creation";
                  }
-               elseif (stristr ($NM_CHAMP,$usmaj)) 
+               elseif (stristr ($NM_CHAMP,$_REQUEST['varusmaj']))
                  {$TYPEAFF="STAL"; // affichage statique li�(non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste
                  $VALEURS=$_REQUEST['usmajlnk'];
                  $TT_AVMAJ="US";
                  $LIBELLE="MAJ par";
                  }
-	       elseif (stristr ($NM_CHAMP,$uscrea)) 
+	       elseif (stristr ($NM_CHAMP,$_REQUEST['varuscrea']))
                  {$TYPEAFF="STAL"; // affichage statique li�(non modifiable)
                  $TYPAFF_L=""; // pas d'affichage ds la liste
-                 $VALEURS=$_REQUEST['usmajlnk'];
+                 $VALEURS=$_REQUEST['uscrealnk'];
                  $TT_AVMAJ="USSN";
                  $LIBELLE="Cree par";
                  }

@@ -53,6 +53,7 @@ Merci<br><br>",
 
 "REQ_query_on_table"=>"Requête sur la table ",
 "REQ_crit_select"=>"CRITERES DE SELECTION/AFFICHAGE DE LA TABLE ",
+"REQ_crit_req_cust"=>"Paramètres de la requête utilisateur ",
 "REQ_select_text"=>"Sélectionnez critère(s) et option(s) d'affichage ",
 "REQ_clean_memFilt"=>"Nettoyez les critères ",
 "REQ_retLT"=>"Retour à la liste des tables",
