@@ -241,6 +241,7 @@ function echspan($style,$text,$DirEcho=true) {
     	return($retVal);
     }
 }
+// 
 function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer",$initDisp=false) {
 	$initDisp = $initDisp || $_SESSION['hidPosOf'.$theid];
 	$ret = '<a name="AncOfTgAf'.$theid.'"></a>';
@@ -350,16 +351,6 @@ function delfich($ChemFich) {
   if (file_exists($ChemFich)) unlink ($ChemFich);
   }
 
-// connection et s�ection �entuelle d'une base
-function msq_conn_sel($Host,$User,$Pwd,$DB="") {
-     return(db_connect($Host,$User,$Pwd,$DB)) or die ("Impossible de se connecter au serveur $Host avec le user $User, passwd: ***** ");
-	}
-
-// fonction qui effectue une requete sql, et affiche une erreur avec la requete si necessaire
-function msq($req,$lnkid="",$mserridrq="") {
-	return (db_query($req,$lnkid="",$mserridrq=""));
-}
-
 
 function table2htmlTable($tb,$echodir=true) {
 	$str.='<table border="1">';
@@ -396,15 +387,6 @@ if ($resRL) {
   return($resRL[1]);
   }
 else return (false);
-}
-
-// fonction qui r�up�e les champ libell�(0) ou commentaire(1) d'une table
-function RecLibTable($NM_TABLE,$offs) {
-global $TBDname,$NmChDT;
-$req="SELECT LIBELLE,COMMENT FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
-$reqRL=db_query($req) or die("Requete SQL de RecLibTable invalide : <I>$req</I>");
-$resRL=db_fetch_row($reqRL);
-return($resRL[$offs]);
 }
 
 // qq fonctions taleaau arrangées qui déclenchent une erreur si l'argument n'est pas un tableau..
@@ -923,5 +905,16 @@ else { // le fichier attach�n'a pas ��trouv�	$msg.="Le fichier $file qui
 }
 
 return mail($destinataire, $sujet, $msg,"Reply-to: $from\r\nFrom: $from\r\n".$header);
+}
+/// deprecated
+
+// connection et s�ection �entuelle d'une base
+function msq_conn_sel($Host,$User,$Pwd,$DB="") {
+     return(db_connect($Host,$User,$Pwd,$DB)) or die ("Impossible de se connecter au serveur $Host avec le user $User, passwd: ***** ");
+	}
+
+// fonction qui effectue une requete sql, et affiche une erreur avec la requete si necessaire
+function msq($req,$lnkid="",$mserridrq="") {
+	return (db_query($req,$lnkid="",$mserridrq=""));
 }
 ?>

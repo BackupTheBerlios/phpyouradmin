@@ -1,4 +1,78 @@
 <?
+// connection à la bdd
+function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		if ($DB=="") $DB="template1";
+		if ($portIP=="") $portIP=5432;
+		$link = pg_connect("host=$Host port=$portIP user=$User password=$Pwd dbname=$DB") or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
+		break;
+		
+	case "oracle":
+		$link = oci_connect($User,$Pwd, $DB) or die ("Impossible to connect to  oracle server, localhost, user $User, passwd: *****, db=$DB");
+		break;
+	
+	case "mysql":
+	default:
+		if ($portIP=="") $portIP=3306;
+		$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
+		if ($DB!="") {mysql_select_db($DB) or die ("Impossible d'ouvrir la base de donnees $DB.");}
+		break;
+	}
+	return($link);
+}
+
+function db_close($lnk) {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		pg_close($lnk);
+		break;
+		
+	case "oracle":
+		oci_close($lnk);
+		break;
+	
+	case "mysql":
+		default:
+		mysql_close($lnk);
+		break;
+	}
+}
+// execution requete
+function db_query($req,$lnkid="",$mserridrq=""){
+	//echo $req."\n";
+	if ($_SESSION['db_lnkid'] != "" && $lnkid=="") $lnkid = $_SESSION['db_lnkid'];
+
+	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> a la page precedente";
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		if ($lnkid=="") { // connection par la connexion courante
+    			$ret=pg_query($req) or die("<PRE><U>Requete PgSql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:     <I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
+		} else
+			$ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requ�e= <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
+		break;
+		
+	case "oracle":
+		$ret = oci_parse($lnkid,$req) or die ("parsing req oracle plante : $req") ;
+		if (!oci_execute($ret)) { 
+			print_r (oci_error($lnkid));
+			die ("execute req oracle plante:  $req");
+		}
+		oci_commit($lnkid) or die ("commit sur $lnkid plante");
+		break;
+	
+	case "mysql":
+	default:	
+		if ($lnkid=="") { // connection par la connexion courante
+			$ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  
+			else
+			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requ�e= <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
+		break;
+	}
+	return $ret;
+}
+// fonction qui renvoie un tableau �2 dim des caract�istiques du ou des champs d'une table
+
 // compte ligne dans table
 function db_count($table,$where="",$lnkid="") {
 $where = ($where !="" ? " where $where ": "");
@@ -166,7 +240,7 @@ switch($_SESSION['db_type']) {
 // Utiliser plutot la fonction ShowField qui retourne un tableau avec beaucoup plus d'infos
 function mysqft ($NOMC,$NM_TABLE)
 {
-$resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
+$resf=db_query("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
 return (db_field_type($resf,0));
 }
 // fonction qui retourne les flags d'un champ
@@ -174,7 +248,7 @@ return (db_field_type($resf,0));
 // et est compatible avec autre chose que MySql....
 function mysqff ($NOMC,$NM_TABLE)
 {
-$resf=msq("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
+$resf=db_query("select $NOMC from $CSpIC$NM_TABLE$CSpIC LIMIT 0");
 return (mysql_field_flags($resf,0)); 
 }
 // fonction qui retourne un tableau de hachage des caracteristiques d'un champ
@@ -183,79 +257,7 @@ $table_def = db_query("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (db_fetch_array($table_def));
 }
 
-
-
-function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
-	switch($_SESSION['db_type']) {
-	case "pgsql":
-		if ($DB=="") $DB="template1";
-		if ($portIP=="") $portIP=5432;
-		$link = pg_connect("host=$Host port=$portIP user=$User password=$Pwd dbname=$DB") or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
-		break;
-		
-	case "oracle":
-		$link = oci_connect($User,$Pwd, $DB) or die ("Impossible to connect to  oracle server, localhost, user $User, passwd: *****, db=$DB");
-		break;
-	
-	case "mysql":
-	default:
-		if ($portIP=="") $portIP=3306;
-		$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
-		if ($DB!="") {mysql_select_db($DB) or die ("Impossible d'ouvrir la base de donn�s $DB.");}
-		break;
-	}
-	return($link);
-}
-
-function db_close($lnk) {
-	switch($_SESSION['db_type']) {
-	case "pgsql":
-		pg_close($lnk);
-		break;
-		
-	case "oracle":
-		oci_close($lnk);
-		break;
-	
-	case "mysql":
-		default:
-		mysql_close($lnk);
-		break;
-	}
-}
-
-function db_query($req,$lnkid="",$mserridrq=""){
-	//echo $req."\n";
-	$messret="<br/><br/><a href=\"javascript:history.back()\">RETOUR</A> a la page precedente";
-	switch($_SESSION['db_type']) {
-	case "pgsql":
-	  if ($lnkid=="") { // connection par la connexion courante
-    $ret=pg_query($req) or die("<PRE><U>Requete PgSql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:     <I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);}  
-		else
-    $ret=pg_query($lnkid,$req) or die("<PRE><U>Requete pgsql invalide</U> : Id de connection =$lnkid,requ�e= <I>$req</I><br/>$mserridrq<br/><U>Erreur PgSql</U>:<I>".pg_last_error()."<br/>".pg_result_error()."</I></PRE>".$messret);
-		break;
-		
-	case "oracle":
-		$ret = oci_parse($lnkid,$req) or die ("parsing req oracle plante : $req") ;
-		if (!oci_execute($ret)) { 
-			print_r (oci_error($lnkid));
-			die ("execute req oracle plante:  $req");
-		}
-		oci_commit($lnkid) or die ("commit sur $lnkid plante");
-		break;
-	
-	case "mysql":
-	default:	
-		if ($lnkid=="") { // connection par la connexion courante
-			$ret=mysql_query($req) or die("<U>Requete mysql invalide</U> : <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:     <I>".mysql_error()."</I>".$messret);}  
-			else
-			$ret=mysql_query($req,$lnkid) or die("<U>Requete mysql invalide</U> : Id de connection =$lnkid,requ�e= <I>$req</I><br/>$mserridrq<br/><U>Erreur mysql</U>:<I>".mysql_error()."</I>".$messret);
-		break;
-	}
-	return $ret;
-}
 // fonction qui renvoie un tableau �2 dim des caract�istiques du ou des champs d'une table
-
 function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
@@ -274,7 +276,7 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 		
 	case "mysql":
 	default:	
-		$table_def = msq("SHOW FIELDS FROM $NM_TABLE");
+		$table_def = db_query("SHOW FIELDS FROM $NM_TABLE");
 		while ($row_table_def = db_fetch_array($table_def)) {
 			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
 				$NM_CHAMP=$row_table_def['Field'];

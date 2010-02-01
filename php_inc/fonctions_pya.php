@@ -1,10 +1,10 @@
 <? /*
 
-Fonctions Utiles à l'environnement PYA et PUAObj
+Fonctions Utiles à l'environnement PYA et PYAObj
 */
 // Fonction de definition de condition
-// appel� pour les def de liste
- function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
+// appelé par les listes qui récupères des critères générés par EchoFilt
+function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
  
  if ($ValF!=NULL && $ValF!="%") {
  	if (!is_array($ValF)) $ValF = $typChpNum ? ($ValF + 0) : addslashes($ValF);
@@ -159,9 +159,9 @@ Fonctions Utiles à l'environnement PYA et PUAObj
   return($cond);
 } // fin fonction SteCond
 
-// fonction qui renvoie un tableau de chaine contenant des couples Libell�"|:".valeurs
+// fonction qui renvoie un tableau de chaines contenant des couples Libellé.":|".valeurs
 // si valeur significative
-// fonction d'une requete, le tout �ant d�endant de PYA biensur..
+// fonction d'une requete, le tout étant dépendant de PYA biensur..
 function RTbVChPO($req,$dbname="",$DirEcho=false) {
 	$TbObj=InitPOReq($req,$dbname);
 	foreach ($TbObj as $PO) {
@@ -174,41 +174,46 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 
 // fonction renvoyant un tableau d'objets PYA initialis� en fonction d'une simple requ� SQL
 // les objets sont initialis� �partir des noms de champs et des noms de base du resultat
-function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1,$co_user="") {
+// $ignorErrInitPO : si true ne renvoie pas d'erreur si champ non trouvé, fait comme pr les req custom
+// $hashwnmtb : false, l'indice du tableau de hasch est le NomChamp, true c'est NomTable|NomChamp
+function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1,$co_user="",$ignorErrInitPO=false,$hashwnmtb=false) {
 global $debug, $DBName;
   if ($Base=="") $Base=$DBName;
-  $resreq=msq($req.($limit==1 ? " limit 1 " : ($limit!="no" ? " limit $limit " : "")));
+  $resreq = db_query($req.($limit==1 ? " limit 1 " : ($limit!="no" ? " limit $limit " : "")));
   if ($limit==1) {
   	$tbValChp = db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
+	if ($CIL['db_num_rows']== 0 && !($_SESSION['db_type'] == "oracle")) return (false); // le oci_num_rows ne fonctionne pas avec Oracle !!
   } else {
   	$CIL['db_num_rows'] = db_num_rows($resreq);
   	$CIL['db_resreq'] = $resreq;
-	if ($CIL['db_num_rows']== 0 && !($_SESSION['db_type'] == "oracle")) return (false); // le oci_num_rows ne fonctionne pas avec Oracle !!
   }
   
 //  print_r($tbValChp);
   for ($i=0;$i<db_num_fields($resreq);$i++) {
       $NmChamp=db_field_name($resreq,$i);
       $NTBL=db_field_table($resreq,$i);
-      $CIL[$NmChamp]=new PYAobj(); // nouvel objet
-      $CIL[$NmChamp]->NmBase=$Base;
-      $CIL[$NmChamp]->NmTable=$NTBL;
-      $CIL[$NmChamp]->NmChamp=$NmChamp;
-      $CIL[$NmChamp]->TypEdit=$TypEdit;
+	$NmChp4hash = $hashwnmtb ? $NTBL."|".$NmChamp : $NmChamp;
+      $CIL[$NmChp4hash]=new PYAobj(); // nouvel objet
+      $CIL[$NmChp4hash]->NmBase=$Base;
+      $CIL[$NmChp4hash]->NmTable=$NTBL;
+      $CIL[$NmChp4hash]->NmChamp=$NmChamp;
+      $CIL[$NmChp4hash]->TypEdit=$TypEdit;
  	// requetes custom : initialise pas le PO si mot clé ou nom de champ est un entier
-	//echo  $CIL[$NmChamp]->NmChamp.":".preg_match("/^[0-9]+$/",$CIL[$NmChamp]->NmChamp)."<br/>";
-      if (!(preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$CIL[$NmChamp]->NmChamp) || preg_match("/^[0-9]+$/",$CIL[$NmChamp]->NmChamp))) {
-      	$CIL[$NmChamp]->InitPO();
+	//echo  $CIL[$NmChp4hash]->NmChamp.":".preg_match("/^[0-9]+$/",$CIL[$NmChp4hash]->NmChamp)."<br/>";
+      if (!(preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$CIL[$NmChp4hash]->NmChamp) || preg_match("/^[0-9]+$/",$CIL[$NmChp4hash]->NmChamp))) {
+		$CIL[$NmChp4hash]->retBooInitPO = $ignorErrInitPO;
+      	$rpo = $CIL[$NmChp4hash]->InitPO();
+		if (!$rpo) $CIL[$NmChp4hash]->Libelle = $NmChp4hash; // si champ pas trouvé (table non définie) on garde son libellé
       } else {
-      	 $CIL[$NmChamp]->Libelle = $NmChamp;
+      	 $CIL[$NmChp4hash]->Libelle = $NmChp4hash;
       }
-      if ($DirEcho!=true) $CIL[$NmChamp]->DirEcho=false;
-      if ($TypEdit!="N" && $TypEdit!="") {
-      	$CIL[$NmChamp]->ValChp=$tbValChp[$NmChamp];
+      if ($DirEcho!=true) $CIL[$NmChp4hash]->DirEcho=false;
+      if ($TypEdit!="N" && $TypEdit!="" && $limit==1) {
+      	$CIL[$NmChp4hash]->ValChp=$tbValChp[$NmChamp];
       	//echo $NmChamp."->".$tbValChp[$NmChamp];
       }
-      if ($co_user!="" && $TypEdit!="C") $CIL[$NmChamp]->InitAvMaj($co_user);
-	$strdbgIPOR.=$NmChamp.", ";
+      if ($co_user!="" && $TypEdit!="C") $CIL[$NmChp4hash]->InitAvMaj($co_user);
+	$strdbgIPOR.=$NmChp4hash.", ";
     } // fin boucle sur les champs du r�ultat
   if ($debug) echo("Champs traites par la fct InitPOReq :".$strdbgIPOR."<br/>\n");
   return($CIL);
@@ -531,6 +536,15 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 		rettarbo($tabCorlb,$cle,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$niv,$whreqsup);
 	} // fin boucle sur les r�onses
 	return;
+}
+
+// fonction qui r�up�e les champ libell�(0) ou commentaire(1) d'une table
+function RecLibTable($NM_TABLE,$offs) {
+global $TBDname,$NmChDT;
+$req="SELECT LIBELLE,COMMENT FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
+$reqRL=db_query($req) or die("Requete SQL de RecLibTable invalide : <I>$req</I>");
+$resRL=db_fetch_row($reqRL);
+return($resRL[$offs]);
 }
 
 // fonction servant pr les req sql custom avec paramètres

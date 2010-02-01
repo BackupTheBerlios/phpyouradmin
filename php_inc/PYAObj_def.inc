@@ -1,45 +1,60 @@
 <?// objet PYA, permettant l'affichage de filtres, de champ dans les listes et de controle d'�ition
 class PYAobj {
 
-  var $NbCarMxCust=0;
-  var $NmBase;
-  var $NmTable;
-  var $NmChamp;
-  var $Libelle;
-  var $Typaff_l = "NOR"; // type affichage en mode liste (tableau de plusieurs enregistrements)
-  var $FieldType;
-  var $TTC; 
-  var $FieldValDef="";
-  var $ValChp;
-  var $ValChpAvMaj; // valeur champ avabt MAJ
-  var $FieldNullOk; // YES ou rien
-  var $FieldKey; // clePRI, index=MUL, unique=UNI
-  var $FieldExtra; // auto_increment
-  var $TypeAff = "AUT";
-  var $Fccr=""; // force cases a cocher/radio en place des LD. rien ou
-                // si qqchose, force. Si contient 'BR' force avec retour de lignes
-                // si contient RAD force boutons radios
-  var $Valeurs;
-  var $Val2=""; // valeurs en plus, Saluts en fonction de l'enregistrement
-  var $nmfpopl="popl.php"; // nom du fichier popup
-  var $chempopl=""; // chemin par défaut pour la popup, incluant les /
-  var $TypFilt;
-  var $TypCSA;
-  var $Tt_AvMaj;
-  var $Tt_PdtMaj;
-  var $Tt_AprMaj;
-  var $TypEdit; // important de savoir si on est en creation ("" ou N), copie(2), edition(1 ou M) ou consultation (C), effacement (-1)
-  var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
-  var $Comment;
-  var $MaxFSize; // taille max des fichiers joints !!
-  var $MaxImgWidth=0; // largeur max des images
-  var $dateInpAttribs=' class="dateinput" size="8" maxlength="10" ';
-  var $error;
+	var $NbCarMxCust=0;
+	var $NmBase;
+	var $NmTable;
+	var $NmChamp;
+	var $Libelle;
+	var $Typaff_l = "NOR"; // type affichage en mode liste (tableau de plusieurs enregistrements)
+	var $FieldType;
+	var $TTC; 
+	var $FieldValDef="";
+	var $ValChp;
+	var $ValChpAvMaj; // valeur champ avabt MAJ
+	var $FieldNullOk; // YES ou rien
+	var $FieldKey; // clePRI, index=MUL, unique=UNI
+	var $FieldExtra; // auto_increment
+	var $TypeAff = "AUT";
+	var $Fccr=""; // force cases a cocher/radio en place des LD. rien ou
+				// si qqchose, force. Si contient 'BR' force avec retour de lignes
+				// si contient RAD force boutons radios
+	var $Valeurs;
+	var $Val2=""; // valeurs en plus, Saluts en fonction de l'enregistrement
+	var $nmfpopl="popl.php"; // nom du fichier popup
+	var $chempopl=""; // chemin par défaut pour la popup, incluant les /
+	var $TypFilt;
+	var $TypCSA;
+	var $Tt_AvMaj;
+	var $Tt_PdtMaj;
+	var $Tt_AprMaj;
+	var $TypEdit; // important de savoir si on est en creation ("" ou N), copie(2), edition(1 ou M) ou consultation (C), effacement (-1)
+	var $DirEcho=true; // Direct Echo: pour savoir si on echoise direct ou renvoie la valeur
+	var $Comment;
+	var $MaxFSize; // taille max des fichiers joints !!
+	var $MaxImgWidth=0; // largeur max des images
+	var $dateInpAttribs=' class="dateinput" size="8" maxlength="10" ';
+	var $error;
+	var $retBooInitPO = false; // determine si IniPO renvoie un message d'erreur ou un boolea
+/// Méthode EchoCompField	
 // nom des classes par défaut utilisées pour EchoCompField
-  var $classDivECF = "DivECF";
-  var $classFieldECF = "FieldECF";
-  var $classLabECF = "LabECF";
-  var $classCSAECF = "CSAECF";
+	var $classDivECF = "DivECF";
+	var $classFieldECF = "FieldECF";
+	var $classLabECF = "LabECF";
+	var $classCSAECF = "CSAECF";
+// propiriétés (par défaut) utilisées par EchoCompField
+	var	$modTable=false ;// mode table / div
+	var	$br=false;//  CR après libellé
+	var	$dispComment=false;// affichage commentaire
+	var	$altLibel="";//  autre libellé que celui stocké en base
+	//Pour filtre uniquement: 
+	var	$bDN = true ;// display négation
+	var	$bDL=true ; // baratin libellés dates
+	var	$choixMult="yes"; // 
+	var	$dispCSA="yes"; // display champ sélectionnable ou n'importe quoi <> no
+	// Pour Edit uniquement : 
+	var	$DH = true; //display Hidden
+
   
   
 // methode qui initialise toutes les propriete de l'objet pour un champ
@@ -48,28 +63,31 @@ function InitPO($Val2assign="",$CcChp=false)  {
 	// Nom de la table de description des autres
 	// nom du champ contenant les caracteristiques globales a la table
 	// morceua de chaine identifiant une table virtuelle
+	$vret = true;
 	global $TBDname,$NmChDT,$id_vtb;
 	$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
 	$retVal="";
 	// verrue pour les req custom: dans le cas d'un UNION, ce con de mysql est buggué, la fonction db_field_table($resreq,$i) ne mache pas !!
 	// on cherche donc à retrouver le nom de la table via la table de description
 	if ($this->NmTable=="") {
-		$rpDF=msq("select * from $TBDname where  NM_CHAMP='$this->NmChamp'");
+		$rpDF=db_query("select * from $TBDname where  NM_CHAMP='$this->NmChamp'");
 		if (db_num_rows($rpDF) == 1) {
               $CcChp=db_fetch_assoc($rpDF);
 			$this->NmTable = $CcChp[$ult['NM_TABLE']];
 		} else {
+			$vret = false;
 			$retval = "Impossible de déterminer automatiquement la table du champ ".$this->NmChamp;
 		}
 	}
 	if ($this->NmChamp!="" && $this->NmTable!="" && $this->NmBase!="") {
 		if (!$CcChp) { // les args de champ ne sont pas passés
-			$rpDF=msq("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
+			$rpDF=db_query("select * from $TBDname where NM_TABLE='$this->NmTable' AND NM_CHAMP='$this->NmChamp'");
 			if (db_num_rows($rpDF)>0) {
 				$CcChp=db_fetch_assoc($rpDF);
 			} else {
 				$retVal .= "Champ $this->NmChamp (table :$this->NmTable, base: $this->NmBase) non trouve dans la table de description";
 				$CcChp = false;
+				$vret = false;
 			}
 		}
 		
@@ -108,17 +126,27 @@ function InitPO($Val2assign="",$CcChp=false)  {
 		} else {
 			$retVal .= "Champ non trouvé ou paramètres non passés en arguments";
 		} // fin si champ trouvé ou renseigné
-	} else $retVal .= "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie; NmChamp=".$this->NmChamp."; NmTable=".$this->NmTable."; NmBase=".$this->NmBase."<br/>\n"; 
-	if ($this->DirEcho) {
-		echo $retVal;
 	} else {
-		return($retVal);
+		$retVal .= "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie; NmChamp=".$this->NmChamp."; NmTable=".$this->NmTable."; NmBase=".$this->NmBase."<br/>\n"; 
+		$vret = false;
+	}
+
+	if ($this->retBooInitPO) {
+		return($vret);
+	} else {
+		if ($this->DirEcho) {
+			echo $retVal;
+		} else {
+			return($retVal);
+		}
 	}
 } // fin m�hode d'initialisation$DH
 
 /// methode affichage de type <div class="classDiv"><label class="classLab"  for="theField">The Label </label>(<br/>)<span class="classField">The Field</span></div>
 /// ou "<tr class="classDivECF"><td><label class="classLabECF"  for="theField">The Label </span></td><td><span class="classFieldECF">The Field</span></td></tr>
 /// s'applique aux filtres, ou edition
+/// On peut passer les args en tableau, ou comme propriétés au choix
+
 function EchoCompField($type,$tbArgs=array()) {
 	/* 
 	$type = Edit | Filt
@@ -129,36 +157,47 @@ function EchoCompField($type,$tbArgs=array()) {
 		$altLibel="": autre libellé que celui stocké en base
 	Pour filtre uniquement: 
 		$bDN (display négation)=true 
-		$bDL=true
+		$bDL=true; baratin libellé dates
 		$choixMult="yes"
 		$dispCSA="yes" ou n'importe quoi <> no
 	Pour Edit uniquement : 
 		$DH (display Hidden) = true
 	*/
-	if ($tbArgs['modTable']) {
+	foreach ($tbArgs as $c=>$v) $this->$c = $v;
+	if ($this->modTable) {
 		$retVal = '<tr class="'.$this->classDivECF.'"><td>';
 	} else $retVal = '<div class="'.$this->classDivECF.'">';
-	$retVal .= '<label class="'.$this->classLabECF.'" for="'.($type == "Filt" ? "rq_" : "").$this->NmChamp.'">'.($tbArgs['altLibel'] ? $tbArgs['altLibel'] : $this->Libelle);
-	if ($this->Comment && $tbArgs['dispComment']) $retVal .='<br/><small>'.tradLib($this->Comment).'</small>';
+	$retVal .= '<label class="'.$this->classLabECF.'" for="'.($type == "Filt" ? "rq_" : "").$this->NmChamp.'">'.($this->altLibel ? $this->altLibel : $this->Libelle);
+	if ($this->Comment && $this->dispComment) $retVal .='<br/><small>'.tradLib($this->Comment).'</small>';
 	$retVal .= '</label>';
-	if ($tbArgs['br']) $retVal .= '<br/>';
-	if ($tbArgs['modTable']) {
+	if ($this->br) $retVal .= '<br/>';
+	if ($this->modTable) {
 		$retVal .= '</td><td>';
 	}
 	$retVal .= '<span class="'.$this->classFieldECF.'">';
+	// sinon les meth  EchoEditAll & EchoFilt echoisent et ça fout la merde
+	$DirEchoSave = $this->DirEcho;
+	$this->DirEcho = false;
 	if ($type == "Edit") {
-		$retVal .= $this->EchoEditAll($tbArgs['DH']);
-	} else $retVal .= $this->EchoFilt($tbArgs['bDN'],$tbArgs['bDL'],$tbArgs['choixMult']);
+		$retVal .= $this->EchoEditAll($this->DH);
+	} elseif ($type == "Filt") {
+ 		$retVal .= $this->EchoFilt($this->bDN,$this->bDL,$this->choixMult);
+	} else {
+		$err = "<h3>type $type inconnu pour methode PYA->EchoCompField</h3>";
+		echo $err;
+		return($err);
+	}
 	$retVal .= '</span>';
-	if ($type == "Filt" && $tbArgs['dispCSA']!="no" && $this->TypCSA!="") {
-		if ($tbArgs['modTable']) {
+	if ($type == "Filt" && $this->dispCSA!="no" && $this->TypCSA!="") {
+		if ($this->modTable) {
 			$retVal .= "<td>".$this->EchoCSA()."</td>";
 		} else 	
 			$retVal .= '<div class="'.$this->classCSAECF.'" >'.$this->EchoCSA(true)."</div>\n";
 	}
-	if ($tbArgs['modTable']) {
+	if ($this->modTable) {
 		$retVal .= "</td></tr>\n";
 	} else 	$retVal .= "</div>\n";
+	 $this->DirEcho = $DirEchoSave;
 	if ($this->DirEcho) {
     		echo $retVal;
     	} else {
@@ -184,7 +223,7 @@ function EchoCompField($type,$tbArgs=array()) {
         $retVal= '<INPUT TYPE="hidden" NAME="tf_'.$this->NmChamp.'" VALUE="LDM">';
 	if ($this->Val2!="") $whsup=" AND ".$this->Val2;
 	// affiche que les valeurs significatives
-        $rqldcu=msq("SELECT $this->NmChamp from $nmtable WHERE $this->NmChamp!='' $whsup group by $this->NmChamp order by $this->NmChamp");
+        $rqldcu=db_query("SELECT $this->NmChamp from $nmtable WHERE $this->NmChamp!='' $whsup group by $this->NmChamp order by $this->NmChamp");
         //$retVal.= "<SELECT NAME=\"rq_".$this->NmChamp."[]\" MULTIPLE title=\"cliquez sur une ou plusieurs valeurs en appyant sur la touche Ctrl\">";
         $tbval["%"]= (!$valDjFilt ? $VSLD : "").$this->trad("all");
         while ($rwsq=db_fetch_row($rqldcu)) {
@@ -1174,7 +1213,7 @@ $labels = array (
 		"fat" => "Fichier attaché",
 		"null" => "vide (null)",
 		"err6" => "<H6>Erreur : la valeur ### contenue dans le champ n'est pas dans la liste ! </H6>",
-		"none" => "Auncun(e)",
+		"none" => "Aucun(e)",
 		"err7" => "<H6>Erreur : valeur(s) ### contenue(s) non presente(s) dans la liste ! </h6>",
 		"oris" => " ou elle-meme",
 		"linktof" => "Lien vers le fichier associe",
@@ -1199,7 +1238,7 @@ $labels = array (
 		"fat" => "Attached vile",
 		"null" => "empty (null)",
 		"err6" => "<H6>Error : value ### contained in field is not in the list ! </H6>",
-		"none" => "Auncun(e)",
+		"none" => "None",
 		"err7" => "<H6>Erreur : value(s) ### contained in field are not in the list ! ! </h6>",
 		"oris" => " or itself",
 		"linktof" => "Link to attached file",
