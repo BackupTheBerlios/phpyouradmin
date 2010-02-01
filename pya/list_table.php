@@ -146,10 +146,8 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 			$_SESSION["tbAfC"]=$tbAfC; //session_register ("tbAfC");
 		}
 		$where = ($where_sup=="" ? "" : "where ".$where_sup);
-		$result = db_query("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
-
-		$EchWher="<br><small>Condition: $where</small>";
-		$TitreHP=($ss_parenv[ro]==true ? trad('com_consultation') : trad('com_edition')).trad('com_de_la_table'). $LB_TABLE;
+		$_SESSION['where'] = $where;
+		$_SESSION['reqcust'];
 	} // fin si pas req custom
 	else { // req custom
 
@@ -223,6 +221,7 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 		}
 
 		$_SESSION['reqcust'] = $reqcust;
+		$_SESSION['where'] = "";
 	}
 }// fin si on dit recalculer la req
 
@@ -233,6 +232,11 @@ if ($NM_TABLE == "__reqcust") {
 	$COM_TABLE="";
 	$TitreHP=$LB_TABLE;
 	$EchWher = "<br><small>$reqcust</small>";
+} else {
+	$where =  $_SESSION['where'];
+	$result = db_query("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
+	$EchWher="<br><small>Condition: $where</small>";
+	$TitreHP=($ss_parenv[ro]==true ? trad('com_consultation') : trad('com_edition')).trad('com_de_la_table'). $LB_TABLE;
 }
 
 // on compte le nombre de ligne renvoyé par la requ�e
@@ -321,9 +325,7 @@ else // si nbr�ultat>0
 	$lctd=implode(",",$tbobjCC);
 
     $reqcust="select ".$lctd.($_SESSION[db_type]=="pgsql" ? ",oid" : "")." from $CSpIC$NM_TABLE$CSpIC";
-
   }
-
   else { // requete custom (perd l'ordre d'affichage sinon)
        $tbCIL=InitPOReq($reqcust,$DBName); // construction ey initialisation du tableau d'objets
   }
