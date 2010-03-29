@@ -24,34 +24,34 @@ if ($NM_CHAMP[$nbrows + 1] != "") {
 }
 
 for ($i=0;$i<=$nbrows;$i++) {
-  $LIBELLEt=addslashes($LIBELLE[$i]);
-  $ORDAFF_Lt=addslashes($ORDAFF_L[$i]);
+  $LIBELLEt=db_escape_string($LIBELLE[$i]);
+  $ORDAFF_Lt=db_escape_string($ORDAFF_L[$i]);
   $TYPAFF_Lt=$TYPAFF_L[$i];
-  $ORDAFFt=addslashes($ORDAFF[$i]);
+  $ORDAFFt=db_escape_string($ORDAFF[$i]);
   $TYPEAFFt=$TYPEAFF[$i];
-  $VALEURSt=addslashes($VALEURS[$i]);
-  $VAL_DEFAUTt=addslashes($VAL_DEFAUT[$i]);
+  $VALEURSt=db_escape_string($VALEURS[$i]);
+  $VAL_DEFAUTt=db_escape_string($VAL_DEFAUT[$i]);
   $TT_AVMAJt=($TT_AVMAJ[$i]!="" ? $TT_AVMAJ[$i] : $TT_AVMAJ2[$i]);
   $TT_PDTMAJt=$TT_PDTMAJ[$i];
   $TT_APRMAJt=$TT_APRMAJ[$i];
-  $TYP_CHPt=addslashes($TYP_CHP[$i]);
-  $COMMENTt=addslashes($COMMENT[$i]); 
+  $TYP_CHPt=db_escape_string($TYP_CHP[$i]);
+  $COMMENTt=db_escape_string($COMMENT[$i]);
   
-  $LIBELLEt =addslashes($LIBELLEt);
-  $ORDAFF_Lt =addslashes($ORDAFF_Lt);
-//  $TYPAFF_Lt =addslashes($TYPAFF_Lt);
-  $ORDAFFt =addslashes($ORDAFFt);
-//  $TYPEAFFt =addslashes($TYPEAFFt);
-  $VALEURSt =addslashes($VALEURSt);
-  $VAL_DEFAUTt =addslashes($VAL_DEFAUTt);
-  $TT_AVMAJt =addslashes($TT_AVMAJt);
-  $TT_PDTMAJt =addslashes($TT_PDTMAJt);
-  $TT_APRMAJt =addslashes($TT_APRMAJt);
-  $TYP_CHPt =addslashes($TYP_CHPt);
-  $COMMENTt =addslashes($COMMENTt); 
+  $LIBELLEt =db_escape_string($LIBELLEt);
+  $ORDAFF_Lt =db_escape_string($ORDAFF_Lt);
+//  $TYPAFF_Lt =db_escape_string($TYPAFF_Lt);
+  $ORDAFFt =db_escape_string($ORDAFFt);
+//  $TYPEAFFt =db_escape_string($TYPEAFFt);
+  $VALEURSt =db_escape_string($VALEURSt);
+  $VAL_DEFAUTt =db_escape_string($VAL_DEFAUTt);
+  $TT_AVMAJt =db_escape_string($TT_AVMAJt);
+  $TT_PDTMAJt =db_escape_string($TT_PDTMAJt);
+  $TT_APRMAJt =db_escape_string($TT_APRMAJt);
+  $TYP_CHPt =db_escape_string($TYP_CHPt);
+  $COMMENTt =db_escape_string($COMMENTt);
 // si dernier champ inséré
   if ($onemorefield && $i == $nbrows) {
-	$query = "INSERT INTO $TBDname (NM_TABLE ,NM_CHAMP,LIBELLE,ORDAFF_L,TYPAFF_L,ORDAFF,TYPEAFF,VALEURS,VAL_DEFAUT,TT_AVMAJ,TT_PDTMAJ,TT_APRMAJ,TYP_CHP,COMMENT)
+	$query = "INSERT INTO $TBDname (NM_TABLE ,NM_CHAMP,LIBELLE,ORDAFF_L,TYPAFF_L,ORDAFF,TYPEAFF,VALEURS,VAL_DEFAUT,TT_AVMAJ,TT_PDTMAJ,TT_APRMAJ,TYP_CHP,".$GLOBALS["NmChpComment"].")
 VALUES ('$NM_TABLE','".$NM_CHAMP[$i]."','$LIBELLEt','$ORDAFF_Lt','$TYPAFF_Lt','$ORDAFFt','$TYPEAFFt','$VALEURSt','$VAL_DEFAUTt','$TT_AVMAJt','$TT_PDTMAJt','$TT_APRMAJt','$TYP_CHPt','$COMMENTt' )";
   } else {
 	$query="UPDATE $TBDname SET 
@@ -66,7 +66,7 @@ VALUES ('$NM_TABLE','".$NM_CHAMP[$i]."','$LIBELLEt','$ORDAFF_Lt','$TYPAFF_Lt','$
 	TT_PDTMAJ='$TT_PDTMAJt',
 	TT_APRMAJ='$TT_APRMAJt',
 	TYP_CHP='$TYP_CHPt',
-	COMMENT='$COMMENTt' 
+	".$GLOBALS["NmChpComment"]."='$COMMENTt'
 	where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NM_CHAMP[$i]'";
   }
   db_query($query) or die ("req invalide : <BR><I>$query</I>");

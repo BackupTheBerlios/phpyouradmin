@@ -216,11 +216,13 @@ Les valeurs sont notamment utilisées dans:<ul>
 Les valeurs de liste sont de 3 grands types:<br>
 &#149; une liste de valeurs fixes, séparées par des , : ces valeurs sont affichées tel quel dans les types d'édition liste déroulante et liste déroulante multiples<br>
 &#149; une liste de paires de clés-valeurs fixes, (clé1:valeur1,clé2:valeur2 ...) : les valeurs sont affichées, mais ce sont les clés qui sont en fait réellement stockées dans le champ<br>
+&#149; Dans le cas d'une table virtuelle et d'un type de filtre "liste des valeurs du champ", il contient le nom de la table physique<br>
 &#149; une liste de valeurs <i>pêchées</i> dans une autre table de la base ou même d'une autre base. Ceci est le cas lorsque le type d'édition est positionné sur <u>liste déroulante liée</u>, <u>liste déroulante à choix multiple liée</u>, ou sur <u>statique liée</u>: dans ce cas le système va afficher la ou les valeur(s) d'une autre table (voir ci-dessous) en fonction de la valeur courante du champ qui représentera la clé. C'est dans ce cas que la syntaxe est la plus complexe....<br><br>
 <u>La syntaxe de liaison est :</u><ul>
 <li> si les valeurs sont situées dans une autre table de la même base, on rentrera:<br>
 NOM_TABLE,NOM_CHAMP_CLE,NOM_CHAMP_AFF1,NOM_CHAMP_AFF2,...,NOM_CHAMP_AFFn([[ expr where suppl)<br><br>
 &#149; NOM_CHAMP_CLE est le champ de la table NOM_TABLE qui aura la valeur du champ courant (clé)<br>
+Il est possible d'avoir plusieurs champ clés (clés multiples), dans ce cas on mettra NOM_CHAMP_CLE1:NOM_CHAMP_CLE2:NOM_CHAMP_CLE3 dans cette zone<br/>
 &#149; NOM_CHAMP_AFF1...,NOM_CHAMP_AFFn sont les champs de la table NOM_TABLE affichés à la suite les uns des autres, séparés par défaut par un <?=$carsepldef?> (contenu de la variable globale $carsepldef)<br><br>
 &#149;[[ expr where suppl est une clause where optionelle (par ex. <I>uid > 3 OR libelle='tata'</I> )
 <u>Rem 1</u>: si on fait précéder du caractère &amp; le nom du champ, la valeur affichée est déduite du paramètre VALEURS de ce champ dans son enregistrement de définition<br>

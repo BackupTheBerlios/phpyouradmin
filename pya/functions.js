@@ -1,5 +1,5 @@
 /* auteur: Artec-VM */
-/* Date de création: 19/11/2002 */
+/* Date de crï¿½ation: 19/11/2002 */
 
 function setSelectOptions(the_form, the_select, do_check)
 {
@@ -12,3 +12,8 @@ function setSelectOptions(the_form, the_select, do_check)
 
     return true;
 } // end of the 'setSelectOptions()' function
+
+// fonction trim eq php
+function trim (aString) {
+	return aString.replace(/^\s+/g,'').replace(/\s+$/g,'');
+}

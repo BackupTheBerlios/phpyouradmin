@@ -85,9 +85,10 @@ function MajClose() {
         // on remplace par les 3 lignes ci-dessous et ca marche
     	destList.options.length++;
     	destList.options[l].value=srcList.options[i].value;
-	destList.options[l].text=srcList.options[i].text;
+    	//alert(srcList.options[i].value);
+		destList.options[l].text=srcList.options[i].text;
         
-	destList.options[destList.options.length - 1].selected = true;
+		destList.options[destList.options.length - 1].selected = true;
 	//destList.options[ -1].selected=true;
     }
   }

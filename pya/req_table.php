@@ -32,8 +32,9 @@ $NoConfSuppr=$lc_NoConfSuppr;
 $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
 
 // regarde s'il existe des filtres ou selection d'affichage de colonnes, que si pas de req custom
+
 if ($lc_NM_TABLE!="__reqcust") {
-   $qr = db_query("SELECT NM_CHAMP from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='$lc_NM_TABLE' AND (VAL_DEFAUT!='' OR TYP_CHP!='') AND TYPAFF_L!='' order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
+   $qr = db_query("SELECT NM_CHAMP from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='$lc_NM_TABLE' AND (VAL_DEFAUT".$GLOBALS['sqllenstr0']."  OR TYP_CHP".$GLOBALS['sqllenstr0'].") AND TYPAFF_L".$GLOBALS['sqllenstr0']." order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
    $nbrqr=db_num_rows($qr);
 } else {
 	$tbargscust = parseArgsReq($reqcust);
@@ -41,7 +42,9 @@ if ($lc_NM_TABLE!="__reqcust") {
 }
 // sinon, va directement sur la liste de réponses
 if ($nbrqr==0) {
-  header("location: list_table.php?lc_NM_TABLE=$lc_NM_TABLE&lc_where_sup=".urlencode($lc_where_sup)."&lc_nbligpp=$lc_nbligpp&lc_PgReq=0&lc_reqcust=".$_REQUEST['lc_reqcust']);
+	$url = "list_table.php?lc_NM_TABLE=$lc_NM_TABLE&lc_where_sup=".urlencode($lc_where_sup)."&lc_nbligpp=$lc_nbligpp&lc_PgReq=0&lc_reqcust=".urlencode($_REQUEST['lc_reqcust']);
+	outJS("window.location.replace('$url')",true) ;
+  //header("location: $url");
   die();
 }
 
@@ -75,16 +78,15 @@ if (!$tbargscust) { // pas requête Custom
 	$FCobj->NmTable=$lc_NM_TABLE;
 	$FCobj->NmBase=$DBName;
 	$nolig=0;
-	while ($res=db_fetch_array($qr))
-	{
-	$nolig++;
-	$FCobj->NmChamp=$res[$ult[NM_CHAMP]];
-	$FCobj->InitPO();
-	echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD><B>$FCobj->Libelle</B><BR><small>$FCobj->Comment</small></TD><TD>";
-	$FCobj->EchoFilt();
-	echo "</TD><TD>";
-	$FCobj->EchoCSA();
-	echo "</TD></TR>\n";
+	while ($res=db_fetch_array($qr)) {
+		$nolig++;
+		$FCobj->NmChamp=$res[$ult[NM_CHAMP]];
+		$FCobj->InitPO();
+		echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD><B>$FCobj->Libelle</B><BR><small>$FCobj->Comment</small></TD><TD>";
+		$FCobj->EchoFilt();
+		echo "</TD><TD>";
+		$FCobj->EchoCSA();
+		echo "</TD></TR>\n";
 	}
 } else { // req custom
 	echo "<H1>".trad("REQ_crit_req_cust").$_SESSION["reqcust_name"]."</H1>";

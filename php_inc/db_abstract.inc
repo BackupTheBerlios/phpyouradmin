@@ -1,23 +1,36 @@
 <?
 // connection à la bdd
 function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
+	$GLOBALS["NmChpComment"] = $_SESSION['db_type'] == "oracle" ? "COMMENT2" : "COMMENT"; // nom de champ COMMENT interdit dans Oracle
+	$GLOBALS["CisChpp"] = $_SESSION['db_type'] == "mysql" ? "`" : ""; // caractère d'isolation des champs péraves
 	switch($_SESSION['db_type']) {
-	case "pgsql":
-		if ($DB=="") $DB="template1";
-		if ($portIP=="") $portIP=5432;
-		$link = pg_connect("host=$Host port=$portIP user=$User password=$Pwd dbname=$DB") or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
-		break;
+		case "pgsql":
+			if ($DB=="") $DB="template1";
+			if ($portIP=="") $portIP=5432;
+			$link = pg_connect("host=$Host port=$portIP user=$User password=$Pwd dbname=$DB") or die ("Impossible to connect to PgSql server $Host, user $User, passwd: *****, db=$DB");
+			$GLOBALS["NmChpOid"] = "oid";
+			$GLOBALS["id_vtb"] = "TBAS_";
+			$GLOBALS['sqllenstr0'] = " !='' ";
+			break;
+			
+		case "oracle":
+			$link = oci_connect($User,$Pwd, $DB) or die ("Impossible to connect to  oracle server, localhost, user $User, passwd: *****, db=$DB");
+			// met le format date par défaut identique à celui de mysql et pgsql pour pas etre emmerdé
+			db_query("ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD'",$link);
+			$GLOBALS["NmChpOid"] = "ROWID";
+			$GLOBALS['sqllenstr0'] = " IS NOT NULL "; // ces blaireaux d'oracle considèrent une chaine vide comme NULL
+			$GLOBALS["id_vtb"] = "TBAS_";
+			break;
 		
-	case "oracle":
-		$link = oci_connect($User,$Pwd, $DB) or die ("Impossible to connect to  oracle server, localhost, user $User, passwd: *****, db=$DB");
-		break;
-	
-	case "mysql":
-	default:
-		if ($portIP=="") $portIP=3306;
-		$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
-		if ($DB!="") {mysql_select_db($DB) or die ("Impossible d'ouvrir la base de donnees $DB.");}
-		break;
+		case "mysql":
+		default:
+			if ($portIP=="") $portIP=3306;
+			$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
+			$GLOBALS['NmChpOid'] = "";
+			$GLOBALS['sqllenstr0'] = "!=''";
+			$GLOBALS["id_vtb"] = "_vtb_";
+			if ($DB!="") mysql_select_db($DB) or die ("Impossible d'ouvrir la base de donnees $DB.");
+			break;
 	}
 	return($link);
 }
@@ -59,6 +72,7 @@ function db_query($req,$lnkid="",$mserridrq=""){
 			die ("execute req oracle plante:  $req");
 		}
 		oci_commit($lnkid) or die ("commit sur $lnkid plante");
+		$_SESSION['lastOciRq'][$ret] = $req; // memorise la req pour le db_num_rows qui ne marche pas avec oracle
 		break;
 	
 	case "mysql":
@@ -71,15 +85,65 @@ function db_query($req,$lnkid="",$mserridrq=""){
 	}
 	return $ret;
 }
-// fonction qui renvoie un tableau �2 dim des caract�istiques du ou des champs d'une table
+// fonction qui trafique une req sql pr lui rajouter une clause LIMIT
+/** AVEC ORACLE c'EST LE BORDEL MONSTRE
+Voir l'explication du comportement de ROWNUM là http://www.oracle.com/technology/oramag/oracle/06-sep/o56asktom.html
+Comme oracle compte les résultats au fur et à mesure, une req "select * from t where ROWNUM > 1;" ne ramene JAMAIS rien
+
+L'astuce (pourrie) trouvée : on appelle la requete sans condition basse et on affiche pas les $FirstEnr premiers résultats
+
+$GLOBALS["NmChpOid"] est le champs masqué qui sert de clé/identifiant d'enregistrement
+**/
+function addwherefORlimit($sql,$nblimit,$offset=0) {
+	switch ($_SESSION['db_type']) {
+		case "mysql":
+			if (!stristr($sql,"LIMIT")) { // si pas deja une clause de limite
+				$limitc =  " LIMIT ".($offset>0 ? "$offset," : "").$nblimit;
+				$sql .= $limitc; /// on simplifie, normalement il faudrait insérer la clause limit avant "PROCEDURE,FETCH,FOR"
+			}
+			break;
+		
+		case "pgsql":
+			if (!stristr($sql,"LIMIT") && !stristr($sql,"OFFSET")) { // si pas deja une clause de limite
+				$limitc =  " OFFSET $offset LIMIT $nblimit";
+				$sql .= $limitc; /// on simplifie, normalement il faudrait insérer la clause limit avant "PROCEDURE,FETCH,FOR"
+			}
+			break;
+	
+		case "oracle" :
+			if (!stristr($sql,"ROWNUM")) { // si pas deja une clause de limite
+
+				//$wherelimit = " (ROWNUM >= $FirstEnr AND ROWNUM <= ".($FirstEnr + $nbligpp).") ";
+				$wherelimit = " (ROWNUM <= ".($offset + $nblimit).") "; // voire "REMARQUE SUR LES CLAUSES LIMIT au début de ce fichier"
+
+				if (stristr($sql,"where")) { // si deja "where toto" rajoute "where $wherelimit AND toto"
+					$sql = str_ireplace('where','where'.$wherelimit.' AND ',$sql);
+				} else { // si pas where
+					$tbsqlkw = array(" group "," having "," window "," union "," intercept "," expect "," order ");
+					// recherche les mots clés ci-dessus et rajoute where $wheerlimit avant
+					foreach ($tbsqlkw as $sqlkw) {
+					if (stristr($sql,$sqlkw)) {
+						return (str_ireplace($sqlkw,' WHERE '.$wherelimit.$sqlkw,$sql));
+						}
+					}
+					// si pas trouvé
+					$sql .= ' WHERE '.$wherelimit;
+				}
+			}
+			break;
+	}
+	return($sql);
+}
+
 
 // compte ligne dans table
 function db_count($table,$where="",$lnkid="") {
-$where = ($where !="" ? " where $where ": "");
+$where = ($where !="" && !stristr($where,"where")) ? " where $where ": $where;
 $res= db_query("select count(*) from $table $where",$lnkid);
 $ret = db_fetch_row($res);
 return ($ret[0]);
 }
+
 
 // fonction qui effectue une requ�e et renvoie toutes les lignes dans un tableau 
 // les lignes sont index�s num�iquement
@@ -153,13 +217,31 @@ foreach ($set as $chp=>$val) {
 	}
 return(" ".implode(",",$lchp)." ");
 }
+
+function db_escape_string($str) {
+	switch($_SESSION['db_type']) {
+	case "pgsql":
+		return(pg_escape_string($str));
+		break;
+		
+	case "oracle":
+		return(dblslashes($str));
+		break;
+	
+	case "mysql":
+		default:
+		return(mysql_real_escape_string($str));
+		break;
+	}
+}
+
 // doubles les cotes pour insert ds Oracle
 function dblslashes($str) {
 	return(str_replace("'","''",$str));
 }
 
 // fonction qui renvoie le tableau des champs de PYA
-// en fonction de la sensibilit��la casse du sgbd
+// en fonction de la sensibilité à la casse du sgbd
 function rtb_ultchp() {
 if (db_case_sens()) {
 	return array(
@@ -230,6 +312,7 @@ switch($_SESSION['db_type']) {
 		break;
 		
 	case "mysql":
+	case "oracle":
 		default:
 		return(true);
 		break;
@@ -255,10 +338,10 @@ return (mysql_field_flags($resf,0));
 function ShowField($NOMC,$NM_TABLE) {
 $table_def = db_query("SHOW FIELDS FROM $CSpIC$NM_TABLE$CSpIC LIKE '$NOMC'");
 return (db_fetch_array($table_def));
-}
 
+}
 // fonction qui renvoie un tableau �2 dim des caract�istiques du ou des champs d'une table
-function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
+function db_table_defs($NM_TABLE,$NM_CHAMPD="*",$owner="") {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		$table_def= db_query("select $NM_CHAMPD from $NM_TABLE LIMIT 1");
@@ -275,7 +358,6 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 		break;
 		
 	case "mysql":
-	default:	
 		$table_def = db_query("SHOW FIELDS FROM $NM_TABLE");
 		while ($row_table_def = db_fetch_array($table_def)) {
 			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['Field']) {
@@ -289,6 +371,43 @@ function db_table_defs($NM_TABLE,$NM_CHAMPD="*") {
 			}
 		} 
 		break;
+
+	case "oracle":
+		if ($owner!="") $whown =  " AND TC.OWNER='$owner' ";
+		$table_def = db_query("SELECT TC.COLUMN_NAME, TC.DATA_TYPE, TC.DATA_LENGTH, TC.DATA_PRECISION,
+        TC.DATA_SCALE, TC.NULLABLE, TC.DATA_DEFAULT
+      FROM ALL_TAB_COLUMNS TC
+      WHERE TC.TABLE_NAME='$NM_TABLE'
+      $whown
+      ORDER BY COLUMN_ID");
+		while ($row_table_def = db_fetch_array($table_def)) {
+			if ($NM_CHAMPD=="*" || $NM_CHAMPD==$row_table_def['COLUMN_NAME']) {
+				$NM_CHAMP=$row_table_def['COLUMN_NAME'];
+				$ret[$NM_CHAMP]['FieldType']=$row_table_def['DATA_TYPE'];
+				$ret[$NM_CHAMP]['FieldValDef']=$row_table_def['DATA_DEFAULT'];
+				$ret[$NM_CHAMP]['FieldNullOk']=(strtoupper($row_table_def['NULLABLE'])=="Y" ? "yes" : "no"); // YES ou rien
+				/*$ret[$NM_CHAMP]['FieldKey']=($row_table_def['Key']!="" ? $row_table_def['Key'] : ""); // cl�PRI, index=MUL, unique=UNI
+				$ret[$NM_CHAMP]['FieldExtra']=$row_table_def['Extra']; // auto_increment
+
+				Pour d infos sur les index faire un $tb = db_qr_comprass("select * from ALL_IND_COLUMNS WHERE TABLE_NAME='CHEVAL'");
+					 [INDEX_OWNER] => HARASIRE
+					[INDEX_NAME] => PK_CHEVAL
+					[TABLE_OWNER] => HARASIRE
+					[TABLE_NAME] => CHEVAL
+					[COLUMN_NAME] => CHE_NUCHEVAL
+					[COLUMN_POSITION] => 1
+					[COLUMN_LENGTH] => 8
+					[CHAR_LENGTH] => 8
+					[DESCEND] => ASC
+					*/
+			}
+		} 
+		break;
+
+	default:
+		$ret=false;
+		break;
+		
 	}
 	return($ret);
 }     
@@ -300,7 +419,16 @@ function db_num_rows($res) {
 		break;
 		
 	case "oracle":
-		return(oci_num_rows($res));
+	/*int oci_num_rows ( resource stmt ) oci_num_rows retourne le nombre de lignes affectées durant la dernière commande Oracle stmt
+.	!!Note!! Cette fonction ne retourne pas le nombre de lignes sélectionnées. Pour les commandes de type SELECT, cette fonction va retourner le nombre de ligne qui ont été lues dans le buffer avec oci_fetch* */
+	if ($_SESSION['lastOciRq'][$res] && stristr($_SESSION['lastOciRq'][$res],"select")) {
+			$rqs = $_SESSION['lastOciRq'][$res];
+			$ifrom = stripos($rqs,"from");
+			//die("select count(*) ".substr($rqs,$ifrom));
+			$rp = db_qr_compres("select count(*) ".substr($rqs,$ifrom));
+			return($rp[0][0]);
+		} else
+			return(oci_num_rows($res));
 		break;
 	
 	case "mysql":
@@ -323,12 +451,12 @@ function db_last_id($res="") {
 	}
 }
 
-// renvoie un tableau de la liste des bases
+// renvoie un tableau de la liste des bases / Owners sous Oracle
 function db_show_bases() {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		$sql = "SELECT pdb.datname AS Database, pu.usename AS datowner, pg_encoding_to_char(encoding) AS datencoding, 
-					(SELECT description FROM pg_description pd WHERE pdb.oid=pd.objoid) AS datcomment 
+					(SELECT description FROM pg_description pd WHERE pdb.oid=pd.objoid) AS datcomment
 					FROM pg_database pdb, pg_user pu
 					WHERE pdb.datdba = pu.usesysid 
 					AND pdb.datname NOT LIKE 'template%'
@@ -336,36 +464,53 @@ function db_show_bases() {
 		break;
 	
 	case "mysql":
-	default:
 		$sql="SHOW DATABASES";
 		break;
-	}
+	
+	case "oracle":
+		$sql="SELECT DISTINCT OWNER FROM ALL_TABLES
+      ORDER BY OWNER";
+		break;
+}
 	$rep=db_query($sql);
-	if (db_num_rows($rep) > 0) {
+	if (db_num_rows($rep) > 0 || $_SESSION['db_type']=="oracle") {
 		while ($res=db_fetch_row($rep)) $ret[]=$res[0];
 		return($ret);
 	} else return (false);
 }
 
-function db_show_tables($DB) {
+function db_show_tables($DB="",$showSysTables=false) {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		$sql = "select relname from pg_stat_user_tables order by relname";
 		break;
 	
 	case "mysql":
-	default:
 		$sql="SHOW TABLES FROM $DB";
 		break;
+
+	case "oracle":
+		//$DB="";
+		//$sql="SELECT table_name FROM all_tables WHERE 1=1 ".($DB!="" ? " AND OWNER=upper('$DB') ": "")." ORDER BY table_name";
+		if (!$showSysTables) $whereHST = " where table_name NOT LIKE '%$%' ";
+		$sql="SELECT distinct table_name FROM all_tables $whereHST ORDER BY table_name";
+		break;
 	}
+
+	
 	$rep=db_query($sql);
-	if (db_num_rows($rep) > 0) {
-		while ($res=db_fetch_row($rep)) $ret[]=$res[0];
+	
+	while ($res=db_fetch_row($rep)) {
+		 $ret[]=$res[0];
+			//if (!strstr($res[0],"$")) $ret[]=$res[0]; // special oracle
+			
+	}
+	if (is_array($ret)) {
 		return($ret);
 	} else return (false);
 }
 
-function db_show_fields($table,$dispview=false) {
+function db_show_fields($table,$owner="") {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
 		$sql="
@@ -380,12 +525,29 @@ function db_show_fields($table,$dispview=false) {
 		break;
 	
 	case "mysql":
-	default:
 		$sql="SHOW FIELDS FROM $table";
+		break;
+	
+	case "oracle":
+		if ($owner != "") $whown = " AND OWNER='$owner' ";
+		$sql = "SELECT TC.COLUMN_NAME, TC.DATA_TYPE, TC.DATA_LENGTH, TC.DATA_PRECISION,
+        TC.DATA_SCALE, TC.NULLABLE, TC.DATA_DEFAULT
+      FROM ALL_TAB_COLUMNS TC
+      WHERE TC.TABLE_NAME='$table'
+      $whown
+      ORDER BY COLUMN_ID";
+      
+      $sql = "SELECT TC.*
+      FROM ALL_TAB_COLUMNS TC
+      WHERE TC.TABLE_NAME='$table'
+      $whown
+      ORDER BY COLUMN_ID";
+      	return (db_qr_comprass($sql));
+
 		break;
 	}
 	$rep=db_query($sql);
-	if (db_num_rows($rep) > 0) {
+	if (db_num_rows($rep) > 0 || $_SESSION['db_type']=="oracle") {
 		while ($res=db_fetch_row($rep)) $ret[]=$res[0];
 		return($ret);
 	} else return (false);
@@ -418,7 +580,7 @@ function db_field_name($res,$i) {
 		break;
 	
 	case "oracle":
-		return(oci_field_name($stmt,$i));
+		return(oci_field_name($res,($i + 1))); // dans oracle les index de champ commencent à 1
 		break;
 		
 	case "mysql":
@@ -442,7 +604,7 @@ function db_field_size($res,$i) {
 		break;
 		
 	case "oracle":
-		return(oci_field_size($res,$i));
+		return(oci_field_size($res,($i + 1)));// dans oracle les index de champ commencent à 1
 		break;
 	
 	case "mysql":
@@ -459,7 +621,7 @@ function db_field_type($res,$i) {
 		break;
 		
 	case "oracle":
-		return(oci_field_type($res,$i));
+		return(oci_field_type($res,($i + 1)));// dans oracle les index de champ commencent à 1
 		break;
 	
 	case "mysql":
@@ -470,14 +632,23 @@ function db_field_type($res,$i) {
 }
 
 // renvoie les tables d'un champ lors d'une requ�e
-function db_field_table($res,$i) { // !! attention pas d'equivalent en postgresql !!
+/// !! sur Oracle et pgsql, cette fonction ne fonctionne que s'il n'existe pas 2 champs portant le m�e nom dans la base !!
+/// si ça renvoie la première réponse....
+function db_field_table($res,$i) { // !! attention pas d'equivalent en postgresql ni en Oracle !!
 	switch($_SESSION['db_type']) {
 	case "pgsql": // dur dur �d�erminer
 	
-	// !! cette fonction de fonctionne que s'il n'existe pas 2 champs portant le m�e nom dans la base !!
-
 		$rep=db_qr_res("select pg_class.relname from pg_class,pg_attribute where pg_class.oid=pg_attribute.attrelid and pg_attribute.attname='".db_field_name($res,$i)."' and pg_class.relkind='r'");
 		return($rep[0]);
+		break;
+	
+	case "oracle":
+		$rep = db_qr_compres("select TABLE_NAME from ALL_TAB_COLUMNS where COLUMN_NAME='".db_field_name($res,$i)."'");
+		if (count($rep==1)) { // retour seulement si univoque..
+			return($rep[0][0]);
+		} else {
+			return("");
+		}
 		break;
 		
 	case "mysql":

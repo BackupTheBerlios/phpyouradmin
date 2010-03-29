@@ -10,7 +10,7 @@ if ($modif=="C") {
    }
 
 if ($NM_TABLE!="__reqcust") {
-   // recup libell�et commentaire de la table
+   // recup libelle et commentaire de la table
    $LB_TABLE=RecLibTable($NM_TABLE,0);
    $COM_TABLE=RecLibTable($NM_TABLE,1);
 
@@ -60,7 +60,8 @@ $keyfich = $keyfich [1];?>
 <INPUT TYPE="hidden" NAME="keyfich" value="<? echo ($modif!=2 ? $keyfich :"") ?>">
 <?
 
-$reqLChp="SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE";
+//$reqLChp="SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE";
+$reqLChp="SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF, LIBELLE"; // on a besoin de TOUTES les valeurs à cause des clés multiples éventuelles
 
 if ($modif==1 || $modif==2) { // recup des valeurs de l'enregistrement
     $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
@@ -98,31 +99,30 @@ if ($NM_TABLE!="__reqcust") {
 else { // requete custom
      $ECT=InitPOReq($reqcust." ".$where,$DBName);
 }
-if ($poplex) JSpopup(); // s'il existe au moins une edition en popup li� colle le code d'ouverture d'une popup
+if ($poplex) JSpopup(); // s'il existe au moins une edition en popup lié colle le code d'ouverture d'une popup
 ?>
 <TABLE BORDER="1" BORDERCOLOR="#FFF3F3" CELLSPACING="0" CELLPADDING="2">
 <?
-
 foreach ($ECT as $PYAObj) {
-  if ($ss_parenv['ro']==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eq sp�iale
+  if ($ss_parenv['ro']==true || $NM_TABLE=="__reqcust") $PYAObj->TypEdit="C"; // en consultation seule en readonly ou eqiale
   $NM_CHAMP=$PYAObj->NmChamp;
-  if ($modif!="") $PYAObj->ValChp=$tbValChp[$NM_CHAMP]; // si pas cr�tion (edit ou copy recup la val)
+  if ($modif!="") $PYAObj->AffVal($tbValChp); // si pas creation (edit ou copy recup la val)
 
-  // ICI les traitements avant Mise �Jour
-  if ($modif==2) { // en cas de COPIE on annule la valeur auto incr�ent�
+  // ICI les traitements avant Mise a Jour
+  if ($modif==2) { // en cas de COPIE on annule la valeur auto incremente
     if (stristr($PYAObj->FieldExtra,"auto_increment")) $PYAObj->ValChp="";
     }
 
   // traitement valeurs avant MAJ
   $PYAObj->InitAvMaj($$VarNomUserMAJ);
 
-  if ($PYAObj->TypeAff!="HID") {
+  if ($PYAObj->TypeAff!="HID" && $PYAObj->TypeAff!="") {
       echo "<TR><TD>".$PYAObj->Libelle;
 
     if ($PYAObj->Comment!="") echo "<BR><span class=\"legendes9px\">".$PYAObj->Comment."</span>";
      echo "</TD>\n<TD>";
 
-    $PYAObj->EchoEditAll(false); // n'affiche pas les champs cach�!!!!!!!!!!!!!!!! //
+    $PYAObj->EchoEditAll(false); // n'affiche pas les champs caches!!!!!!!!!!!!!!!! //
 
      echo "</TD>\n</TR>"; //finit la ligne du tableau
    } else

@@ -6,16 +6,16 @@ $_SESSION['NM_TABLE']="";
 $_SESSION['DBName']="";
 include_once("reg_glob.inc");
 $title=trad("LB_title"). $_SERVER["HTTP_HOST"] ."( IP=".gethostbyname($_SERVER["HTTP_HOST"]).")";
-$lnkbdd=DBconnect(false);
+$lnkbdd=DBconnect($_REQUEST['lc_parenv[MySqlBddName]']);
 //mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");
-?>
-<? $resb=db_show_bases();
+
+$resb=db_show_bases();
+
 // liste toutes les bases
 foreach ($resb as $tresb) {
-	$DBName=$tresb;
+	$DBName = $tresb;
 	DBconnect($DBName);
-	$dbg=db_show_tables("`".$tresb."`");
-	//echovar ("dbg");
+	$dbg=db_show_tables($GLOBALS["CisChpp"].$tresb.$GLOBALS["CisChpp"]);
   	$admok=($dbg && in_array($TBDname,$dbg));
   // n'affiche le lien pour �ition que si la table d'admin existe dans la base
   if ($admok) {

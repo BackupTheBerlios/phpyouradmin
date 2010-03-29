@@ -14,16 +14,8 @@ $VSLD="#SEL#"; // caract�es ins��en d�ut de valeur de listes indiquant l
 $maxrepld=2000;
 $carsepldef="-"; // caract�e par d�aut s�arant les valeur dans les listes d�oulantes
 $maxprof=10; // prof max des hi�archies
-$CSpIC=""; // caract�e pour "isoler" les noms de champs merdiques
 // ne fonctionne qu'avec des versions r�entes de MySql
 $MaxFSizeDef = 5000000; // taille max des fichiers joints par d�aut!!
-
-// Nom de la table de description des autres
-$TBDname="DESC_TABLES";
-// nom du champ contenant les caract�istiques globales �la table
-$NmChDT="TABLE0COMM";
-// id contenu ds les tables virtuelles ie celles qui n'existent pas en base
-$id_vtb="_vtb_";
 
 // tableau des évenements verification de formulaire auto
 $tbEvenmtVFAutoJS = array ("notNull" => "Non vide",
@@ -37,6 +29,7 @@ $tbEvenmtVFAutoJS = array ("notNull" => "Non vide",
 
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";
+define("sepNmTableNmChp","#"); // met pas le . comme ça serait normal, car si un point
 
 // abstraction BDD
 require_once("db_abstract.inc");
@@ -227,7 +220,7 @@ function escape($text)
 {
   if(!get_magic_quotes_gpc())
   {
-    $text = addslashes($text);
+    $text = db_escape_string($text);
   }
   return($text);
 } 
@@ -410,7 +403,6 @@ foreach ($tb2 as $k=>$v) {
 }
 return($tb3);
 }
-// FIN ENSEMBLE DE FONCTIONS NECESSAIRES A ttChpLink
 
 // convertit une chaine de type 0:Non demandé,1:Refusé,2:Accepté,3:A revoir en tableau de hachage
 function hash_explode($string,$sep1=":",$sep2=",") {
@@ -485,7 +477,7 @@ if (count($tbval)==0) {
 elseif ((count($tbval)>$nValRadLd && $Fccr=="") || $Fccr=="LDF") { 
 // liste déroulante: nbre val suffisantes et pas de forcage 
    if ($Mult!="no") $title = "Appuyez sur la touche Ctrl pour s&eacute;lectionner plusieurs valeurs";
-  //$retVal.= "<SELECT ondblclick=\"document.theform.submit();\" TITLE=\"$title\" ID=\"".$idC."\" NAME=\"".$nmC; // met l merde dans gdp2
+  //$retVal.= "<SELECT ondblclick=\"document.theform.submit();\" TITLE=\"$title\" ID=\"".$idC."\" NAME=\"".$nmC; // le dbl click met l merde dans gdp2
   $retVal.= "<SELECT TITLE=\"$title\" ID=\"".$idC."\" NAME=\"".$nmC;  
   $SizeLDM=min($SzLDM,count($tbval));
   $retVal.= ($Mult!="no" ? "[]\" MULTIPLE=\"MULTIPLE\" SIZE=\"$SizeLDM\">" : "\">");

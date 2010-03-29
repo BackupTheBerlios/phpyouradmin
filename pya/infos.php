@@ -11,6 +11,7 @@ $jsppwd="toto"; // mot de passe pour acc�er aux pages prot��s
 //$CSpIC=""; // caract�e pour "isoler" les noms de champs merdiques
 // ne fonctionne qu'avec des versions r�entes de MySql
 include_once("fonctions.php");
+define("DefOutNmTblInHtmlVarName",true); // met les noms de table dans les var html
 $ldajaxdynsize=10; //taille en nbre d'éléments des liste de sélection ajax dynamiques des popl
 $ldajaxdynwidth=250; //idem largeur en px
 $def_lang="fr";
@@ -20,7 +21,7 @@ $tb_noLangs=array("fr"=>"0","en"=>"1"); // PYA se sert d'un n°
 $tb_encodes=array("utf-8"=>"#SEL#utf8","iso-8859-1"=>"iso-8859-1");
 
 
-$tb_dbtype=array("mysql"=>"#SEL#mysql","pgsql"=>"postGresql");
+$tb_dbtype=array("mysql"=>"#SEL#mysql","oracle"=>"Oracle","pgsql"=>"postGresql");
 
 $admadm_color="#FF9900"; // couleur pour l'administration
 // A POSITIONNER LORS DE LA CREATION (lancement de CREATE_DESC_TABLES)
@@ -46,7 +47,6 @@ $def_adrr["req_table.php"]="LIST_TABLES.php";
 $def_adrr["list_table.php"]="LIST_TABLES.php";
 $def_adrr["edit_table.php"]="list_table.php";
 
-
 // fonction qui renvoie l'adresse de retour d'une page
 // si la variable de session correspondante est d�inie
 // la renvoie, sinon renvoie celle par d�aut.
@@ -66,13 +66,16 @@ global $def_adrr;
 //fonction qui connecte �la base de donn�s
 function DBconnect($DB=false) {
 include ("globvar.inc");
+if ($_SESSION["DBName"]) $DBName=$_SESSION["DBName"];
 if ($DB) $DBName=$DB;
 if (isset($ss_parenv['MySqlDB'])) $DBName=$ss_parenv['MySqlDB'];
+if ($DBName) $_SESSION["DBName"]=$ss_parenv['MySqlDB']=$DBName;
+$DBName = $_SESSION["DBName"];
 if (isset($ss_parenv['MySqlUser'])) $DBUser=$ss_parenv['MySqlUser'];
 if (isset($ss_parenv['MySqlPasswd'])) $DBPass=$ss_parenv['MySqlPasswd'];
 // connecton au serveur
 if ($debug) echo ("Connection au serveur $DBHost (user: $DBUser, passwd: $DBPass), base $DBName");
-$ret=db_connect($DBHost,$DBUser, $DBPass,$DBName);
+$_SESSION['db_lnkid'] = db_connect($DBHost,$DBUser, $DBPass,$_SESSION["DBName"]);
 
 if ($_SESSION["ss_parenv"]["encoding"] == "utf-8" && $_SESSION['db_type']=="mysql") {
 	@mysql_query("SET NAMES 'utf8'");
@@ -84,7 +87,7 @@ if (!db_case_sens()) { // si base de donn�s insensible �la casse sur les nom
 	$NM_TABLE=strtolower($NM_TABLE);
 	}
 // selection de la base (sauf si $seldb=false
-return($ret);
+return($_SESSION['db_lnkid']);
 }
 
 // fonction qui d�arre la session, et qui regarde si certainses variables sont OK
@@ -157,6 +160,7 @@ if ($$VarNomUserMAJ == "" || $_SESSION[$VarNomUserMAJ] =="") {
 if ($lc_DBName!=""){
   $DBName=$lc_DBName;
   $_SESSION["DBName"]=$DBName; //session_register("DBName");
+  echo "Base sélectionnée $DBName";
   }
 
 if ($lc_where_sup!="" || $lc_NM_TABLE!="") {

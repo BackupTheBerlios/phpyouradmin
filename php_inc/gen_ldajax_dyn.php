@@ -7,6 +7,7 @@ header('Content-type: text/html; charset='.$charset);
 
 $tbres=ttChpLink($_REQUEST['chp_lnk'],"",'__str2f__'.$_REQUEST['txt2srch']);
 if (is_array($tbres)) {
+//print_r($tbres);
 echo '<select size="'.$ldajaxdynsize.'" name="srcList" multiple="multiple" id="srcList" style="width:'.$ldajaxdynwidth.'">';
 foreach ($tbres as $k=>$v) {
 	echo '<OPTION value="'.$k.'">'.$v.'</OPTION>';

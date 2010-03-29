@@ -3,7 +3,8 @@ require("infos.php");
 sess_start();
 include_once("reg_glob.inc");
 DBconnect();
-// r�onse a un ajout, modif ou suppression d'un enregistrement
+//print_r($_REQUEST);
+// reponse a un ajout, modif ou suppression d'un enregistrement
 //if ($debug) echovar("_FILES");
 // s'il existe au moins 1 champ fichier-photo,
 // on calcule la CLE POUR LE NOM DE STOCKAGE DES FICHIERS ATTACHES EVENTUELS
@@ -14,7 +15,7 @@ if ($modif=="1" && $key!="") {
 	$rpfl=msq("SELECT TYPEAFF from $TBDname where NM_TABLE='$NM_TABLE' AND TYPEAFF='FICFOT'");
 	if (db_num_rows($rpfl)>0) { 
 	//echovar("_FILES");
-	// d�ermination champ cle pour stockage fichier ou image
+	// dermination champ cle pour stockage fichier ou image
 	// on prend oid + 1; si c'est pas le bon, pas tr� grave
 	if ($_SESSION[db_type]=="pgsql") {
 		$rp1=msq("SELECT oid from $CSpIC$NM_TABLE$CSpIC order by oid DESC LIMIT 1");
@@ -56,22 +57,21 @@ if ($modif=="1" && $key!="") {
 } // fin si autre que modif
   
 // construction du set, necessite uniquement le nom du champ ..
-$rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
+$rq1=msq("SELECT NM_CHAMP from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' AND (TYPEAFF!='HID' OR TYPEAFF!='' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
 
-
-$PYAoMAJ=new PYAobj();
-
-$PYAoMAJ->NmBase=$DBName;
-$PYAoMAJ->NmTable=$NM_TABLE;
-$PYAoMAJ->TypEdit=$modif;
 
 $tbset=array();
 while ($res1=db_fetch_row($rq1))
   {
+  $PYAoMAJ=new PYAobj(); // recréée l'objet pour RAZ ses propriétés !!!
+  $PYAoMAJ->NmBase=$DBName;
+  $PYAoMAJ->NmTable=$NM_TABLE;
+  $PYAoMAJ->TypEdit=$modif;
   $NOMC=$res1[0]; // nom variable=nom du champ
   $PYAoMAJ->NmChamp=$NOMC;
   $PYAoMAJ->InitPO();
-  $PYAoMAJ->ValChp=$$NOMC; // issu du formulaire
+  $PYAoMAJ->ValChp = $_REQUEST[$NOMC]; // issu du formulaire
+
   if ($PYAoMAJ->TypeAff=="HR_MN") {
 	$NOMC_mn=$NOMC."_mn";
 	$NOMC_hr=$NOMC."_mn";
@@ -100,11 +100,10 @@ while ($res1=db_fetch_row($rq1))
         $rwncs=db_fetch_row($rqncs);
         $PYAoMAJ->Fname=$rwncs[0];
         }
-     }
+  }
   $tbset=array_merge($tbset,$PYAoMAJ->RetSet($keycopy,true)); // key copy sert �la gestion des fichiers li�
   // la gestion des fichiers est faite aussi l�dedans
-
-  } // fin boucle sur les champs
+} // fin boucle sur les champs
 
 //echovar("tbset");
 
@@ -128,6 +127,6 @@ else // Si on vient de nv enregistrement
   $strqaj="INSERT INTO $CSpIC$NM_TABLE$CSpIC ".tbset2insert($tbset);
   }
 //echo "requete sql: $strqaj";
-msq($strqaj);
-header ("location:".($lc_adrramact ? $lc_adrramact : ret_adrr("edit_table.php")."?cfp=amact")); // lc_adrramact=sp�ial e-toil
+db_query($strqaj);
+header ("location:".($lc_adrramact ? $lc_adrramact : ret_adrr("edit_table.php")."?cfp=amact")); // lc_adrramact=sp�ial e-toil*/
 ?>

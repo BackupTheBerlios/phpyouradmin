@@ -16,12 +16,13 @@ unregvar ("ss_parenv['NoConfSuppr']");
 if ($cfLB=="vrai") unregvar("reqcust"); // si on vient de la liste des bases, on anule la req
 
 // suppression de la var de session au cas ou on ai appel�un ajout directement
-if (isset($ss_adrr['edit_table.php']))
-   {
+if (isset($ss_adrr['edit_table.php'])) {
    $ss_adrr['edit_table.php']="";
    $_SESSION["ss_adrr"]=""; //session_register("ss_adrr");
-   }
+}
+
 include_once("reg_glob.inc");
+
 DBconnect();
 
 $title=($admadm==1? trad(LT_titleadm) : trad(LT_titleedit))." ".$DBName;
@@ -36,8 +37,14 @@ if (isset($_REQUEST['lc_NM_VTB2C'])) {
 		if ($_REQUEST['lc_NM_TABLE'] != "newvtable") {
 			$rw=db_qr_comprass("SELECT * FROM $TBDname WHERE NM_TABLE='".$_REQUEST['lc_NM_TABLE']."'");
 			foreach($rw as $enr) {
-				$enr['NM_TABLE']=$_REQUEST['lc_NM_VTB2C'];
-				if ($enr['NM_CHAMP']==$NmChDT) $enr['LIBELLE'].=" ! virtual : ".$_REQUEST['lc_NM_VTB2C'];
+				$enr['NM_TABLE'] = $_REQUEST['lc_NM_VTB2C'];
+				
+				if ($enr['NM_CHAMP']==$NmChDT) {
+					$enr['LIBELLE'].="  ! Alias de la table : ".$_REQUEST['lc_NM_TABLE'];
+				} else {
+					$enr['VALEURS'] .= "\n".'$physTable='.$_REQUEST['lc_NM_TABLE'];
+					$enr['VALEURS'] .= "\n".'$locFKeys='.$enr['NM_CHAMP'];
+				}
 				foreach ($enr as $chp=>$val) $enr[$chp]="'".addslashes($val)."'";
 				db_query("INSERT INTO $TBDname ".tbset2insert($enr));
 			}
@@ -175,8 +182,9 @@ function insertValueQuery() {
 <ul>
 <?
 // affiche liste des tables fonction de ce qu'il y a dans TABLE0COMM
-$TYPAFFLHID=($admadm=="1" ? "" :  " AND TYPAFF_L!='' AND NM_TABLE NOT LIKE '$id_vtb%'");
-$qr=msq("SELECT NM_TABLE, LIBELLE, COMMENT from $TBDname where NM_CHAMP='$NmChDT' AND NM_TABLE!='$TBDname' AND NM_TABLE NOT LIKE '__reqcust' $TYPAFFLHID order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
+$TYPAFFLHID=($admadm=="1" ? "" :  " AND (TYPAFF_L!='' OR  TYPAFF_L IS NOT NULL) AND NM_TABLE NOT LIKE '$id_vtb%'"); // Chez Oracle - et effectivement contrairement à la norme - la chaîne vide '' est équivalenté à NULL.
+$rq = "SELECT NM_TABLE, LIBELLE, ".$GLOBALS["NmChpComment"]." from $TBDname where NM_CHAMP='$NmChDT' AND NM_TABLE != '$TBDname' AND NM_TABLE NOT LIKE '__reqcust' $TYPAFFLHID order by ORDAFF_L, LIBELLE";
+$qr = db_query($rq) ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
 while ($res=db_fetch_row($qr))
   {
   $tb_name=$res[0];
@@ -212,13 +220,13 @@ if ($admadm!="1") {
 	} elseif ($_REQUEST['action_req']=="load") {
 		$resrq = db_qr_rass("select * from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$_REQUEST['key']."'");
 		$ss_parenv['reqcust_name'] = $resrq['LIBELLE'];
-		$reqcust = stripslashes($resrq['COMMENT']);
+		$reqcust = stripslashes($resrq[$GLOBALS["NmChpComment"]]);
 		echo '<input type="hidden" name="key" value="'.$resrq['NM_CHAMP'].'"/>';
 	} elseif ($_REQUEST['action_req']=="save") {
 		$key = md5($_REQUEST['reqcust_name']);
 		msq("delete from $TBDname where NM_TABLE='__reqcust' AND NM_CHAMP='".$key."'");
 		msq("INSERT INTO $TBDname 
-		(NM_TABLE, NM_CHAMP,LIBELLE,COMMENT) 
+		(NM_TABLE, NM_CHAMP,LIBELLE,".$GLOBALS["NmChpComment"].") 
 		VALUES 
 		('__reqcust','".$key."','".addslashes($_REQUEST['reqcust_name'])."','".addslashes($_REQUEST['lc_reqcust'])."')");
 		$reqcust=$_REQUEST['lc_reqcust'];
@@ -236,7 +244,7 @@ if ($admadm!="1") {
 		while ($res=db_fetch_array($rqrqc)) {
 			$url = addslashes("LIST_TABLES.php?key=".$res['NM_CHAMP']."&action_req=-1");
 			echo "<LI> <a href=\"LIST_TABLES.php?key=".$res['NM_CHAMP']."&action_req=load\">".$res['LIBELLE']."</a>&nbsp;\n";
-			echo "<A HREF=\"javascript:submrqc('".addslashes($res['COMMENT'])."','".addslashes($res['LIBELLE'])."');\" TITLE=\"Execute requete\" class=\"fxbutton\"> !</A>&nbsp;";
+			echo "<A HREF=\"javascript:submrqc('".addslashes($res[$GLOBALS["NmChpComment"]])."','".addslashes($res['LIBELLE'])."');\" TITLE=\"Execute requete\" class=\"fxbutton\"> !</A>&nbsp;";
 			echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"Supprimer la requete\"><IMG SRC=\"del.png\" border=\"0\" height=\"12\"></A>&nbsp;</LI>";
 		}
     		echo "</UL>";
@@ -297,7 +305,7 @@ if ($admadm!="1") {
     } // fin si admadm<>1
    else
    { // admadm=1
-	echo "<p>&nbsp;&nbsp;<a href=\"javascript:js_create_vtb('newvtable');\" title=\"".trad('LT_creer_vtb')."\"> Nouvelle table virtuelle <IMG SRC=\"vtb_icon.png\" border=\"0\"> </a></p>";
+	echo "<p>&nbsp;&nbsp;<a href=\"javascript:js_create_vtb('newvtable');\" title=\"".trad('LT_creer_vtb')."\"> Nouvel table alias (\"virtuelle\") <IMG SRC=\"vtb_icon.png\" border=\"0\"> </a></p>";
 
    ?>
   <small><br><br>&#149; <?=trad('BT_click')?> <A class="fxsmallbutton" HREF="LIST_TABLES.php?admadm=0"><?=trad('BT_here')?></A> <?=trad(LT_goback_content_table_edit)?>

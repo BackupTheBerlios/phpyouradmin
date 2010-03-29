@@ -55,11 +55,18 @@ Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 <tr><td><h3>Liste des tables <? echo "(serveur $LBHost $DBHost)"; ?></h3>
 <select name="TableName[]" multiple size="10">
 <? 
- $tbltab=db_show_tables($DBName); 
+
+ $tbltab = db_show_tables($DBName);
+ if (in_array($TBDname,$tbltab)) {
+ 	$tbdbdjp = db_qr_comprass("select distinct NM_TABLE from $TBDname");
+ 	if ($tbdbdjp) { foreach ($tbdbdjp as $ltb) {
+ 		$tbdbdjp2[] = $ltb['NM_TABLE'];
+ 	}}
+ }
  foreach($tbltab as $rst) {
   $LNmTb.=$rst.";"; // construit une chaine avec ts les noms de tables de la base
   if (strtolower($rst)!=strtolower($TBDname))
-     echo "<OPTION VALUE=\"$rst\">$rst</OPTION>\n";
+     echo '<OPTION VALUE="'.$rst.'" '.(in_array($rst,$tbdbdjp2) ? 'selected="selected"' : '').'>'.$rst.'</OPTION>'."\n";
   }
 ?>
 </select>
@@ -115,7 +122,7 @@ if ($CREATION=="check") {
 			} // fin si pas table de desc
 		} // fin boucle sur tables
 		echo "<H3> Test $TBDname -> BDD</H3>";
-		$tbd = db_qr_comprass("select * from $TBDname where NM_TABLE NOT LIKE '_vtb_%' AND NM_CHAMP != 'TABLE0COMM' ORDER BY NM_TABLE,NM_CHAMP");
+		$tbd = db_qr_comprass("select * from $TBDname where NM_TABLE NOT LIKE '$id_vtb%' AND NM_CHAMP != 'TABLE0COMM' ORDER BY NM_TABLE,NM_CHAMP");
 		
 		foreach ($tbd as $InfoField) {
 			if ($InfoField['NM_TABLE'] != $tabprec) {
@@ -166,36 +173,43 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
       db_query("DELETE FROM $TBDname where NM_TABLE='$Table'") or die ("Req. de vidage de  invalide !");
       }
     }  elseif ( !$trouve && ($CREATION!="vrai")) {
-    echo "<BR><span class=\"normalred11px\">LA TABLE <B>$TBDname</B> n'existe pas ! Impossible de la visualiser</span><BR><br>";
-    echo "<A HREF=\"CREATE_DESC_TABLES.php\"><img src=\"retour.gif\" border=\"0\"></A>";
-    exit();} 
+    	echo "<BR><span class=\"normalred11px\">LA TABLE <B>$TBDname</B> n'existe pas ! Impossible de la visualiser</span><BR><br>";
+    	echo "<A HREF=\"CREATE_DESC_TABLES.php\"><img src=\"preced.png\" border=\"0\"></A>";
+    exit();
+    } 
     
   elseif ($CREATION=="vrai")
     {
     // pour la requ�e, faire un copier coller de ce qui vient de phpmyadmin
-    if (in_array($TBDname,db_show_tables($DBName))) db_query("DROP TABLE $TBDname");
+    print_r(db_show_tables($DBName));
+    if (in_array($TBDname,db_show_tables($DBName))) {
+    echo "Effacement de la table $TBDname existante...DROP TABLE $TBDname";
+    	db_query("DROP TABLE $TBDname");
+    	}
+    $typchptxt = $GLOBALS["NmChpComment"].($_SESSION['db_type'] != "oracle" ? " text" : " varchar2(2000)");
     $reqC="CREATE TABLE $TBDname (
      NM_TABLE varchar(50) NOT NULL,
      NM_CHAMP varchar(50) NOT NULL,
-     LIBELLE varchar(50) NOT NULL,
+     LIBELLE varchar(250) NOT NULL,
      ORDAFF_L varchar(5) DEFAULT '0' ,
      TYPAFF_L varchar(5) DEFAULT 'AUT' ,
      ORDAFF varchar(5) DEFAULT '0' ,
      TYPEAFF varchar(20) DEFAULT 'AUT',
-     VALEURS varchar(255),
+     VALEURS ".($_SESSION['db_type'] != "oracle" ? " text" : " varchar2(2000)").",
      VAL_DEFAUT varchar(200),
      TT_AVMAJ varchar(255) ,
      TT_PDTMAJ varchar(255),
      TT_APRMAJ varchar(255),
      TYP_CHP varchar(255),
-     COMMENT text,
-      PRIMARY KEY  (`NM_TABLE`,`NM_CHAMP`))";
+     $typchptxt,
+      PRIMARY KEY  (NM_TABLE,NM_CHAMP))";
      /* rab , pas vraiment indispensable, et qui ne fonctionne pas avec PostGresql
      KEY NM_CHAMP (NM_CHAMP),
      KEY NM_TABLE (NM_TABLE),
      KEY ORDAFF_L (ORDAFF_L),
      KEY ORDAFF (ORDAFF))*/
     db_query($reqC) or die ("requete de creation invalide: <BR>$ReqC");
+    
     } // creation et pas d'existence
     
   // d�ut remplissage de la table en fonction des autres
@@ -210,7 +224,7 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
       }
 
     if ($tbtoregen) { // table a reg��er ou afficher
-         $rqlibt=db_query("SELECT LIBELLE, COMMENT from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'");
+         $rqlibt=db_query("SELECT LIBELLE, ".$GLOBALS["NmChpComment"]." from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'");
          if (db_num_rows($rqlibt) >0) {
 	     $rwlibt=db_fetch_assoc($rqlibt);
 	     $table0cexists=true;
@@ -220,13 +234,13 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
 	 $ult=rtb_ultchp();
 	 echo "<H3>Table <I>".$NM_TABLE."</I> (".$rwlibt[$ult[LIBELLE]].")</H3>";
 	 
-	 if ($rwlibt[$ult[COMMENT]]) echo "<small>".$rwlibt[$ult[COMMENT]]."</small><br/>";
-	 if ($CREATION=="false") { // on affiche les champ dans l'ordre d�ition
+	if ($rwlibt[$ult[$GLOBALS["NmChpComment"]]]) echo "<small>".$rwlibt[$ult[$GLOBALS["NmChpComment"]]]."</small><br/>";
+	if ($CREATION=="false") { // on affiche les champ dans l'ordre d�ition
 		$resf= db_query("SELECT NM_CHAMP FROM $TBDname WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF");
 		while ($rf=db_fetch_row($resf)) $tbLCHP[]=$rf[0];
-	}		
-         $resf=db_query("select * from $CSpIC$NM_TABLE$CSpIC LIMIT 0"); // uniquement pour avoir la liste des champs
-	 $nfields=db_num_fields($resf);
+	}
+    $resf=db_query(addwherefORlimit("select * from $CSpIC$NM_TABLE$CSpIC",1)); // uniquement pour avoir la liste des champs
+	$nfields=db_num_fields($resf);
       	
 	if ($AFFALL=="vrai") echo "<BLOCKQUOTE>La table $NM_TABLE comporte ".$nfields." champs :<BR><FONT SIZE=\"-1\">"; 	 
 	
@@ -312,7 +326,7 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
 	    }
       
             db_query("INSERT INTO $TBDname 
-	     (NM_TABLE, NM_CHAMP, LIBELLE, TYPEAFF, VALEURS, ORDAFF, ORDAFF_L, TYPAFF_L, TYP_CHP, TT_AVMAJ, TT_PDTMAJ,TT_APRMAJ,COMMENT)
+	     (NM_TABLE, NM_CHAMP, LIBELLE, TYPEAFF, VALEURS, ORDAFF, ORDAFF_L, TYPAFF_L, TYP_CHP, TT_AVMAJ, TT_PDTMAJ,TT_APRMAJ,".$GLOBALS["NmChpComment"].")
 	     values
 	      ('$NM_TABLE', '$NM_CHAMP', '$LIBELLE', '$TYPEAFF', '$VALEURS', '$val', '$val','$TYPAFF_L', '$TYP_CHAMP', '$TT_AVMAJ','$TT_PDTMAJ','$TT_APRMAJ', '$COMMENT')");
             }  // fin si champ cr� dans la liste
@@ -343,7 +357,7 @@ if ($trouve && ($CREATION=="vrai" || $CREATION=="MAJ")) {
       echo "<TD>".$TYPEAFF."</TD>";
       $VALEURS=RecupLib($TBDname,"NM_CHAMP","VALEURS",$NM_CHAMP);
       echo "<TD>".($VALEURS!="" ? $VALEURS : "&nbsp;")."</TD>";      
-      $COMMENT=RecupLib($TBDname,"NM_CHAMP","COMMENT",$NM_CHAMP);
+      $COMMENT=RecupLib($TBDname,"NM_CHAMP",$GLOBALS["NmChpComment"],$NM_CHAMP);
       echo "<TD>".($COMMENT!="" ? $COMMENT : "&nbsp;")."</TD>";      
       
       echo "</TR>";

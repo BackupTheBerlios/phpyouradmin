@@ -1,7 +1,7 @@
 <?
 require("infos.php");
 sess_start();
-//print_r($SESSION);
+//print_r($_REQUEST);
 include_once("reg_glob.inc");
 DBconnect();
 
@@ -75,8 +75,6 @@ if (isset($lc_PgReq)) {
     $_SESSION["PgReq"]=$PgReq; //session_register("PgReq");
 } elseif (!isset($PgReq)) $PgReq=0;
 
-$limitc=($_SESSION[db_type]=="mysql" ? " LIMIT $FirstEnr,$nbligpp" : " OFFSET $FirstEnr LIMIT $nbligpp");
-
 if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la donc il faut recalculer la req
 	// on est pas en requ�e custom
 	if ($NM_TABLE!="__reqcust") {
@@ -93,9 +91,14 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 		$first = true;
 		while ($rwrq=db_fetch_row($rqrq)) {
 			// reconstitution nom de la var du Type Requ�e
-			$NomChp=$rwrq[0];
-			$nmvarTR="tf_".$NomChp;
-			$nmvarVR="rq_".$NomChp; // Valeur de la Requete
+			$NomChp = $rwrq[0];
+			$NomChpSql = $NM_TABLE.".".$rwrq[0]; // on adpopte la vraie syntaxe sql
+			$NomChpHtml = $NM_TABLE.sepNmTableNmChp.$rwrq[0]; // on adpopte la vraie syntaxe sql
+			$nmvarTR="tf_".$NomChpHtml;
+			$nmvarVR="rq_".$NomChpHtml; // Valeur de la Requete
+// 			trafikPtsInRequestVar($nmvarTR); // remet les variables en syntaxe en rq_NomTable.NomChamp
+// 			trafikPtsInRequestVar($nmvarVR);	
+
 			if (isset($$nmvarTR) && $$nmvarVR!="") { // si ces var non nulles, il y a forc�ent une condition
 				if ($first) {
 					unset ($_SESSION['memFilt']); // nettoie le filtre au premier coup   		
@@ -103,7 +106,9 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 				}
 				$condexists=true;
 				$cond="";
-				$nmvarNEG="neg_".$NomChp; // Negation
+				$nmvarNEG="neg_".$NomChpHtml; // Negation
+//				trafikPtsInRequestVar($nmvarNEG);	
+
 				if ($dbgn2) {
 					echovar ("nmvarTR");
 					echovar ($nmvarTR);
@@ -115,12 +120,13 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 				$tbCIL[$NomChp]->NmBase=$DBName;
 				$tbCIL[$NomChp]->NmTable=$NM_TABLE;
 				$tbCIL[$NomChp]->NmChamp=$NomChp;
+				$tbCIL[$NomChp]->DirEcho=false;
 				$tbCIL[$NomChp]->InitPO(); // pour récuperer le type de champ et savoir s'il est numerique
 				
 				// verrue pour avoir une requete égalité au lieu de recherche en like %val% comme avant
 				if ($$nmvarTR=="LDM" && ($tbCIL[$NomChp]->TypeAff!="LDLM" && $tbCIL[$NomChp]->TypeAff!="POPLM")) $$nmvarTR="LDMEG";
 
-				$cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChp,$tbCIL[$NomChp]->TTC=="numeric");
+				$cond=SetCond ($$nmvarTR,$$nmvarVR,$$nmvarNEG,$NomChpSql,$tbCIL[$NomChp]->TTC=="numeric");
 				if ($cond!="") {
 					$_SESSION['memFilt'][$nmvarVR] = $$nmvarVR;
 					$_SESSION['memFilt'][$nmvarNEG] = $$nmvarNEG;
@@ -131,7 +137,7 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 			} // fin si il existe un crit�e sur ce champ
 			// on teste maintenant l'existence de variables de colonnes �afficher
 			$tbAfC[$NomChp]=($rwrq[1]!="" && $rwrq[1]!="HID"); // initialise tabeau des colonnes affich�s
-			$nmvarAfC="AfC_".$NomChp;
+			$nmvarAfC="AfC_".$NomChpHtml;
 			if (isset($$nmvarAfC)) {// si cette var existe, colonne s�ectionnable
 				$afcexists=true;
 				// si affichage selectionnable ne tient pas compte de TYPAFF_L
@@ -151,7 +157,7 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 	} // fin si pas req custom
 	else { // req custom
 
-		echo ($_REQUEST['lc_reqcust']);
+		//echo ($_REQUEST['lc_reqcust']);
 
 		$reqcust = $_REQUEST['lc_reqcust'];
 
@@ -228,19 +234,50 @@ if (isset($_REQUEST['lc_PgReq'])) { // on vient d'une autre page que celle-la do
 if ($NM_TABLE == "__reqcust") {
 	$reqcust = $_SESSION['reqcust'];
 	$result = db_query($reqcust);
+	$nbrows = db_num_rows($result);
+	$reqcust = addwherefORlimit($reqcust,$nbligpp,$FirstEnr);
 	$LB_TABLE = $ss_parenv['lbreqcust'];
 	$COM_TABLE="";
 	$TitreHP=$LB_TABLE;
 	$EchWher = "<br><small>$reqcust</small>";
-} else {
+} else { // pas req cust
+	/**
+	REMARQUE SUR LES CLAUSES LIMIT
+
+	AVEC ORACLE c'EST LE BORDEL MONSTRE
+	Voir l'explication du comportement de ROWNUM là http://www.oracle.com/technology/oramag/oracle/06-sep/o56asktom.html
+	Comme oracle compte les résultats au fur et à mesure, une req "select * from t where ROWNUM > 1;" ne ramene JAMAIS rien
+
+	L'astuce (pourrie) trouvée : on appelle la requete sans condition basse et on affiche pas les $FirstEnr premiers résultats
+
+	$GLOBALS["NmChpOid"] est le champs masqué qui sert de clé/identifiant d'enregistrement
+	**/
+
+	switch ($_SESSION['db_type']) {
+		case "mysql":
+			$limitc =  " LIMIT $FirstEnr,$nbligpp";
+			break;
+		
+		case "pgsql":
+			$limitc =  " OFFSET $FirstEnr LIMIT $nbligpp";
+			break;
+
+		case "oracle" :
+			//$wherelimit = " (ROWNUM >= $FirstEnr AND ROWNUM <= ".($FirstEnr + $nbligpp).") ";
+			$wherelimit = " (ROWNUM <= ".($FirstEnr + $nbligpp).") "; // voire "REMARQUE SUR LES CLAUSES LIMIT au début de ce fichier"
+			break;
+	}
+
 	$where =  $_SESSION['where'];
-	$result = db_query("SELECT 1 FROM $CSpIC$NM_TABLE$CSpIC $where");
 	$EchWher="<br><small>Condition: $where</small>";
+	$nbrows =  db_count($CSpIC.$NM_TABLE.$CSpIC,$where);
+	$where = $wherelimit!="" ? (trim($where)!="" ? "$where AND $wherelimit" : " where $wherelimit") : $where;
+	$from = $CSpIC.$NM_TABLE.$CSpIC ;
+	$result = db_query("SELECT 1 FROM $from $where");
 	$TitreHP=($ss_parenv[ro]==true ? trad('com_consultation') : trad('com_edition')).trad('com_de_la_table'). $LB_TABLE;
 }
 
-// on compte le nombre de ligne renvoyé par la requ�e
-$nbrows=db_num_rows($result);
+
 
 $title=trad('LR_title'). $NM_TABLE." , ".trad('com_database')." ". $DBName;
 include ("header.php");
@@ -303,11 +340,12 @@ else // si nbr�ultat>0
      $rq1=msq("select * from $TBDname where NM_TABLE='$NM_TABLE' AND NM_CHAMP!='$NmChDT' ORDER BY ORDAFF_L, LIBELLE");
      $nbcol=0; // n de colonne
      while ($res0=db_fetch_assoc($rq1)) {
-         $tbobjCC[$nbcol]=$res0[$ult['NM_CHAMP']];
+     	 $tblallchps[] = $res0[$ult['NM_CHAMP']]; // on fait un tableau avec TOUS les champs à cause des clés multiples qui peuvent être allées chercher dans des champs masqués
+         $tbobjCC[$nbcol] = $res0[$ult['NM_CHAMP']];
          if ($_SESSION["tbAfC"][$res0[$ult['NM_CHAMP']]]) {
          	$nbcol++; // la condition n'est true que si champ a afficher et case cochee 
-         	}
          }
+     }
      $nbcol=($nbcol-1);
      
      $tbCIL=array(); // reinitialise le tableau
@@ -318,16 +356,23 @@ else // si nbr�ultat>0
 		$tbCIL[$NomChamp]->NmBase=$DBName;
 		$tbCIL[$NomChamp]->NmTable=$NM_TABLE;
 		$tbCIL[$NomChamp]->NmChamp=$NomChamp;
+		$tbCIL[$NomChamp]->DirEcho = false;
 		$tbCIL[$NomChamp]->InitPO();
 //	} //
      } // fin boucle sur les champs
-    
-	$lctd=implode(",",$tbobjCC);
+    // rajoute le champ rowid au début pour les éditions,etc...
+	$lctd = ($_SESSION['db_type'] == "oracle" ? "ROWIDTOCHAR(ROWID)," : ""). implode(",",$tblallchps);
 
-    $reqcust="select ".$lctd.($_SESSION[db_type]=="pgsql" ? ",oid" : "")." from $CSpIC$NM_TABLE$CSpIC";
+	
+    	//$from = $_SESSION['db_type'] != "oracle" ? $CSpIC.$NM_TABLE.$CSpIC  : " (select ROWNUM,$lctd from $CSpIC$NM_TABLE$CSpIC ) ";
+    	$from = $CSpIC.$NM_TABLE.$CSpIC  ;
+    	
+     $reqcust='select '.$lctd.($GLOBALS["NmChpOid"]!="" ? ",".$GLOBALS["NmChpOid"] : "")." from $from";
   }
   else { // requete custom (perd l'ordre d'affichage sinon)
-       $tbCIL=InitPOReq($reqcust,$DBName); // construction ey initialisation du tableau d'objets
+       $tbCIL=InitPOReq($reqcust,$DBName,false); // construction ey initialisation du tableau d'objets
+		/// TODO TODO il faut ds le cas d'oracle faire un espece de hash plutot en tableau assoc des rowid avec toutes les colonnes du from passé en param
+  	  ///$reqcust = ($_SESSION['db_type'] == "oracle" ? str_ireplace("select","select ROWIDTOCHAR(sdm_saillie.ROWID),",$reqcust) : $reqcust);
   }
 
   $lb_orderasc=trad('LR_order_asc');
@@ -335,7 +380,8 @@ else // si nbr�ultat>0
 
   foreach($tbCIL as $CIL) {
       $NomChamp=$CIL->NmChamp;
-      if (($CIL->Typaff_l!="" && $CIL->Typaff_l!="HID") || $_SESSION["tbAfC"][$NomChamp]) { // rajout��cause des req custom
+      
+      if (($CIL->Typaff_l!="" && $CIL->Typaff_l!="HID") || ($_SESSION["tbAfC"][$NomChamp] && $NM_TABLE=="__reqcust") ) { // rajout a cause des req custom
          echo "<TD>";
          DispFlClasst($NomChamp); // affiche fleches de classement existant
          echo "<A HREF=\"list_table.php?chptri=$NomChamp&ordtri=asc\" title=\"$lb_orderasc\"><IMG SRC=\"flasc.gif\" border=\"0\"></A>&nbsp;";
@@ -348,7 +394,8 @@ else // si nbr�ultat>0
   ?>
   </TR>
   <?
-  $req=msq("$reqcust $where $orderb $limitc");
+  echo "<!--Req sql = $reqcust $where $orderb $limitc -->";
+  $req=db_query("$reqcust $where $orderb $limitc"); // dans le cas
   /* pour la cl�:
   - s'il y a une cl�primaire, on la constitue;  ds ce cas $pk=true
   - sinon, la cl�est constitu� de tous les champs
@@ -366,59 +413,59 @@ else // si nbr�ultat>0
 //  $chp0=mysql_field_name($req,0);
 //  $chp1=mysql_field_name($req,1);
 //  if (mysql_num_fields($req)>2) $chp2=mysql_field_name($req,2);
-  $nolig=0;
+  $nolig = $noligoracle = 0;
   $lb_recedit=trad("LR_record_edit");
   $lb_recdel=trad("LR_record_delete");
   $lb_reccopy=trad("LR_record_copy");
   $lb_recshow=trad("LR_record_show");
 
-  while ($tbValChp=db_fetch_assoc($req)) {
-    $nolig++;
-    // premi�e colonne: modifier / supprimer
-      echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD class=\"LRcoledit\" align=\"center\">";
-    // gestion cl�    
-    $key=""; // reinit
-    if ($_SESSION[db_type]=="mysql") {
-	if ($nbpk>0) { // cl�primaire existe : on la construit (elle peut �re multiple)
-	for ($Idf=0;$Idf<$nbpk;$Idf++)
-		$key.=$tbpk[$Idf]."='".$tbValChp[$tbpk[$Idf]]."' AND ";
-	}
-	else { // pas de cl�primaire: on prend ts les champs
-	foreach ($tbValChp as $Chp=>$Val) // for ($Idf=0;$Idf<mysql_num_fields($req);$Idf++) $key.=mysql_field_name($req,$Idf)."='".$tbValChp[$Idf]."' AND ";
-		$key.="$Chp='$Val' AND ";          
-		}
-	$key=vdc($key,5); // enl�e le dernier " AND "
-    } elseif ($_SESSION[db_type]=="pgsql") 
-    	$key="oid=".$tbValChp[oid];
-	
-//    $key=($pk ? $chp0."='".$tbValChp[0]."'" : $chp0."='".$tbValChp[0]."' AND ".$chp1."='".$tbValChp[1]."' ");
-    // si le 3�e existe, on le prend aussi
-  //  if (!$pk && $chp2!="") $key.="AND ".$chp2."='".$tbValChp[2]."'";
-    // onmouseover=\"self.status='Modifier l\'enregistrement';return true\"
-
-
-    $url=addslashes("amact_table.php?key=".$key."&modif=-1");
-    $key=urlencode($key);
-    if ($ss_parenv[ro]!=true && $NM_TABLE!="__reqcust") { // bouton supprimer et duppliquer que quand read only false ou req custom
-        echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$lb_recdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"18\"></A>&nbsp;";
-        echo "<A HREF=\"edit_table.php?key=".$key."&modif=1\" TITLE=\"$lb_recedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"18\"></A>&nbsp;";
-        echo "<A HREF=\"edit_table.php?key=".$key."&modif=2\" TITLE=\"$lb_reccopy\"><IMG SRC=\"copie.png\" border=\"0\" height=\"18\"></A>";
-        }
-//    else { // affichage en read only (loupe et d�ails de l'enregistrement)
-         echo "<A HREF=\"edit_table.php?key=".$key."&modif=C\"  TITLE=\"$lb_recshow\" ><IMG SRC=\"loupe.gif\" border=\"0\"></A>";
-//    }
-      echo "</TD>\n";
-    // colonnes suivantes
-      foreach ($tbCIL as $objCIL){ // boucle sur le tableau d'objets colonnes
-            echo("<TD>");
-            $NomChamp=$objCIL->NmChamp;
-            $objCIL->ValChp=$tbValChp[$NomChamp];
-			if (VerifAdMail($tbValChp[$NomChamp])) $MailATous.=$tbValChp[$NomChamp].",";
-            $objCIL->EchoVCL(); // affiche Valeur Champ ds Liste
-            echo("</TD>");
-            }  // fin boucle sur les colonnes
-    echo "</TR>";
-    } // fin while = fin boucle sur les lignes
+// 
+	while ($tbValChp=db_fetch_assoc($req)) {
+		$noligoracle++;
+		if ($_SESSION['db_type'] != "oracle" || $noligoracle>=$FirstEnr) {  // voire "REMARQUE SUR LES CLAUSES LIMIT au début de ce fichier"
+			$nolig++;
+			// premi�e colonne: modifier / supprimer
+			echo "<TR class=\"".($nolig % 2==1 ? "backwhiten" : "backredc")."\"><TD class=\"LRcoledit\" align=\"center\">";
+			// gestion cl�
+			$key=""; // reinit
+			if ($_SESSION[db_type]=="mysql") {
+				if ($nbpk>0) { // cl�primaire existe : on la construit (elle peut �re multiple)
+				for ($Idf=0;$Idf<$nbpk;$Idf++)
+					$key.=$tbpk[$Idf]."='".$tbValChp[$tbpk[$Idf]]."' AND ";
+				}
+				else { // pas de cl�primaire: on prend ts les champs
+				foreach ($tbValChp as $Chp=>$Val) // for ($Idf=0;$Idf<mysql_num_fields($req);$Idf++) $key.=mysql_field_name($req,$Idf)."='".$tbValChp[$Idf]."' AND ";
+					$key.="$Chp='$Val' AND ";          
+					}
+				$key=vdc($key,5); // enl�e le dernier " AND "
+			} elseif ($_SESSION['db_type']=="pgsql") {
+				$key="oid=".$tbValChp['oid'];
+			} elseif ($_SESSION['db_type']=="oracle" &&  $NM_TABLE!="__reqcust"){ /// TODO pour l'instant on gère pas l'affichage fiche en req custom
+				$key="ROWIDTOCHAR(ROWID)='".$tbValChp['ROWIDTOCHAR(ROWID)']."'";
+			}
+			$url=addslashes("amact_table.php?key=".$key."&modif=-1");
+			$key=urlencode($key);
+			if ($ss_parenv[ro]!=true && $NM_TABLE!="__reqcust") { // bouton supprimer et duppliquer que quand read only false ou req custom
+				echo "<A HREF=\"javascript:ConfSuppr('".$url."');\" TITLE=\"$lb_recdel\"><IMG SRC=\"del.png\" border=\"0\" height=\"18\"></A>&nbsp;";
+				echo "<A HREF=\"edit_table.php?key=".$key."&modif=1\" TITLE=\"$lb_recedit\"><IMG SRC=\"edit.png\" border=\"0\" height=\"18\"></A>&nbsp;";
+				echo "<A HREF=\"edit_table.php?key=".$key."&modif=2\" TITLE=\"$lb_reccopy\"><IMG SRC=\"copie.png\" border=\"0\" height=\"18\"></A>";
+				}
+			//    else { // affichage en read only (loupe et d�ails de l'enregistrement)
+				echo "<A HREF=\"edit_table.php?key=".$key."&modif=C\"  TITLE=\"$lb_recshow\" ><IMG SRC=\"loupe.gif\" border=\"0\"></A>";
+			//    }
+				echo "</TD>\n";
+			// colonnes suivantes
+				foreach ($tbCIL as $objCIL){ // boucle sur le tableau d'objets colonnes
+					echo("<TD>");
+					$NomChamp=$objCIL->NmChamp;
+					$objCIL->AffVal($tbValChp); // affecte valeur; un peu traps dans le cas des clés multiple
+					if (VerifAdMail($tbValChp[$NomChamp])) $MailATous.=$tbValChp[$NomChamp].",";
+					echo $objCIL->EchoVCL(); // affiche Valeur Champ ds Liste
+					echo("</TD>");
+					}  // fin boucle sur les colonnes
+			echo "</TR>";
+		} // fin si on affiche les lignes d'avant Oracle
+	} // fin while = fin boucle sur les lignes
   } // fin si nbrows>0
   ?>
 <br>

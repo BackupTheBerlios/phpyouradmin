@@ -2,29 +2,29 @@
 // fonction qui echoise les FONCTIONS JAVASCRIPT a initialiser
 // pour l'utilisation d'Ajax
 function echAjaxJSFunctions($dbscr=true) {
-return ("
-".($dbscr ? '<script language="javascript">' : ""). "
+
+$theJS = "
 /* JS Functions for Ajax/XMLHttpRequest dynamic content (made by DLCube ;) */
 
 function ahah(url,target) {
    // native XMLHttpRequest object
    document.getElementById(target).innerHTML = 'envoi de la requete au serveur...';
    if (window.XMLHttpRequest) {
-       req = new XMLHttpRequest();
-       req.onreadystatechange = function() {ahahDone(target);};
+       var req = new XMLHttpRequest();
+       req.onreadystatechange = function() {ahahDone(target,req);};
        req.open(\"GET\", url, true);
        req.send(null);
    // IE/Windows ActiveX version
    } else if (window.ActiveXObject) {
-       req = new ActiveXObject(\"Microsoft.XMLHTTP\");
+       var req = new ActiveXObject(\"Microsoft.XMLHTTP\");
        if (req) {
-           req.onreadystatechange = function() {ahahDone(target);};
+           req.onreadystatechange = function() {ahahDone(target,req);};
            req.open(\"GET\", url, true);
            req.send();
        }
    } 
 }
-function ahahDone(target) {
+function ahahDone(target,req) {
    // only if req is loaded
    if (req.readyState == 4) {
        // only if OK
@@ -38,7 +38,7 @@ function ahahDone(target) {
 }
 /* End of JS Functions for Ajax/XMLHttpRequest dynamic content (made by DLCube ;) */
 
-".($dbscr ? "</script>" : ""). "
-");
+";
+return ($dbscr ? outJS($theJS) : $theJS);
 }
 ?>

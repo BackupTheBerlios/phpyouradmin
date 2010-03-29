@@ -21,10 +21,12 @@ include ("header.php"); ?>
 <H4><? echo trad("IND_bddtype")."<br/>";
 DispLD($tb_dbtype,"lc_parenv[db_type]")?></H4>
 <br><br>
+<H4><?=trad("IND_bddname")?><br>
+<input type="text" name="lc_parenv[MySqlDB]" value="<?=(isset($ss_parenv['MySqlDB']) ? $ss_parenv['MySqlDB'] : "")?>"></H4>
 <H4><?=trad("IND_bdduser")?><br>
-<input type="text" name="lc_parenv[MySqlUser]" value="<?=(isset($ss_parenv[MySqlUsero]) ? $ss_parenv[MySqlUsero] : $DBUser)?>"></H4>
+<input type="text" name="lc_parenv[MySqlUser]" value="<?=(isset($ss_parenv['MySqlUsero']) ? $ss_parenv['MySqlUsero'] : $DBUser)?>"></H4>
 <H4><?=trad("IND_bddpasswd")?> <br>
-<input type="password" name="lc_parenv[MySqlPasswd]" value="<?=(isset($ss_parenv[MySqlPasswd]) ? $ss_parenv[MySqlPasswd] : $DBPass)?>"></H4>
+<input type="password" name="lc_parenv[MySqlPasswd]" value="<?=(isset($ss_parenv['MySqlPasswd']) ? $ss_parenv['MySqlPasswd'] : $DBPass)?>"></H4>
 <H4><?=trad("IND_pyauser")?><br>
 <input type="text" name="lc_CO_USMAJ" value="<?=$$VarNomUserMAJ;?>"></H4>
 <H4><? echo trad("IND_choilang")."<br/>";
