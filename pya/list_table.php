@@ -322,9 +322,13 @@ else // si nbr�ultat>0
 
   <H3><?=$nbrows.trad('com_record').$s.trad('LR_to_list')?> </H3>
   <H4><?=trad('LR_display_record').$s?> <em><?echo ($FirstEnr+1)." ".trad('com_to')." ".min($nbrows,($FirstEnr+$nbligpp));  ?> </em></H4>
-  <?if ($ss_parenv[ro]!=true && $NM_TABLE!="__reqcust") {?>
+  <?=ret_adrr($_SERVER["PHP_SELF"],true)?>
+  <? if ($PgReq==1) { ?>
+       &nbsp;&nbsp;&nbsp;<a class="fxbutton" title="<?=trad('LR_query_back_bulle')?>" href="req_table.php?lc_NM_TABLE=<?=$NM_TABLE?>"> <?=trad('LR_query_back')?> </a>
+  <? }
+     if ($ss_parenv[ro]!=true && $NM_TABLE!="__reqcust") { ?>
   &nbsp;&nbsp;<a class="fxbutton" href="edit_table.php" title="<?=trad('LT_addrecord')?>"> <img src="new_r.gif"> <?=trad('LT_addrecord')?></a><?=nbsp(15)?>
-  <?}?>
+  <? } ?>
   <a href="#bas" class="fxbutton" title="<?=trad('com_vers_enbas_bulle')?>"><img src="flbas.png"> <?=trad('com_vers_enbas')?></a><br>
   <? if ($orderb!="" && !$ss_parenv[noinfos])
     echo "<small>".str_replace ("ORDER BY", trad('LR_orderby'),$orderb)."</small><BR>";

@@ -182,7 +182,7 @@ function insertValueQuery() {
 <ul>
 <?
 // affiche liste des tables fonction de ce qu'il y a dans TABLE0COMM
-$TYPAFFLHID=($admadm=="1" ? "" :  " AND (TYPAFF_L!='' OR  TYPAFF_L IS NOT NULL) AND NM_TABLE NOT LIKE '$id_vtb%'"); // Chez Oracle - et effectivement contrairement à la norme - la chaîne vide '' est équivalenté à NULL.
+$TYPAFFLHID=($admadm=="1" ? "" :  " AND (TYPAFF_L!='' AND  TYPAFF_L IS NOT NULL) AND NM_TABLE NOT LIKE '$id_vtb%'"); // Chez Oracle - et effectivement contrairement à la norme - la chaîne vide '' est équivalenté à NULL.
 $rq = "SELECT NM_TABLE, LIBELLE, ".$GLOBALS["NmChpComment"]." from $TBDname where NM_CHAMP='$NmChDT' AND NM_TABLE != '$TBDname' AND NM_TABLE NOT LIKE '__reqcust' $TYPAFFLHID order by ORDAFF_L, LIBELLE";
 $qr = db_query($rq) ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
 while ($res=db_fetch_row($qr))

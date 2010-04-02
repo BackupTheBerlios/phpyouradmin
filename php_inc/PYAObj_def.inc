@@ -477,7 +477,7 @@ class PYAobj {
 				if ($HT && $this->TypeAff == "CKBX") {
 					$defl=explode(',',$this->Valeurs);
 					$val0 = explode(':',$defl[0]); 
-					return('<INPUT TYPE="checkbox" NAME="'.$this->NmChpHtml.'" ID="'.$this->NmChpHtml.'" VALUE="'.$val0[0].'" '.($this->ValChp == $val0[0] ? ' checked="checked" ' : '').' disabled="disabled" /> '.tradLib($val0[1]));
+					return('<INPUT TYPE="checkbox" NAME="'.$this->NmChpHtml.'" ID="'.$this->NmChpHtml.'" VALUE="'.$val0[0].'" '.($this->ValChp == $val0[0] ? ' checked="checked" ' : '').' disabled="disabled" /> '); // .tradLib($val0[1]) met plus le libellé
 				}
 				// nbre de car max par d�aut, ou pass�en propri��
 				$NbCarMax=($this->NbCarMxCust>0 ? $this->NbCarMxCust : $nbcarmxlist);
@@ -1080,7 +1080,6 @@ class PYAobj {
 		$keycopy=str_replace("'","",$keycopy);
 		
 		if ($this->MaxFSize==0 || $this->MaxFSize=="") $this->MaxFSize=$MaxFSizeDef ;
-		
 		if ($this->TTC=="date") { // date
 			$this->ValChp=DateA($this->ValChp);
 		} elseif (strstr($this->TypeAff,"DT_TSTAMP")) {
@@ -1095,7 +1094,7 @@ class PYAobj {
 						$this->ValChp=$valset; // laisse la derni�e virgule �la fin
 		} // fin si valeur est un tableau
 		elseif ($this->TTC=="numeric" && count($this->tblocfkeys) <=1) {
-			$this->ValChp=$this->ValChp + 0; // astuce pour convertir en nombre si pas bon
+				$this->ValChp=$this->ValChp + 0; // astuce pour convertir en nombre si pas bon
 		} else { // pas tableau ni date
 			$this->ValChp=db_escape_string($this->ValChp);
 		}
@@ -1189,14 +1188,15 @@ class PYAobj {
 
 		// fonction qui retourn�eventuellement ' fonction du type de champ
 		// avec PostGres, le ' autour des champs num fout la merde
+		// avec Mysql et Oracle, ça change rien donc on met les ' systématiquement
 		$cpstr=rt_carpstr($this->TTC);
-		//$cpstr="'";
-
-		if ($this->ValChp !="") {
+		
+		if ($this->ValChp !== "") { /// le !=== est indispensable, sinon la valeur "" est identique à la valeur 0 et bonjour le bordel !!
 			if (count($this->tblocfkeys) <=1) $this->ValChp=$cpstr.$this->ValChp.$cpstr;
-		} else
-			$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : ($this->FieldNullOk!="NO" ? "NULL" : ""));
-			
+		} else {
+			$this->ValChp=(($_SESSION['db_type']!="mysql" && isset($_SESSION['db_type'])) ? "DEFAULT" : ($this->FieldNullOk != "NO" ? "NULL" : $cpstr.$this->FieldValDef.$cpstr));
+		}
+		
 		// gestion des clés multiples
 		if (count($this->tblocfkeys) > 1) {
 			$tbvalchp = explode(":",$this->ValChp);

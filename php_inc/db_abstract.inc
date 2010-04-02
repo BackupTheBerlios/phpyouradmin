@@ -218,6 +218,13 @@ foreach ($set as $chp=>$val) {
 return(" ".implode(",",$lchp)." ");
 }
 
+// fonction qui génere une requete INSERT INTO xxxxx ON DUPLIACTE KEY UPDATE 
+function insertondkupdate($table,$ins,$set="",$addquotes=false) {
+        if ($set == "") $set = $ins;
+        return("INSERT INTO $table ".tbset2insert($ins,$addquotes)." ON DUPLICATE KEY UPDATE ".tbset2set($set,$addquotes));
+}
+
+
 function db_escape_string($str) {
 	switch($_SESSION['db_type']) {
 	case "pgsql":
@@ -276,8 +283,9 @@ else return array(
 	"TYP_CHP"=>"typ_chp",
 	"COMMENT"=>"comment");
 }
-// fonction qui renvoie ou non le caract�e de protection
-// des strings: avec pgsql si on le met avec des entiers ou des num�iques, � merde
+
+// fonction qui renvoie ou non le caractere de protection
+// des strings: avec pgsql si on le met avec des entiers ou des numeriques, ca merde
 
 function rt_carpstr($ttc) {
 switch($_SESSION['db_type']) {

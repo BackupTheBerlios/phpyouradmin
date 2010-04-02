@@ -71,7 +71,7 @@ function alertfic(valc,namec,ind) {
 		document.theform.elements[indtafl].selectedIndex=4; // met type aff ds liste li� si li� en ppal
 	}
 	if (document.theform.elements[indval].value=='') {
-		document.theform.elements[indval].value='Pensez a rentrer les valeurs ou le lien ici !';
+		document.theform.elements[indval].value='#Pensez a rentrer les valeurs ou le lien ici !';
 	}
 	document.theform.elements[indval].focus();
 	} else if (valc=='HID' || valc=='') {
@@ -87,14 +87,11 @@ function alertfic(valc,namec,ind) {
 function alertFilt(valc,namec,ind) {
 indval=ind-1; // indice de l'element valeurs
 <? if ($booTableVirt) { ?>
-if (valc=='LDC') {
+if (valc=='LDC' || valc=='LDLLV') {
   if (document.theform.elements[indval].value=='') {
-    document.theform.elements[indval].value='Pensez a rentrer le nom de la table physique ici !';
+    document.theform.elements[indval].value='#Pensez a rentrer le nom de la table physique ici !';
     }
   document.theform.elements[indval].focus();
-} else if (valc=='LDLLV') {
-	alert ("Ce choix est pour l'instant impossible avec une table virtuelle");
-	document.theform.elements[ind].selectedIndex = 6; // liste der liée
 }
 <?} // fin si $booTableVirt ?>
 return;
