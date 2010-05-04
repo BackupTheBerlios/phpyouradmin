@@ -26,6 +26,7 @@ function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
 		default:
 			if ($portIP=="") $portIP=3306;
 			$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
+			$GLOBALS['CSpIC'] = "`"; // caract�e pour "isoler" les noms de champs merdiques
 			$GLOBALS['NmChpOid'] = "";
 			$GLOBALS['sqllenstr0'] = "!=''";
 			$GLOBALS["id_vtb"] = "_vtb_";
@@ -431,7 +432,7 @@ function db_num_rows($res) {
 .	!!Note!! Cette fonction ne retourne pas le nombre de lignes sélectionnées. Pour les commandes de type SELECT, cette fonction va retourner le nombre de ligne qui ont été lues dans le buffer avec oci_fetch* */
 	if ($_SESSION['lastOciRq'][$res] && stristr($_SESSION['lastOciRq'][$res],"select")) {
 			$rqs = $_SESSION['lastOciRq'][$res];
-			$ifrom = stripos($rqs,"from");
+			$ifrom = strripos($rqs,"from"); // DERNIERE occurrence de from, pour les select imbriqués
 			//die("select count(*) ".substr($rqs,$ifrom));
 			$rp = db_qr_compres("select count(*) ".substr($rqs,$ifrom));
 			return($rp[0][0]);

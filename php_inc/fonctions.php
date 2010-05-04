@@ -2,23 +2,23 @@
 /* FICHIER DE FONCTIONS */
 // PARTAGE PAR TOUTES LES APPLIS
 // quelques variables globales
-$nbcarmxlist=50; // nbre de caract�es max affich� par cellules dans les tableaux liste
-$nbligpp_def=15; // nbre de lignes affich�s par page par d�aut
+$GLOBALS['nbcarmxlist'] = 50; // nbre de caract�es max affich� par cellules dans les tableaux liste
+$GLOBALS['nbligpp_def'] = 15; // nbre de lignes affich�s par page par d�aut
 // servant ds les progs d'�ition
-$nbrtxa=5; // nbre de lignes des textarea
-$nbctxa=40; // nbre de colonnes des textarea
-$nValRadLd=4; // nbre de valeurs passage liste d�oulante/boutons radio case �cocher
-$SzLDM=6; // parmetre size pour les listes d�oulantes multiples
-$DispMsg=true; // affichage par d�aut du message "appuyez sur control pour s�ectionner plusieurs valeurs
-$VSLD="#SEL#"; // caract�es ins��en d�ut de valeur de listes indiquant la s�ection
-$maxrepld=2000;
-$carsepldef="-"; // caract�e par d�aut s�arant les valeur dans les listes d�oulantes
-$maxprof=10; // prof max des hi�archies
+$GLOBALS['nbrtxa'] = 5; // nbre de lignes des textarea
+$GLOBALS['nbctxa'] = 40; // nbre de colonnes des textarea
+$GLOBALS['nValRadLd'] = 4; // nbre de valeurs passage liste d�oulante/boutons radio case �cocher
+$GLOBALS['SzLDM'] = 6; // parmetre size pour les listes d�oulantes multiples
+$GLOBALS['DispMsg'] = true; // affichage par d�aut du message "appuyez sur control pour s�ectionner plusieurs valeurs
+$GLOBALS['VSLD'] = "#SEL#"; // caract�es ins��en d�ut de valeur de listes indiquant la s�ection
+$GLOBALS['maxrepld']=2000;
+$GLOBALS['carsepldef'] = "-"; // caract�e par d�aut s�arant les valeur dans les listes d�oulantes
+$GLOBALS['maxprof'] = 10; // prof max des hi�archies
 // ne fonctionne qu'avec des versions r�entes de MySql
-$MaxFSizeDef = 5000000; // taille max des fichiers joints par d�aut!!
+$GLOBALS['MaxFSizeDef'] = 5000000; // taille max des fichiers joints par d�aut!!
 
 // tableau des évenements verification de formulaire auto
-$tbEvenmtVFAutoJS = array ("notNull" => "Non vide",
+$GLOBALS['tbEvenmtVFAutoJS'] = array ("notNull" => "Non vide",
     	 	"email" => "Adresse email",
     	 	"emailNN" => "Adresse email non vide",
     	 	"tel" =>"N° téléphone",
@@ -29,16 +29,15 @@ $tbEvenmtVFAutoJS = array ("notNull" => "Non vide",
 
 $ListTest="linux xsir-intralinux 126.0.26.2";
 $ListDev="linuxk6 192.168.0.20 192.168.0.30";
-define("sepNmTableNmChp","#"); // met pas le . comme ça serait normal, car si un point
+define("sepNmTableNmChp","#"); // met pas le . comme ça serait normal, car si un point dans les noms de var HTML il est transformé.
 
 // abstraction BDD
 require_once("db_abstract.inc");
 // fonctions liées à PYA
-require_once("fonctions_pya.php"); 
+include_once("fonctions_pya.php"); 
 // fonctions AJAX diverses
 require_once("ajaxtools.inc");
 
-// NECESSITE D'IMPLEMENTER LES FONCTIONS D'ACCES A L'ANNUAIRE
 // et tt ce qui concerne l'objet PYA
 require_once("PYAObj_def.inc");
 require_once("debug_tools.inc"); // fonctions servant au debogage
@@ -225,6 +224,16 @@ function escape($text)
   return($text);
 } 
 
+// fonction echoise un commentaire html
+function echComment($title,$comment,$DirEcho=true) {
+    $retVal.= "\n<!-- $title : $comment -->\n";
+    if ($DirEcho) {
+    	echo $retVal;
+    } else {
+    	return($retVal);
+    }
+}
+
 // fonction qui echoise un texte dans un style
 function echspan($style,$text,$DirEcho=true) {
     $retVal.= "<span class=\"$style\">$text</span>";
@@ -328,7 +337,7 @@ function DispCustHT($Val2Af,$htmlspecialchars=true) {
       }
   else {  // sinon traitement divers
   	if ($htmlspecialchars) {
-		$Val2Af=ereg_replace("<","&lt;", $Val2Af);
+		$Val2A=ereg_replace("<","&lt;", $Val2Af);
 		$Val2Af=ereg_replace(">","&gt;", $Val2Af);
 		//$Val2Af = htmlspecialchars($Val2Af);
 		$Val2Af = ereg_replace("\n","<br/>", $Val2Af);

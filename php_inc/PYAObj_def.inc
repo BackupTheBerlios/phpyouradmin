@@ -63,6 +63,13 @@ class PYAobj {
 		// nom du champ contenant les caracteristiques globales a la table
 		// morceua de chaine identifiant une table virtuelle
 		global $TBDname,$NmChDT,$id_vtb;
+		if (!$TBDname) $TBDname="DESC_TABLES";
+		// nom du champ contenant les caract�istiques globales �la table
+		if (!$NmChDT) $NmChDT="TABLE0COMM";
+		// id contenu ds les tables virtuelles ie celles qui n'existent pas en base
+		if (!$id_vtb) $id_vtb = $GLOBALS["id_vtb"] ? $GLOBALS["id_vtb"] : "_vtb_";
+		$sepNmTableNmChp = "#";
+
 		$ult=rtb_ultchp(); // tableau des noms de champs sensibles a la casse (a cause de pgsql...)
 		$retVal="";
 		// verrue pour les req custom: dans le cas d'un UNION, ce con de mysql est buggué, la fonction db_field_table($resreq,$i) ne marche pas !!
@@ -133,7 +140,7 @@ class PYAobj {
 			$retVal .= "Appel de la methode InitPO de l'objet PYAObj incorrecte: au moins une des propriete de base n'a pas definie; NmChamp=".$this->NmChamp."; NmTable=".$this->NmTable."; NmBase=".$this->NmBase."<br/>\n";
 		}
 
-		if ($this->DirEcho) {
+		if ($this->DirEcho && $retVal) {
 			echo "<p><small>$retVal</small></p>";
 		}
 		return($retVal); // retourne quoi qu'il arrive, normalement c'est vide, si ya qqchose c kya une erreur et ça la décrit
@@ -204,7 +211,8 @@ class PYAobj {
 
 	// methode d'affichage de filtre de requete
 	function EchoFilt($bDN=true,$bDL=true,$choixMult="yes") { // booleens affiche n�ation et affiche libell�ie baratins sur les dates e
-	global $VSLD,$id_vtb;
+		global $VSLD,$id_vtb;
+		if (!$VSLD) $VSLD = "#SEL#";
 		$id_vtb = $id_vtb != "" ? $id_vtb : "_vtb_";
 		if (stristr($this->NmTable,$id_vtb)) { // si table virtuelle alias, la vrai table doit être indiquée dans le champs VALEURS avec la nouvelle syntaxe cad $physTable=
 			$nmtable = $this->physTable;
@@ -568,6 +576,10 @@ class PYAobj {
 	// pour tes les type d'aff <> de AUT  
 	function EchoEdit($DH=true) {
 	global $VSLD,$nbrtxa,$nbctxa,$tbEvenmtVFAutoJS;
+	if (!$nbrtxa) $nbrtxa=5; // nbre de lignes des textarea
+	if (!$nbctxa) $nbctxa=40; // nbre de colonnes des textarea
+	if (!$VSLD) $VSLD="#SEL#"; // caract�es ins��en d�ut de valeur de listes indiquant la s�ection
+
 	$htmlspecialchars = true; // épuration du html par défaut en TypEdit= C
 	$retVal .= $this->genEditJS();
 	$retVal .= $this->testOblig();
@@ -927,6 +939,11 @@ class PYAobj {
 	// pour le type d'aff AUTOMATIQUE uniquement
 	function EchoEditAuto() {
 	global $VSLD,$nbrtxa,$nbctxa,$nValRadLd;
+	if (!$nValRadLd) $nValRadLd=4; // nbre de valeurs passage liste d�oulante/boutons radio case �cocher
+	if (!$nbrtxa) $nbrtxa=5; // nbre de lignes des textarea
+	if (!$nbctxa) $nbctxa=40; // nbre de colonnes des textarea
+	if (!$VSLD) $VSLD="#SEL#"; // caract�es ins��en d�ut de valeur de listes indiquant la s�ection
+
 	$retVal .= $this->genEditJS();
 	$retVal .= $this->testOblig();
 	$this->NmChpHtml4Edit = $this->sepNmTableNmChpInEdit ? $this->NmChpHtml : $this->NmChamp;
@@ -1243,20 +1260,25 @@ class PYAobj {
 	// fonction qui affecte la valeur du champ.
 	// $tbValChp est le tableau asso des valeurs de TOUT l'enregistrement; Si clés multiples, va chercher les valeurs dans les autres champs, et la valeur courante devient Valk1:valk2:valk3 ..
 	function AffVal($tbValChp) {
+		/// assez sioux : il se peut que le tableau asso des valeurs soit sous la forme $tbValChp[NomChp] = val ou $tbValChp[NmTable#NomChp] = val, dans le cas d'oss et des requetes Oracle faisant intervenir des alias...
 		if (count($this->tblocfkeys)>1) { // FK multiple
 			$tbv = array();
 			foreach ($this->tblocfkeys as $fk) {
 				$fk = trim($fk); // enlève espaces
-				$tbv[] = $tbValChp[$fk];
+				if (isset($tbValChp[$this->NmTable.'#'.$fk])) {
+					$tbv[] = $tbValChp[$this->NmTable.'#'.$fk];
+				} else $tbv[] = $tbValChp[$fk];
 			}
 			$this->ValChp = implode(":",$tbv);
 		} else { // normal
-			$this->ValChp=$tbValChp[$this->NmChamp];
+			if (isset($tbValChp[$this->NmTable.'#'.$this->NmChamp])) {
+				$this->ValChp = $tbValChp[$this->NmTable.'#'.$this->NmChamp];
+			} else $this->ValChp = $tbValChp[$this->NmChamp];
 		}
 	}
 } // fin objet PYAobj
 
-$labels = array (
+$GLOBALS['labels'] = array (
 	0 => array (
 		"all" => "(tous)",
 		"ante" => "ant&eacute;rieure",
