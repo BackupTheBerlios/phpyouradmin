@@ -244,7 +244,7 @@ function echspan($style,$text,$DirEcho=true) {
     }
 }
 // 
-function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="afficher/masquer",$initDisp=false) {
+function toggleAffDiv($theid,$thecontent="",$theclass="fxbutton",$thetitle="afficher/masquer",$initDisp=false) {
 	$initDisp = $initDisp || $_SESSION['hidPosOf'.$theid];
 	$ret = '<a name="AncOfTgAf'.$theid.'"></a>';
 	$ret .= '<input type="hidden" name="hidPosOf'.$theid.'" id="hidPosOf'.$theid.'" value="'.$initDisp.'"/>';
@@ -252,7 +252,7 @@ function toggleAffDiv($theid,$thecontent,$theclass="fxbutton",$thetitle="affiche
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''."theb".'\').value=\'P\';document.getElementById(\''.$theid.'\').style.display=\'block\'" class="'.$theclass.'" title="'.$thetitle.'">+</a>&nbsp;';
 // 	$ret .= '<a href="#AncOfTgAf'.$theid.'" onclick="document.getElementById(\''.$theid.'\').style.display=\'none\'" class="'.$theclass.'" title="'.$thetitle.'">&nbsp;-&nbsp;</a><br/>';
 	
-	$ret .= '<div id="'.$theid.'" style="display:'.($initDisp ? "block" : "none").'">'.$thecontent.'</div>';
+	if ($thecontent != "") $ret .= '<div id="'.$theid.'" style="display:'.($initDisp ? "block" : "none").'">'.$thecontent.'</div>';
 	return($ret);
 }
 

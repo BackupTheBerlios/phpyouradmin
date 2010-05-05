@@ -1095,7 +1095,6 @@ class PYAobj {
 	function RetSet($keycopy,$rttb=false) {
 		global $MaxFSizeDef;
 		$keycopy=str_replace("'","",$keycopy);
-		
 		if ($this->MaxFSize==0 || $this->MaxFSize=="") $this->MaxFSize=$MaxFSizeDef ;
 		if ($this->TTC=="date") { // date
 			$this->ValChp=DateA($this->ValChp);
@@ -1138,7 +1137,8 @@ class PYAobj {
 			if (strpos ($this->Valeurs,"#")!=1 && $this->Valeurs!="") {
 				$ChemImg=$this->Valeurs;}
 			else {
-				$ChemImg="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";}
+				$ChemImg="./".$this->NmBase."_".$this->NmTable."_".$this->NmChamp."/";
+			}
 
 			//print_r($this);
 			if ($this->TypEdit==1 || $this->TypEdit=='M' || $this->TypEdit==2) { // gestion effacement anciens fichiers attach�
@@ -1163,38 +1163,40 @@ class PYAobj {
 				$value = "2".$value;
 				if (!$cok) echo "Copie du fichier $ChemImg$value vers $ChemImg"."2"."$value impossible <br/>Cliquez sur le bouton retour arriere de votre navigateur";
 			} elseif ($this->TypEdit!=-1 && $this->ValChp!="none" && $this->ValChp!="") {// si nouveau ou modif avec fichier attach�
-			// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
-			$this->Fname = cv2purascii($this->Fname);
-			$this->Fname = db_escape_string(strtr($this->Fname," '*?$\"","______"));
-			
-			// variable determinant fichier avec son chemin complet
-			$ChemFich=$ChemImg.(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname; // ne remet la clé que si elle y est pas déjà.
-			
-			/*    $retVal.= "debug:";
-			$retVal.= "valeur (ftemp): $this->ValChp<br/>";
-			$retVal.= "Chemin : $ChemImg<br/>";
-			$retVal.= "nom fichier: $this->Fname<br/>";
-			$retVal.= "Fok: $this->Fok<br/>";
-			$retVal.= "Ancien nom: $this->OFN<br/>";
-			$retVal.= "taille: $this->Fsize<br/>"; */
-			
-			// test taille du fichier attach�    
-			if (($this->Fsize>$this->MaxFSize) && ($this->ValChp!="none")) {
-				$retVal.= str_replace("###",  $this->MaxFSize, $this->trad("err1")); 
-				unlink ($this->ValChp);
-				$this->error = $retVal.str_replace("###",  $this->Fsize, $this->trad("err2"));
-				die($this->error);
-				$this->ValChp=$value=""; // annule le nom de fichier pour qu'il ne soit mis en base...
-			} else { // fin si fichier trop gros
-				$retcopy=copy($this->ValChp,$ChemFich);
-				if (!$retcopy) { 
-					$this->error="Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>";
-					delfich ($this->ValChp);
+				// remplacement des caracteres Zarbi ds les noms de fichier cause bugs
+				$this->Fname = cv2purascii($this->Fname);
+				$this->Fname = db_escape_string(strtr($this->Fname," '*?$\"","______"));
+				
+				// variable determinant fichier avec son chemin complet
+				$ChemFich=$ChemImg.(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname; // ne remet la clé que si elle y est pas déjà.
+				
+				/* $retVal.= "debug:";
+				$retVal.= "valeur (ftemp): $this->ValChp<br/>";
+				$retVal.= "Chemin : $ChemImg<br/>";
+				$retVal.= "nom fichier: $this->Fname<br/>";
+				$retVal.= "Fok: $this->Fok<br/>";
+				$retVal.= "Ancien nom: $this->OFN<br/>";
+				$retVal.= "taille: $this->Fsize<br/>"; 
+				die($retVal); */
+				
+				// test taille du fichier attach�    
+				if (($this->Fsize>$this->MaxFSize) && ($this->ValChp!="none")) {
+					$retVal.= str_replace("###",  $this->MaxFSize, $this->trad("err1")); 
+					unlink ($this->ValChp);
+					$this->error = $retVal.str_replace("###",  $this->Fsize, $this->trad("err2"));
+					die($this->error);
+					$this->ValChp=$value=""; // annule le nom de fichier pour qu'il ne soit mis en base...
+				} else { // fin si fichier trop gros
+					$retcopy=copy($this->ValChp,$ChemFich);
+					//die("copy(".$this->ValChp.",".$ChemFich.",res=$retcopy");
+					if (!$retcopy) { 
+						$this->error="Impossible de copier le fichier". $this->Fname." depuis le fichier temporaire $this->ValChp ! (chemin complet : $ChemFich<br/>";
+						delfich ($this->ValChp);
+					}
 				}
-			}
-			// affecte le nouveau nom de la variable �stocker
-			if (!$this->error) $value=(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname;// ne remet la clé que si elle y est pas déjà.
-			// la valeur �stocker dans la base de donn� est (�priori) le fichier pr���de la cl�
+				// affecte le nouveau nom de la variable �stocker
+				if (!$this->error) $value=(strstr($this->Fname,$keycopy) ? "" : $keycopy).$this->Fname;// ne remet la clé que si elle y est pas déjà.
+				// la valeur �stocker dans la base de donn� est (�priori) le fichier pr���de la cl�
 			} // fin si nouveau ou modif avec fichier attach�
 			if ($this->TypEdit==-1 && $this->OFN!="") {// si suppression d'enregistrement on efface tous les fichiers eventuels
 				$ChemFich=$ChemImg.$this->OFN;
