@@ -17,16 +17,18 @@ if ($_REQUEST['custJS']) {
 // init diverses JS dlcube
 include ("initjqdl3.js");
 //include ("runonload.js");
-
 ?>
 /* test activation/désactivation entrée de type LDandTxt*/
 function CheckLDandTxt(theId) {
-	if (document.getElementById('assLD4Txt' + theId).value == 'OTH') {
-		document.getElementById(theId).type = 'text';
+	var selvalue = document.getElementById('assLD4Txt' + theId).options[document.getElementById('assLD4Txt' + theId).selectedIndex].value;
+	if (selvalue == 'OTH') {
+		/* IE ne supporte pas qu'on change le type à la volée... 
+		document.getElementById(theId).type = 'text';*/
 		document.getElementById(theId).value = '';
 	} else {
-		document.getElementById(theId).type = 'hidden';
-		document.getElementById(theId).value = document.getElementById('assLD4Txt' + theId).value;
+		/*IE ne supporte pas qu'on change le type à la volée... 
+		document.getElementById(theId).type = 'hidden';*/
+		document.getElementById(theId).value = selvalue;
 	}
 }
 
