@@ -1,23 +1,24 @@
 <? /*
 Fonctions Utiles à l'environnement PYA et PYAObj
 */
+$CSpIC=""; // caract�e pour "isoler" les noms de champs merdiques
 // ne fonctionne qu'avec des versions r�entes de MySql
 $MaxFSizeDef = 5000000; // taille max des fichiers joints par d�aut!!
 
 // Nom de la table de description des autres
-$GLOBALS['TBDname'] = "DESC_TABLES";
+$TBDname="DESC_TABLES";
 // nom du champ contenant les caract�istiques globales �la table
-$GLOBALS['NmChDT'] = "TABLE0COMM";
+$NmChDT="TABLE0COMM";
 // id contenu ds les tables virtuelles ie celles qui n'existent pas en base
 
-$GLOBALS['id_vtb'] = $GLOBALS["id_vtb"] ? $GLOBALS["id_vtb"] : "_vtb_";
+$id_vtb = $GLOBALS["id_vtb"] ? $GLOBALS["id_vtb"] : "_vtb_";
 
-$GLOBALS['sepNmTableNmChp'] = "#";
-define('sepNmTableNmChp','#');
+$sepNmTableNmChp = "#";
 
 // Fonction de definition de condition
 // appelé par les listes qui récupères des critères générés par EchoFilt
 function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
+ 
  if ($ValF!=NULL && $ValF!="%") {
  	if (!is_array($ValF)) $ValF = $typChpNum ? ($ValF + 0) : db_escape_string($ValF);
     switch ($TypF) { // switch sur type de filtrage
@@ -51,7 +52,7 @@ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
         		$cond="";
         	} else {
         		if (!$typChpNum) $gi="'";
-        		$cond="($NomChp LIKE $gi$ValF$gi)";
+        		$cond="($NomChp = $gi$ValF$gi)";
         	}
         }
         break;
@@ -188,10 +189,10 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 // les objets sont initialis� �partir des noms de champs et des noms de base du resultat
 // $hashwnmtb : false, l'indice du tableau de hasch est le NomChamp, true c'est NomTable|NomChamp
 function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1,$co_user="",$othparams = array("hashwnmtb"=>false)) {
-//global $debug, $DBName,$sepNmTableNmChp;
+global $debug, $DBName,$sepNmTableNmChp;
 	if(!defined("sepNmTableNmChp")) {
 		define("sepNmTableNmChp","#"); // sécurité
-	} else 		//echo "baaaaaahhhh";
+	}
   if ($Base=="") $Base=$DBName;
   if($limit!="no") $req = addwherefORlimit($req,$limit); // ajoute proprement la clause limit, meme avec Oracle (belle merde)
   $resreq = db_query($req);
@@ -379,7 +380,7 @@ function ttChpLink($valb0,$reqsup="",$valc=""){
 	if (count($valb2)>1) {
 		$lntable=$valb2[0];
 		if ($reqsup!="") {
-			$reqsup= "(".$reqsup." AND ".$valb2[1].")";
+			$reqsup= "(".$this->Val2." AND ".$valb2[1].")";
 		} else $reqsup = $valb2[1];
 	}
 	// si une seule valeur a chercher, on ignore $reqsup sinon ça met la merde
@@ -600,13 +601,13 @@ function parseArgsReq(&$req) {
 // retourne tb(arg1,typoss[,val1])et dans str met   xxxx ###i yyyy [arg2] zzzz [arg3]
 
 function ret1Arg(&$str,$i,$chm="###",$ch1="[",$ch2="]") {
-	
+	$boorqinsert = stristr($str,"insert");
 	if ($np =  strpos($str,$ch1)) { // indice position de "["
 		$ret = substr($str,$np+1); // chaine après [
 		$str1 = substr($str,0,$np);
 		if ($np =  strpos($ret,"]")) {
 			$str = $str1.$chm.$i.substr($ret,$np+1);
-			$typoss = stristr($ret,"where") ? "Edit" : "Filt"; // si reste where à droite de l'arg c'est qu'on est à gauche donc que c'est un édit, sinon, c'est un filtre
+			$typoss = ($boorqinsert || stristr($ret,"where")) ? "Edit" : "Filt"; // si reste where à droite de l'arg c'est qu'on est à gauche donc que c'est un édit, sinon, c'est un filtre
 			$strret = substr($ret,0,$np);
 			if (strstr($strret,"=")) {
 				$tb1 = explode("=",$strret);
