@@ -1,4 +1,5 @@
 <? //infos techniques PHPYOURADMIN
+ini_set("display_errors","On");
 $debug=false;
 $dbgn2=false;
 include ("infos_conn_MySql.inc");
@@ -66,9 +67,12 @@ global $def_adrr;
 //fonction qui connecte �la base de donn�s
 function DBconnect($DB=false) {
 include ("globvar.inc");
+//print_r($_SESSION);
 if ($_SESSION["DBName"]) $DBName=$_SESSION["DBName"];
+if ($_REQUEST["lc_DBName"]) $DBName=$_SESSION["DBName"]=$_REQUEST["lc_DBName"];
+
 if ($DB) $DBName=$DB;
-if (isset($ss_parenv['MySqlDB'])) $DBName=$ss_parenv['MySqlDB'];
+if ($ss_parenv['MySqlDB']!="") $DBName=$ss_parenv['MySqlDB'];
 if ($DBName) $_SESSION["DBName"]=$ss_parenv['MySqlDB']=$DBName;
 $DBName = $_SESSION["DBName"];
 if (isset($ss_parenv['MySqlUser'])) $DBUser=$ss_parenv['MySqlUser'];
@@ -94,16 +98,7 @@ return($_SESSION['db_lnkid']);
 function sess_start($verifUserisConnected=true) {
 session_start();
 include ("globvar.inc");
-
-// simulation register_globals=On
-foreach( $_REQUEST as $a => $b)
-{
-if ($a!="PHPSESSID")
-	{
-//	global $a;
-	$$a = $b;
-	}
-}
+//print_r($_SESSION);
 
 foreach( $_SESSION as $a => $b)
 {
@@ -122,8 +117,8 @@ if (isset($lc_adrr)) { // tableau des adresses de retour de page
    $_SESSION['ss_adrr']=$lc_adrr;
 }
 
-if (isset($lc_parenv)) { // tableau des param�res d'environnement pass� en get ou formulaire
-   foreach ($lc_parenv as $key=>$val) {
+if (isset($_REQUEST['lc_parenv'])) { // tableau des param�res d'environnement pass� en get ou formulaire
+   foreach ($_REQUEST['lc_parenv'] as $key=>$val) {
       // ne maj que ceux qui sont pass�
       $ss_parenv[$key]=$val;
       //echovar("ss_parenv");

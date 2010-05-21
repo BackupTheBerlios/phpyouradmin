@@ -1,15 +1,17 @@
 <?php 
 require("infos.php");
 sess_start();
-include_once("reg_glob.inc");
+//include_once("reg_glob.inc");
 DBconnect();
+$NM_TABLE = $_SESSION['NM_TABLE'];
 //print_r($_REQUEST);
 // reponse a un ajout, modif ou suppression d'un enregistrement
 //if ($debug) echovar("_FILES");
 // s'il existe au moins 1 champ fichier-photo,
 // on calcule la CLE POUR LE NOM DE STOCKAGE DES FICHIERS ATTACHES EVENTUELS
 // uniquement en cas autre que modif: ds ce cas c'est pas la peine, $keycopy=$key
-if ($modif=="1" && $key!="") {
+
+if ($_REQUEST['modif']=="1" && $_REQUEST['key']!="") {
 	$keycopy=$keyfich."_";
 } else {
 	$rpfl=msq("SELECT TYPEAFF from $TBDname where NM_TABLE='$NM_TABLE' AND TYPEAFF='FICFOT'");
@@ -32,7 +34,7 @@ if ($modif=="1" && $key!="") {
 		// dans mff on a les caract. de cle primaire, auto_increment, etc ... du 1er champ
 		if (stristr($mff,"primary_key")) { // si 1er champ est une cl�primaire
 			// on regarde si c'est un auto incr�ent
-			if (stristr($mff,"auto_increment") && (($modif==0) || ($modif==2))) 
+			if (stristr($mff,"auto_increment") && (($_REQUEST['modif']==0) || ($_REQUEST['modif']==2)))
 				{ // si auto increment et nouvel enregistrement ou copie
 				$rp1=msq("SELECT $chp from $CSpIC$NM_TABLE$CSpIC order by $chp DESC LIMIT 1");
 				$rp2=mysql_fetch_row($rp1);
@@ -66,7 +68,7 @@ while ($res1=db_fetch_row($rq1))
   $PYAoMAJ=new PYAobj(); // recréée l'objet pour RAZ ses propriétés !!!
   $PYAoMAJ->NmBase=$DBName;
   $PYAoMAJ->NmTable=$NM_TABLE;
-  $PYAoMAJ->TypEdit=$modif;
+  $PYAoMAJ->TypEdit=$_REQUEST['modif'];
   $NOMC=$res1[0]; // nom variable=nom du champ
   $PYAoMAJ->NmChamp=$NOMC;
   $PYAoMAJ->InitPO();
@@ -95,8 +97,8 @@ while ($res1=db_fetch_row($rq1))
      $PYAoMAJ->Fsize=$_FILES[$NOMC]['size'];
      $VarOldFName="Old".$NOMC;
      $PYAoMAJ->OFN=$$VarOldFName;
-     if ($modif==-1) { // suppression de l'enregistrement
-        $rqncs=msq("select ".$PYAoMAJ->NmChamp." from ".$PYAoMAJ->NmTable." where ".stripslashes($key));
+     if ($_REQUEST['modif']==-1) { // suppression de l'enregistrement
+        $rqncs=msq("select ".$PYAoMAJ->NmChamp." from ".$PYAoMAJ->NmTable." where ".stripslashes($_REQUEST['key']));
         $rwncs=db_fetch_row($rqncs);
         $PYAoMAJ->Fname=$rwncs[0];
         }
@@ -107,16 +109,16 @@ while ($res1=db_fetch_row($rq1))
 
 //echovar("tbset");
 
-$key=stripslashes($key);
-//echo "Cl� $key <BR>";
+$_REQUEST['key']=stripslashes($_REQUEST['key']);
+//echo "Cl� $_REQUEST['key'] <BR>";
 
-// GROS BUG  $where=" where ".$key.($where_sup=="" ? "" : " and $where_sup");
-$where=" where ".$key;
-if ($modif==1) // Si on vient d'une �ition
+// GROS BUG  $where=" where ".$_REQUEST['key'].($where_sup=="" ? "" : " and $where_sup");
+$where=" where ".$_REQUEST['key'];
+if ($_REQUEST['modif']==1) // Si on vient d'une �ition
   {
   $strqaj="UPDATE $CSpIC$NM_TABLE$CSpIC SET ".tbset2set($tbset)." $where";
   }
-else if ($modif==-1) // // Si on vient d'une suppression
+else if ($_REQUEST['modif']==-1) // // Si on vient d'une suppression
   {
   $strqaj="DELETE FROM $CSpIC$NM_TABLE$CSpIC $where";
 

@@ -1,8 +1,13 @@
 <?
 require("infos.php");
 sess_start();
-include_once("reg_glob.inc");
+//include_once("reg_glob.inc");
 DBconnect();
+$modif = $_REQUEST['modif'];
+$key = $_REQUEST['key'];
+if ($_REQUEST['lc_NM_TABLE']) {
+	$NM_TABLE = $_SESSION['NM_TABLE'] = $_REQUEST['lc_NM_TABLE'];
+}
 
 if ($modif=="C") {
    	$modif=1;

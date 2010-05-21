@@ -1,10 +1,10 @@
 <? 
 require("infos.php");
-sess_start();
 $_SESSION['where_sup']="";
 $_SESSION['NM_TABLE']="";
 $_SESSION['DBName']="";
-include_once("reg_glob.inc");
+sess_start();
+//include_once("reg_glob.inc");
 $title=trad("LB_title"). $_SERVER["HTTP_HOST"] ."( IP=".gethostbyname($_SERVER["HTTP_HOST"]).")";
 $lnkbdd=DBconnect($_REQUEST['lc_parenv[MySqlBddName]']);
 //mysql_connect($DBHost,$DBUser, $DBPass) or die ("Impossible de se connecter au serveur $DBHost (user: $DBUser, passwd: $DBPass)");

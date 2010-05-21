@@ -1,13 +1,13 @@
-<? 
+<?
 require("infos.php");
 sess_start();
 DBconnect();
 
 $ult=rtb_ultchp(); // tableau des noms de champs sensibles �la casse (�cause de pgsql...)
-include_once("reg_glob.inc");
+//include_once("reg_glob.inc");
 
-if (isset($lc_where_sup)) {
-  $where_sup=$lc_where_sup;
+if (isset($_REQUEST['lc_where_sup'])) {
+  $where_sup=$_REQUEST['lc_where_sup'];
   }
 else $where_sup="";
 
@@ -16,6 +16,7 @@ else $where_sup="";
 if ($where_sup !="") $_SESSION["where_sup"] = $where_sup;
 if ($_REQUEST['reqcust_name']!= "") $_SESSION["reqcust_name"] = $_REQUEST['reqcust_name'];
 if ($_REQUEST['lc_reqcust']!= "")  $_SESSION["lc_reqcust"] = $_REQUEST['lc_reqcust'];
+if ($_REQUEST['lc_NM_TABLE']) $_SESSION['NM_TABLE'] = $_REQUEST['lc_NM_TABLE'];
 
 $reqcust = $_SESSION["lc_reqcust"];
 
@@ -33,8 +34,8 @@ $_SESSION["NoConfSuppr"]=$NoConfSuppr; //session_register("NoConfSuppr");
 
 // regarde s'il existe des filtres ou selection d'affichage de colonnes, que si pas de req custom
 
-if ($lc_NM_TABLE!="__reqcust") {
-   $qr = db_query("SELECT NM_CHAMP from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='$lc_NM_TABLE' AND (VAL_DEFAUT".$GLOBALS['sqllenstr0']."  OR TYP_CHP".$GLOBALS['sqllenstr0'].") AND TYPAFF_L".$GLOBALS['sqllenstr0']." order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
+if ($_REQUEST['lc_NM_TABLE'] != "__reqcust") {
+   $qr = db_query("SELECT NM_CHAMP from $TBDname where NM_CHAMP!='$NmChDT' AND NM_TABLE='".$_REQUEST['lc_NM_TABLE']."' AND (VAL_DEFAUT".$GLOBALS['sqllenstr0']."  OR TYP_CHP".$GLOBALS['sqllenstr0'].") AND TYPAFF_L".$GLOBALS['sqllenstr0']." order by ORDAFF_L, LIBELLE") ; // recupere libelle, ordre affichage et COMMENT, si type affichage ="HID", on affiche pas la table
    $nbrqr=db_num_rows($qr);
 } else {
 	$tbargscust = parseArgsReq($reqcust);
@@ -42,13 +43,13 @@ if ($lc_NM_TABLE!="__reqcust") {
 }
 // sinon, va directement sur la liste de réponses
 if ($nbrqr==0) {
-	$url = "list_table.php?lc_NM_TABLE=$lc_NM_TABLE&lc_where_sup=".urlencode($lc_where_sup)."&lc_nbligpp=$lc_nbligpp&lc_PgReq=0&lc_reqcust=".urlencode($_REQUEST['lc_reqcust']);
+	$url = "list_table.php?lc_NM_TABLE=".$_REQUEST['lc_NM_TABLE']."&lc_where_sup=".urlencode($_REQUEST['lc_where_sup'])."&lc_nbligpp=$lc_nbligpp&lc_PgReq=0&lc_reqcust=".urlencode($_REQUEST['lc_reqcust']);
 	outJS("window.location.replace('$url')",true) ;
   //header("location: $url");
   die();
 }
 
-$title=trad(REQ_query_on_table).$lc_NM_TABLE." , ".trad(COM_database).$DBName;
+$title=trad(REQ_query_on_table).$_REQUEST['lc_NM_TABLE']." , ".trad(COM_database).$DBName;
 include ("header.php");?>
 <div align="center">
 <form action="list_table.php" method="post" name="theform" ENCTYPE="multipart/form-data">
@@ -61,21 +62,21 @@ include ("header.php");?>
 }
 if (!$tbargscust) { // pas requête Custom
 	?>
-	<H1><?=trad(REQ_crit_select).$lc_NM_TABLE;?></H1>
+	<H1><?=trad(REQ_crit_select).$_REQUEST['lc_NM_TABLE'];?></H1>
 	<P><? //echo trad(REQ_select_text);
-	echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"req_table.php?clearCrit=true&lc_NM_TABLE=$lc_NM_TABLE\">". trad("REQ_clean_memFilt")."</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"req_table.php?clearCrit=true&lc_NM_TABLE=".$_REQUEST['lc_NM_TABLE']."\">". trad("REQ_clean_memFilt")."</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 	if ($_REQUEST['clearCrit']) unset($_SESSION['memFilt']);
 	if ($admadm!="1" && $ss_parenv[ro]!=true) { 
-		echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"edit_table.php?lc_NM_TABLE=$lc_NM_TABLE&lc_adrr[edit_table.php]=".$_SERVER["PHP_SELF"]."\" title=\"".trad(LT_addrecord)."\"> <img src=\"new_r.gif\"> ".trad(LT_addrecord)." </a>";
+		echo "&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"edit_table.php?lc_NM_TABLE=".$_REQUEST['lc_NM_TABLE']."&lc_adrr[edit_table.php]=".$_SERVER["PHP_SELF"]."\" title=\"".trad(LT_addrecord)."\"> <img src=\"new_r.gif\"> ".trad(LT_addrecord)." </a>";
 		}
 	?></P>
-	<input type="hidden" name="lc_NM_TABLE" value="<?=$lc_NM_TABLE;?>">
+	<input type="hidden" name="lc_NM_TABLE" value="<?=$_REQUEST['lc_NM_TABLE'];?>">
 	<TABLE>
 	<TR class="THEAD">
 	<TH>Champ</TH><TH>Critere</TH><TH>A Afficher</TH></TR>
 	<?
 	$FCobj=new PYAobj();
-	$FCobj->NmTable=$lc_NM_TABLE;
+	$FCobj->NmTable=$_REQUEST['lc_NM_TABLE'];
 	$FCobj->NmBase=$DBName;
 	$nolig=0;
 	while ($res=db_fetch_array($qr)) {
@@ -90,7 +91,7 @@ if (!$tbargscust) { // pas requête Custom
 	}
 } else { // req custom
 	echo "<H1>".trad("REQ_crit_req_cust").$_SESSION["reqcust_name"]."</H1>";
-	echo "<p>&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"req_table.php?clearCrit=true&lc_NM_TABLE=$lc_NM_TABLE\">". trad("REQ_clean_memFilt")."</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	echo "<p>&nbsp;&nbsp;<a class=\"fxsmallbutton\" href=\"req_table.php?clearCrit=true&lc_NM_TABLE=".$_REQUEST['lc_NM_TABLE']."\">". trad("REQ_clean_memFilt")."</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 	if ($_REQUEST['clearCrit']) unset($_SESSION['memFilt']);
 	?></P>
 	<input type="hidden" name="lc_NM_TABLE" value="__reqcust">

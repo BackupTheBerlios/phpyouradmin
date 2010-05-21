@@ -56,18 +56,16 @@ Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 <select name="TableName[]" multiple size="10">
 <? 
 
- $tbltab = db_show_tables($DBName); // ttes les tables de la base
- if (in_array($TBDname,$tbltab)) { // si la table de dsc existe déjà
- 	$tbdexists = true;
+ $tbltab = db_show_tables($DBName);
+ if (in_array($TBDname,$tbltab)) {
  	$tbdbdjp = db_qr_comprass("select distinct NM_TABLE from $TBDname");
  	if ($tbdbdjp) { foreach ($tbdbdjp as $ltb) {
- 		$tbdbdjp2[] = $ltb['NM_TABLE']; // constitue un tableau de toutes les tables déjà décrites, y compris les virtuelles
+ 		$tbdbdjp2[] = $ltb['NM_TABLE'];
  	}}
- } else $tbdexists = false;
- 
- foreach($tbltab as $rst) { // balaye toutes les tables physiques
+ }
+ foreach($tbltab as $rst) {
   $LNmTb.=$rst.";"; // construit une chaine avec ts les noms de tables de la base
-  if (strtolower($rst)!=strtolower($TBDname)) 
+  if (strtolower($rst)!=strtolower($TBDname))
      echo '<OPTION VALUE="'.$rst.'" '.(in_array($rst,$tbdbdjp2) ? 'selected="selected"' : '').'>'.$rst.'</OPTION>'."\n";
   }
 ?>
@@ -77,11 +75,9 @@ Selectionner une ou plusieurs tables (Ctrl+clic)dans la liste, et cliquez sur le
 </td>
 <td>
 <br>
-<? if ($tbdexists) { ?>
 <input type="radio" name="CREATION" value="false">Consulter la table<br>
 <input type="radio" name="CREATION" value="check" checked>Vérifier la table, ie indiquer les différences entre les champs et tables présents dans <? echo $TBDname; ?> et ceux effectivement présents dans la base <? echo $DBName; ?><br>
 <input type="radio" name="CREATION" value="MAJ">Mettre a jour la table: les nouveaux champs crees, les anciens supprimes, mais les existants inchanges<br>
-<? } ?>
 <input type="radio" name="CREATION" value="vrai" onclick="if (this.checked) {alert ('Soyez certain de vouloir re-geneer tout ou partie de la table de description !\n Toutes les valeurs prealablement saisies seront ecrasees si elles existent !');}" >(re)generer la table (!)
 <BR></h3>
 <input type="checkbox" name="AFFALL" value="vrai">Affichage des caracteristiques <u>completes</u> de chaque champ dans l'ecran suivant<BR><BR>

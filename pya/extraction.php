@@ -3,11 +3,11 @@
 //header('Content-type: text/html; charset='.($_SESSION["ss_parenv"]["encoding"]!="" ? $_SESSION["ss_parenv"]["encoding"] : "utf-8")); 
 require("infos.php");
 sess_start();
-include_once("reg_glob.inc");
+//include_once("reg_glob.inc");
 DBconnect();
 
 //$whodb=stripslashes(urldecode($whodb));
-$whodb=stripslashes($whodb);
+$whodb=stripslashes($_REQUEST['whodb']);
 $ult=rtb_ultchp(); // tableau des noms de champs sensibles �la casse (�cause de pgsql...)
 
 //$debug=true;
