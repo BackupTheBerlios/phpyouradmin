@@ -1,13 +1,25 @@
 <? /*
-
 Fonctions Utiles à l'environnement PYA et PYAObj
 */
+// ne fonctionne qu'avec des versions r�entes de MySql
+$MaxFSizeDef = 5000000; // taille max des fichiers joints par d�aut!!
+
+// Nom de la table de description des autres
+$GLOBALS['TBDname'] = "DESC_TABLES";
+// nom du champ contenant les caract�istiques globales �la table
+$GLOBALS['NmChDT'] = "TABLE0COMM";
+// id contenu ds les tables virtuelles ie celles qui n'existent pas en base
+
+$GLOBALS['id_vtb'] = $GLOBALS["id_vtb"] ? $GLOBALS["id_vtb"] : "_vtb_";
+
+$GLOBALS['sepNmTableNmChp'] = "#";
+define('sepNmTableNmChp','#');
+
 // Fonction de definition de condition
 // appelé par les listes qui récupères des critères générés par EchoFilt
 function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
- 
  if ($ValF!=NULL && $ValF!="%") {
- 	if (!is_array($ValF)) $ValF = $typChpNum ? ($ValF + 0) : addslashes($ValF);
+ 	if (!is_array($ValF)) $ValF = $typChpNum ? ($ValF + 0) : db_escape_string($ValF);
     switch ($TypF) { // switch sur type de filtrage
       case "EGAL" : // special
         $ValF=trim($ValF);
@@ -29,7 +41,7 @@ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp LIKE '%".addslashes($valf)."%' OR "; // on av vire les % puis les a remis
+                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp LIKE '%".db_escape_string($valf)."%' OR "; // on av vire les % puis les a remis
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!
@@ -39,7 +51,7 @@ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
         		$cond="";
         	} else {
         		if (!$typChpNum) $gi="'";
-        		$cond="($NomChp = $gi$ValF$gi)";
+        		$cond="($NomChp LIKE $gi$ValF$gi)";
         	}
         }
         break;
@@ -56,7 +68,7 @@ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".addslashes($valf)."' OR ";
+                $cond.=$typChpNum ? "$NomChp = $valf OR " : "$NomChp='".db_escape_string($valf)."' OR ";
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR  
 	   // et rajoute () !!          
@@ -80,7 +92,7 @@ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
                 break; // pas de condition s'il y a %
                 }
              else
-                $cond.="($NomChp LIKE '%,".addslashes($valf).",%' OR $NomChp LIKE '".addslashes($valf).",%' OR $NomChp LIKE '%,".addslashes($valf)."' OR $NomChp='".addslashes($valf)."') OR "; 
+                $cond.="($NomChp LIKE '%,".db_escape_string($valf).",%' OR $NomChp LIKE '".db_escape_string($valf).",%' OR $NomChp LIKE '%,".db_escape_string($valf)."' OR $NomChp='".db_escape_string($valf)."') OR "; 
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!
@@ -174,40 +186,52 @@ function RTbVChPO($req,$dbname="",$DirEcho=false) {
 
 // fonction renvoyant un tableau d'objets PYA initialis� en fonction d'une simple requ� SQL
 // les objets sont initialis� �partir des noms de champs et des noms de base du resultat
-// $ignorErrInitPO : si true ne renvoie pas d'erreur si champ non trouvé, fait comme pr les req custom
 // $hashwnmtb : false, l'indice du tableau de hasch est le NomChamp, true c'est NomTable|NomChamp
-function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1,$co_user="",$ignorErrInitPO=false,$hashwnmtb=false) {
-global $debug, $DBName;
+function InitPOReq($req,$Base="",$DirEcho=true,$TypEdit="",$limit=1,$co_user="",$othparams = array("hashwnmtb"=>false)) {
+//global $debug, $DBName,$sepNmTableNmChp;
+	if(!defined("sepNmTableNmChp")) {
+		define("sepNmTableNmChp","#"); // sécurité
+	} else 		//echo "baaaaaahhhh";
   if ($Base=="") $Base=$DBName;
-  $resreq = db_query($req.($limit==1 ? " limit 1 " : ($limit!="no" ? " limit $limit " : "")));
+  if($limit!="no") $req = addwherefORlimit($req,$limit); // ajoute proprement la clause limit, meme avec Oracle (belle merde)
+  $resreq = db_query($req);
   if ($limit==1) {
   	$tbValChp = db_fetch_array($resreq); // tableau des valeurs de l'enregistrement
-	if ($CIL['db_num_rows']== 0 && !($_SESSION['db_type'] == "oracle")) return (false); // le oci_num_rows ne fonctionne pas avec Oracle !!
-  } else {
-  	$CIL['db_num_rows'] = db_num_rows($resreq);
-  	$CIL['db_resreq'] = $resreq;
-  }
+//	if (db_num_rows($resreq)== 0 && !($_SESSION['db_type'] == "oracle")) return (false); // le oci_num_rows ne fonctionne pas avec Oracle !!
+  }  
+  $CIL['db_num_rows'] = db_num_rows($resreq);
+  $CIL['db_resreq'] = $resreq;
   
 //  print_r($tbValChp);
   for ($i=0;$i<db_num_fields($resreq);$i++) {
       $NmChamp=db_field_name($resreq,$i);
-      $NTBL=db_field_table($resreq,$i);
-	$NmChp4hash = $hashwnmtb ? $NTBL."|".$NmChamp : $NmChamp;
+      //echo "Chp traité : $NmChamp ";
+      // la fonction db_field_table est tres aproximative avec Oracle et Pgsql
+      // on peut préciser le nom de la table en faisant select toto as latable#toto dans la req cust
+      if (strstr($NmChamp,sepNmTableNmChp)) {
+      	$tb = explode(sepNmTableNmChp,$NmChamp);
+      	$NmChp4hash = $NmChamp;
+      	$NTBL = $tb[0];
+      	$NmChamp = $tb[1];
+      } else {
+      	$NTBL = db_field_table($resreq,$i);
+		$NmChp4hash = $othparams['hashwnmtb'] ? $NTBL.sepNmTableNmChp.$NmChamp : $NmChamp;
+	}
       $CIL[$NmChp4hash]=new PYAobj(); // nouvel objet
       $CIL[$NmChp4hash]->NmBase=$Base;
       $CIL[$NmChp4hash]->NmTable=$NTBL;
       $CIL[$NmChp4hash]->NmChamp=$NmChamp;
       $CIL[$NmChp4hash]->TypEdit=$TypEdit;
+      $CIL[$NmChp4hash]->DirEcho=$DirEcho;
  	// requetes custom : initialise pas le PO si mot clé ou nom de champ est un entier
 	//echo  $CIL[$NmChp4hash]->NmChamp.":".preg_match("/^[0-9]+$/",$CIL[$NmChp4hash]->NmChamp)."<br/>";
-      if (!(preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$CIL[$NmChp4hash]->NmChamp) || preg_match("/^[0-9]+$/",$CIL[$NmChp4hash]->NmChamp))) {
-		$CIL[$NmChp4hash]->retBooInitPO = $ignorErrInitPO;
-      	$rpo = $CIL[$NmChp4hash]->InitPO();
-		if (!$rpo) $CIL[$NmChp4hash]->Libelle = $NmChp4hash; // si champ pas trouvé (table non définie) on garde son libellé
+	/// TODO TODO faut améliorer ce test
+      if (!(preg_match("/sum\(|count\(|min\(|max\(|avg\(/i",$NmChamp) || preg_match("/^[0-9]+$/",$NmChamp))) {
+      	$err = $CIL[$NmChp4hash]->InitPO();
+		if ($err) $CIL[$NmChp4hash]->Libelle = '<i>'.$NmChp4hash.'</i>'; // si champ pas trouvé (table non définie) on garde son libellé
       } else {
       	 $CIL[$NmChp4hash]->Libelle = $NmChp4hash;
       }
-      if ($DirEcho!=true) $CIL[$NmChp4hash]->DirEcho=false;
       if ($TypEdit!="N" && $TypEdit!="" && $limit==1) {
       	$CIL[$NmChp4hash]->ValChp=$tbValChp[$NmChamp];
       	//echo $NmChamp."->".$tbValChp[$NmChamp];
@@ -247,15 +271,15 @@ function PYATableMAJ($DB,$table,$typedit,$tbKeys=array()) {
 	$rq1=db_query("SELECT * from DESC_TABLES where NM_TABLE='$table' AND NM_CHAMP!='TABLE0COMM' AND (TYPEAFF!='HID' OR ( TT_PDTMAJ!='' AND TT_PDTMAJ!= NULL)) ORDER BY ORDAFF, LIBELLE");
 
 	$key = implode("_",$tbKeys)."_";
-	$PYAoMAJ=new PYAobj();
-	$PYAoMAJ->NmBase=$DB;
-	$PYAoMAJ->NmTable=$table;
-	$PYAoMAJ->TypEdit=$typedit;
-	if (MaxFileSize>0) $PYAoMAJ->MaxFSize=MaxFileSize;
-
 	$tbset = array();
 	$tbWhK = array();
 	while ($res1 = db_fetch_array($rq1)) {
+		$PYAoMAJ=new PYAobj(); // recréée l'objet pour RAZ ses propriétés !!!
+		$PYAoMAJ->NmBase=$DB;
+		$PYAoMAJ->NmTable=$table;
+		$PYAoMAJ->TypEdit=$typedit;
+		if (MaxFileSize>0) $PYAoMAJ->MaxFSize=MaxFileSize;
+
 		$NOMC = $res1['NM_CHAMP']; // nom variable=nom du champ
 		$PYAoMAJ->NmChamp = $NOMC;
 		$PYAoMAJ->InitPO($_REQUEST[$NOMC],$res1); // init l'objet, sa valeur, lui passe le tableau d'infos du champ pr éviter une requete suppl.
@@ -319,195 +343,203 @@ function cvldlm2in ($strap,$addsl=false) {
 	return($uidin);
 }
 
-/* fonction de traitement des champs li�
- arg1: chaine brute de liaison, arg2: valeur cherch� (optionnelle)
- la chaine de liaison comporte 2 parties:
- Nom_base,nom_serveur,nom_user,passwd;0: table, 1: champ li�(cl�; 2: ET SUIVANTS champs affich�
+/* fonction de traitement des champs liés
+arg1: chaine brute de liaison, arg2: valeur cherch� (optionnelle)
+la chaine de liaison comporte 2 parties:
+Nom_base,nom_serveur,nom_user,passwd;(0)table,(1) champ lié(clé)**; (2)et SUIVANTS champs affichés [[ condition where suppl mise dans PYA
+
+** maintenant, gestion des clés multiples : dans le champ lié, peut mettre nomchamp1:nomchamp2:
 
 retourne un tableau associatif si valc="", une valeur sinon
 $reqsup est utilise par DRH2 et GDP1
 */
 function ttChpLink($valb0,$reqsup="",$valc=""){
-//echo $reqsup;
-global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname,$maxrepld;
-//$valb0=str_replace (' ','',$valb0); // enl�e espaces ind�irables
-$valbrut=explode(';',$valb0);
-/// en cas de modif de la syntaxe, checker aussi PYAObj
-/// methode echoFilt, case LDLLV qui se sert de la chaine valb0 pour une requete imbriquée  
-if (count($valbrut)>1) { // connection �une base diff�ente
-  $lntable=$valbrut[1];
-  $defdb=explode(',',$valbrut[0]);
-  $newbase=true;
- // si user et/ou hote d'acc� �la Bdd est diff�ent, on etablit une nvlle connexion
- // on fait une nouvelle connection syst�atiquement pourt etre compatioble avec pg_sql
-   //if (($defdb[1]!="" && $defdb[1]!=$DBHost)||($defdb[2]!="" && $defdb[2]!=$DBUser)) {
-     $lnc=db_connect($defdb[1],$defdb[2],$defdb[3],$defdb[0]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: $defdb[3]");
-	 $newconnect=true;
-     //}
-   //mysql_select_db($defdb[0]) or die ("Impossible d'ouvrir la base de donn�s $defdb[0].");
-  }
-else { //commme avant
-   $lntable=$valbrut[0];
-   $newbase=false;
-   $newconnect=false;
-   }
-// gestion condition AND depuis PYA
-$valb2 = explode("[[",$lntable);
-if (count($valb2)>1) {
-	$lntable=$valb2[0];
-	if ($reqsup!="") {
-		$reqsup= "(".$this->Val2." AND ".$valb2[1].")";
-	} else $reqsup = $valb2[1];
-}
-// si une seule valeur a chercher, on ignore $reqsup sinon ça met la merde
-if ($valc != "") $reqsup = "";
+	//echo $reqsup;
+	global $DBHost,$DBUser,$DBName,$DBPass,$carsepldef,$TBDname,$maxrepld;
+	$valbrut=explode(';',$valb0);
+	/// en cas de modif de la syntaxe, checker aussi PYAObj
+	/// methode echoFilt, case LDLLV qui se sert de la chaine valb0 pour une requete imbriquée  
+	if (count($valbrut)>1) { // connection �une base diff�ente
+		$lntable=$valbrut[1];
+		$defdb=explode(',',$valbrut[0]);
+		$newbase=true;
+		// si user et/ou hote d'acc� �la Bdd est diff�ent, on etablit une nvlle connexion
+		// on fait une nouvelle connection syst�atiquement pourt etre compatioble avec pg_sql
+		//if (($defdb[1]!="" && $defdb[1]!=$DBHost)||($defdb[2]!="" && $defdb[2]!=$DBUser)) {
+		$lnc=db_connect($defdb[1],$defdb[2],$defdb[3],$defdb[0]) or die ("Impossible de se connecter au serveur $defdb[1], user: $defdb[2], passwd: $defdb[3]");
+		$newconnect=true;
+		//}
+	} else { //commme avant
+		$lntable=$valbrut[0];
+		$newbase=false;
+		$newconnect=false;
+	}
+	// gestion condition AND depuis PYA
+	$valb2 = explode("[[",$lntable);
+	if (count($valb2)>1) {
+		$lntable=$valb2[0];
+		if ($reqsup!="") {
+			$reqsup= "(".$reqsup." AND ".$valb2[1].")";
+		} else $reqsup = $valb2[1];
+	}
+	// si une seule valeur a chercher, on ignore $reqsup sinon ça met la merde
+	if ($valc != "") $reqsup = "";
 
-// 0: table, 1: champ li�(cl�; 2: ET SUIVANTS champs affich�
-$defl=explode(',',$lntable);
-$nbca=0; // on regarde les suivants pour construire la requete
-$rcaf="";
-/* si le 1er �afficher champ comporte un & au d�ut, il faut aller cherche les valeurs dans une 
-table; les param�res sont  indiqu� dans les caract�istiques d'�ition de CE champ dans la table  de d�inition*/
-
-/*if (strstr($defl[2],"&")) { // si chainage
-    $nmchp=substr ($defl[2],1); // enl�e le &
-       if (strstr($nmchp,"@")) { // si classement sur ce champ
-         $nmchp=substr ($nmchp,1); // enl�e le @
-         $orderby=" order by $nmchp ";
-         }
-     $rcaf=$nmchp;
-     $rqvc=msq("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
-     $resvc=db_fetch_row($rqvc);
-     $valbchain=$resvc[0];
-    }*/
-//else {
-     while ($defl[$nbca+2]!="") {
-       $nmchp=$defl[$nbca+2];
-       $c2aff=true; // champ �afficher effectivement
-       if (strstr($nmchp,"!")) { // caract�e sp�ateur d�ini
-         $nmchp=explode("!",$nmchp);
-       	 $tbcs[$nbca+1]=$nmchp[0]; // s�arateur avant le "!"
-       	 $nmchp=$nmchp[1];
-        }
+	// 0: table, 1: champ lié(clé(s)); 2: ET SUIVANTS champs affiches
+	$defl = explode(',',$lntable);
+	$nbca = 0; // on regarde les suivants pour construire la requete
+	$rcaf = "";
+	$tbmultk = explode(":",$defl[1]); // on gère les clé multiples: le nom du champ clé est dans ce cas clé1:clé2:clé3
+	// on boucle sur les champs à afficher
+	while ($defl[$nbca+2]!="") {
+		$nmchp=$defl[$nbca+2];
+		$c2aff=true; // champ a afficher effectivement
+		if (strstr($nmchp,"!")) { // caractere separateur defini
+			$nmchp=explode("!",$nmchp);
+			$tbcs[$nbca+1]=$nmchp[0]; // separateur avant le "!"
+			$nmchp=$nmchp[1];
+		}
+		/* si le chp a afficher champ comporte un & au debut, il faut aller cherche les valeurs dans une
+		table; les parametres sont  indiques dans les caracteristiques d'édition de CE champ dans la table  de définition*/
        	if (strstr($nmchp,"&")) { // si chainage
-   	 $nmchp=substr ($nmchp,1); // enl�e le &
-		if (strstr($nmchp,"~@")) { // si classement inverse en plus sur ce champ
-		$nmchp=substr ($nmchp,2); // enl�e le @
-		$orderby=" order by $nmchp DESC "; 
-		} elseif (strstr($nmchp,"@")) { // si classement en plus sur ce champ
-		$nmchp=substr ($nmchp,1); // enl�e le @
-		$orderby=" order by $nmchp "; 
+			$nmchp=substr ($nmchp,1); // enl�e le &
+			if (strstr($nmchp,"~@")) { // si classement inverse en plus sur ce champ
+				$nmchp=substr ($nmchp,2); // enl�e le @
+				$orderby=" order by $nmchp DESC "; 
+			} elseif (strstr($nmchp,"@")) { // si classement en plus sur ce champ
+				$nmchp=substr ($nmchp,1); // enl�e le @
+				$orderby=" order by $nmchp "; 
+			}
+     	 	$rqvc=db_query("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
+      	 	$resvc=db_fetch_row($rqvc);
+     	 	$valbchain[$nbca+1]=$resvc[0]; /// TODO la syntaxe de Valeurs a évolué !!
+    	}
+       	if (strstr($nmchp,"@@")) { // si ce champ indique un champ de structure hierarchique avec la clé de type pid= parent id
+			$cppid = substr ($nmchp,2); // enleve le @@
+			$c2aff=false;
+	 	} elseif (strstr($nmchp,"~@")) { // si classement inverse sur ce champ
+			$nmchp=substr ($nmchp,2); // enleve le ~@
+			$orderby=" order by $nmchp DESC";
+		} elseif (strstr($nmchp,"@")) { // si classement sur ce champ
+			$nmchp=substr ($nmchp,1); // enleve le @
+			$orderby=" order by $nmchp ";
 		}
-     	 $rqvc=db_query("select VALEURS from $TBDname where NM_CHAMP='$nmchp' AND NM_TABLE='$defl[0]'");
-      	 $resvc=db_fetch_row($rqvc);
-     	 $valbchain[$nbca+1]=$resvc[0];
-    	}
+		if ($c2aff) { // si champ à afficher
+			$rcaf=$rcaf.",".$nmchp;
+			$tbc2a[]=$nmchp; // tableau des champs où chercher
+		}
+		$nbca++;
+	} // fin boucle
+	if ($cppid) $nbca=$nbca-1; 
 
-       if (strstr($nmchp,"@@")) { // si ce champ indique un champ de structure hi�achique avec la cl�de type pid= parent id
-         $cppid=substr ($nmchp,2); // enl�e le @@
-	 $c2aff=false;
-	 }	 
-       elseif (strstr($nmchp,"~@")) { // si classement inverse sur ce champ
-         $nmchp=substr ($nmchp,2); // enl�e le ~@
-         $orderby=" order by $nmchp DESC"; 
-        }
-       elseif (strstr($nmchp,"@")) { // si classement sur ce champ
-         $nmchp=substr ($nmchp,1); // enl�e le @
-         $orderby=" order by $nmchp "; 
-        }
-	 
-       if ($c2aff) {	 
-       	  $rcaf=$rcaf.",".$nmchp;
-       	  $tbc2a[]=$nmchp; // tableau des champs ou chercher
-	  }
-       $nbca++;
-       } // fin boucle
-       if ($cppid) $nbca=$nbca-1;  
-/*}*/
- // soit on cherche 1 et 1 seule valeur, ou plusieurs : $valc est un tableau
-if  ($valc!="") {
-    if (is_array($valc)) {
-	foreach($valc as $uval) {
-		$whsl.=" $defl[1]='$uval' OR ";
-	}
-	$whsl=" where ".vdc($whsl,3);
-    } elseif (strstr($valc,'__str2f__')) { // on cherche une chaine parmi les champs
-    	$val2s=str_replace('__str2f__','',$valc);
-    	foreach($tbc2a as $chp) {
-    		$whsl.=" $chp LIKE '%$val2s%' OR ";
-    	}
-    	$whsl=" where ".vdc($whsl,3);
-    	
-    } else {
-    	$whsl=" where $defl[1]='$valc'";
-    }
-    if ($reqsup!="") $whsl="(".$whsl.") AND ".$reqsup;
-}
-// soit la liste est limit� par une clause where suppl�entaire
-else {
-     $whsl= ($reqsup != "" ? "WHERE ".$reqsup : "");
-     }
-
-if ($cppid && $valc=="") { //on a une structure h�archique et plus d'une valeur �chercher
-	// on cherche les parents initiaux, ie ceux dont le pid est null ou egal a la cle du meme enregistrement
-	if ($reqsup!="") {
-		$whreqsup=" AND $reqsup ";
-	}
-	$rql=msq("SELECT $defl[1] , $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid=0) $whreqsup $orderby");
-	while ($rw=db_fetch_row($rql)) {
-		if($rw[0] !="") { // si cle valide
-			$resaf=tradLib($rw[2]);
-			for ($k=2;$k<=$nbca;$k++) {
-				$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
-				if ($valbchain[$k]!="") {
-					$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$rw[$k + 1]);
-				} else $resaf=$resaf.$cs.tradLib($rw[$k +1]);
-			} // boucle sur chps �entuels en plus
-			$tabCorlb[$rw[0]]=$resaf;
-			rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
-			//print_r($tabCorlb);				
-		} // fin si cl�valide
-	} // fin boucle r�onses
-	if (!is_array($tabCorlb)) { // pas de reponses
-		$tabCorlb[err]="Error ! impossible construire l'arbre ";
-	}
 	
-		
-} else 	{ // pas hi�archique => normal     
-	$sqln="SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby LIMIT $maxrepld";
-	//echo $sqln;
-	$rql=msq($sqln);
-	// constitution du tableau associatif �2 dim de corresp code ->lib
-	//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <br/>-->";
-	$tabCorlb=array();
-	while ($resl=db_fetch_row($rql)) {
-		//$cle=strtoupper($resl[0]);
-		$cle=$resl[0];
-		$resaf="";
-		for ($k=1;$k<=$nbca;$k++) {
-			$cs=($tbcs[$k]!="" ? $tbcs[$k] : ($k!=1 ? $carsepldef : ""));
-			if ($valbchain[$k]!="") {
-				$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$resl[$k]);
-			} else $resaf=$resaf.$cs.tradLib($resl[$k]);
+	if  ($valc!="") { // soit on cherche 1 et 1 seule valeur, ou plusieurs si $valc est un tableau, ou une chaine de caractères
+		if (is_array($valc)) { // on a un tableau, donc plusieurs enregistrements recherchés
+			if (count($tbmultk) > 1) { // si FK clé multiple
+				foreach ($valc as $val1c) {
+					$whsmk = "";
+					$uval = explode(":",$val1c);
+					$ik = 0;
+					foreach($tbmultk as $ck) {
+						$whsmk.=" $ck='".$uval[$ik]."' AND ";
+						$ik++;
+					}
+					$whsl.="(".vdc($whsmk,5).") OR ";
+				}
+			} else { // pas clé multiple
+				foreach($valc as $uval) {
+					$whsl.=" $defl[1]='$uval' OR ";
+				}
+			} // fin si pas clémltiple
+			$whsl=" where ".vdc($whsl,3);
+		} elseif (strstr($valc,'__str2f__')) { // on cherche une chaine parmi les champs à afficher (utilisé par la popup de sel générique)
+			$val2s=str_replace('__str2f__','',$valc);
+			foreach($tbc2a as $chp) {
+				$whsl.=" $chp LIKE '%$val2s%' OR ";
+			}
+			$whsl=" where ".vdc($whsl,3);
+		} else { // on cherche une valeur
+			if (count($tbmultk) > 1) { // clé multiple
+				$whsmk = "";
+				$uval = explode(":",$valc);
+				$ik = 0;
+				foreach($tbmultk as $ck) {
+					$whsmk.=" $ck='".$uval[$ik]."' AND ";
+					$ik++;
+				}
+				$whsl.= ' where ('.vdc($whsmk,5).')';
+			} else $whsl=" where $defl[1]='$valc'"; // normal
 		}
-		$tabCorlb[$cle]=stripslashes($resaf); // tableau associatif de correspondance code -> libell�		
-		//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";  
-	} 
-	// fin boucle sur les r�ultats
-} // fin si pas hi�archique  
-
-// retablit les param�res normaux si n��saire
-if ($newconnect || $newbase) {
-	db_close($lnc);
-	db_connect($DBHost,$DBUser,$DBPass,$DBName);// r�uvre la session normale
+		if ($reqsup!="") { // rajoute req suppl eventuelle
+			$whsl="(".$whsl.") AND ".$reqsup;
+		}
+	} else { 	// soit la liste est simplement limité par une clause where supplémentaire
+			$whsl= ($reqsup != "" ? "WHERE ".$reqsup : "");
 	}
-//if ($newbase) mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de donn�s $DBName.");
-if ($valc!="" && !strstr($valc,'__str2f__')) {
-  if ($resaf=="") $resaf="N.C.";
-  return ($resaf);
-  }
-else {
-	return($tabCorlb); // retourne le tableau associatif
+
+
+	if ($cppid && $valc=="") { //on a une structure hierarchique et plus d'une valeur à chercher
+		// on cherche les parents initiaux, ie ceux dont le pid est null ou egal a la cle du meme enregistrement
+		if ($reqsup!="") $whreqsup=" AND $reqsup ";
+		$rql=db_query("SELECT $defl[1], $cppid $rcaf from $defl[0] WHERE ($cppid IS NULL OR $cppid=$defl[1] OR $cppid=0) $whreqsup $orderby");
+		while ($rw=db_fetch_row($rql)) {
+			if($rw[0] !="") { // si cle valide
+				$resaf=tradLib($rw[2]);
+				for ($k=2;$k<=$nbca;$k++) {
+					$cs=($tbcs[$k]!="" ? $tbcs[$k] : $carsepldef);
+					if ($valbchain[$k]!="") {
+						$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$rw[$k + 1]);
+					} else $resaf=$resaf.$cs.tradLib($rw[$k +1]);
+				} // boucle sur chps �entuels en plus
+				$tabCorlb[$rw[0]]=$resaf;
+				rettarbo($tabCorlb,$rw[0],$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,0,$whreqsup); 
+				//print_r($tabCorlb);				
+			} // fin si cl�valide
+		} // fin boucle reponses
+		if (!is_array($tabCorlb)) { // pas de reponses
+			$tabCorlb[err]="Error ! impossible construire l'arbre ";
+		}
+	} else { // pas hierarchique => normal
+		$defl[1] = str_replace(":",",",$defl[1]); // au cas ou clé multiple
+		$sqln =  addwherefORlimit("SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby",$maxrepld);
+		
+		$rql=db_query($sqln);
+		// constitution du tableau associatif a2 dim de corresp code ->lib
+		//echo "<!--debug2 rql=SELECT $defl[1] $rcaf from $defl[0] $whsl $orderby <br/>-->";
+		$tabCorlb=array();
+		$nbkm = count($tbmultk)>1 ? count($tbmultk) : 1; // nbre clé
+		while ($resl=db_fetch_row($rql)) {
+			$cle = $resaf = "";
+			if ($nbkm > 1) { // clé multiple
+				for ($k=0;$k<$nbkm;$k++) $cle .= $resl[$k].":";
+				$cle = vdc($cle,1);
+			} else { // clé simple
+				$nbkm = 1;
+				$cle=$resl[0];
+			}
+			for ($k=$nbkm;$k < ($nbca + $nbkm);$k++) {
+				$cs=($tbcs[$k]!="" ? $tbcs[$k] : ($k!=$nbkm ? $carsepldef : ""));
+				if ($valbchain[$k]!="") {
+					$resaf=$resaf.$cs.ttChpLink($valbchain[$k],"",$resl[$k]);
+				} else $resaf = $resaf.$cs.tradLib($resl[$k]);
+			}
+			$tabCorlb[$cle]=stripslashes($resaf); // tableau associatif de correspondance code -> libell�
+			//echo "<!--debug2 cle: $cle; val: $resaf ; valverif:   ".$tabCorlb[$cle]."-->\n";
+		}
+		// fin boucle sur les r�ultats
+	} // fin si pas hierarchique=normal
+
+	// retablit les param�res normaux si n��saire
+	if ($newconnect || $newbase) {
+		db_close($lnc);
+		db_connect($DBHost,$DBUser,$DBPass,$DBName);// r�uvre la session normale
+		}
+	//if ($newbase) mysql_select_db($DBName) or die ("Impossible d'ouvrir la base de donn�s $DBName.");
+	if ($valc!="" && !strstr($valc,'__str2f__')) {
+		if ($resaf=="") $resaf="N.C.";
+		return ($resaf);
+	} else {
+		return($tabCorlb); // retourne le tableau associatif
 	}
 }
 // fonction compl�entaire r�ntrante pour la gestion hi�archique
@@ -540,8 +572,9 @@ function rettarbo(&$tabCorlb,$valcppid,$defl,$cppid,$rcaf,$orderby,$nbca,$tbcs,$
 
 // fonction qui r�up�e les champ libell�(0) ou commentaire(1) d'une table
 function RecLibTable($NM_TABLE,$offs) {
+if ($GLOBALS["NmChpComment"]=="") $GLOBALS["NmChpComment"] = "COMMENT"; // pour oracle qui ne supporte pas le nom de champ comment
 global $TBDname,$NmChDT;
-$req="SELECT LIBELLE,COMMENT FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
+$req="SELECT LIBELLE,".$GLOBALS["NmChpComment"]." FROM $CSpIC$TBDname$CSpIC WHERE NM_TABLE='$NM_TABLE' AND NM_CHAMP='$NmChDT'";
 $reqRL=db_query($req) or die("Requete SQL de RecLibTable invalide : <I>$req</I>");
 $resRL=db_fetch_row($reqRL);
 return($resRL[$offs]);
@@ -562,20 +595,44 @@ function parseArgsReq(&$req) {
 	}
 	return ($tbarg);
 }
-// dans une chaine de type xxxx [arg1] yyyy [arg2] zzzz [arg3] arg1
-// retourne arg1, et dans str met   xxxx ###i yyyy [arg2] zzzz [arg3] arg1
+// dans une chaine de type xxxx [arg1=val1] yyyy [arg2] zzzz [arg3] 
+// si arg1 contient "=" le sépare dans le retour
+// retourne tb(arg1,typoss[,val1])et dans str met   xxxx ###i yyyy [arg2] zzzz [arg3]
 
 function ret1Arg(&$str,$i,$chm="###",$ch1="[",$ch2="]") {
 	
-	if ($np =  strpos($str,$ch1)) {
-		$ret = substr($str,$np+1);
+	if ($np =  strpos($str,$ch1)) { // indice position de "["
+		$ret = substr($str,$np+1); // chaine après [
 		$str1 = substr($str,0,$np);
 		if ($np =  strpos($ret,"]")) {
 			$str = $str1.$chm.$i.substr($ret,$np+1);
-			$ret = substr($ret,0,$np);
+			$typoss = stristr($ret,"where") ? "Edit" : "Filt"; // si reste where à droite de l'arg c'est qu'on est à gauche donc que c'est un édit, sinon, c'est un filtre
+			$strret = substr($ret,0,$np);
+			if (strstr($strret,"=")) {
+				$tb1 = explode("=",$strret);
+				$ret = array($tb1[0],$typoss,$tb1[1]);
+			} else $ret = array($strret,$typoss);
 			return $ret;
 		} else $ret = false;
 	} else $ret = false;
 	return($ret);
+}
+
+/// Grosse bizarrerie : si le nom de champ comporte des ".", les "." sont transformés en "_" par apache/php?, donc il faut bricoler salement !!!
+/// a cause de ça, on met lutot une syntaxe NomTable#NomChp
+/// le NmVar est le NmVar théorique cad NomTable.NomChamp
+/// cette fonction les remplace et retourne la vr de REQUEST sous la forme NomTable.NomChamp, utilisable directement en sql
+function trafikPtsInRequestVar($nmvar) {
+	$nmvar2 = str_replace(".","_",$nmvar);
+	if ($nmvar2!=$nmvar && isset($_REQUEST[$nmvar2])) {
+		$_REQUEST[$nmvar] = $_REQUEST[$nmvar2];
+		unset($_REQUEST[$nmvar2]);
+	}
+	$nmvar2 = str_replace(".","#",$nmvar);
+	if ($nmvar2!=$nmvar && isset($_REQUEST[$nmvar2])) {
+		$_REQUEST[$nmvar] = $_REQUEST[$nmvar2];
+		unset($_REQUEST[$nmvar2]);
+	}
+	
 }
 ?>
