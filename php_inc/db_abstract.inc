@@ -25,7 +25,8 @@ function db_connect($Host,$User,$Pwd,$DB="",$portIP="") {
 		case "mysql":
 		default:
 			if ($portIP=="") $portIP=3306;
-			$link=mysql_connect($Host,$User,$Pwd) or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
+			$link = @mysql_connect($Host,$User,$Pwd);// or die ("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
+			if (!$link)  throw new Exception("Impossible de se connecter au serveur MYSQL $Host avec le user $User, passwd: ***** ");
 			$GLOBALS['CSpIC'] = "`"; // caract�e pour "isoler" les noms de champs merdiques
 			$GLOBALS['NmChpOid'] = "";
 			$GLOBALS['sqllenstr0'] = "!=''";

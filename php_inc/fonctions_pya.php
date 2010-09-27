@@ -46,13 +46,13 @@ function SetCond ($TypF,$ValF,$NegF,$NomChp,$typChpNum=false) {
              }
            if ($cond!="") $cond="(".substr($cond,0,strlen($cond)-4).")"; // vire le dernier OR
                                                           // et rajoute () !!
-           } // si ValF pas tableau
-        else {
+        } else {  // si ValF pas tableau
         	if ($ValF=="%" || $ValF=="000") {
         		$cond="";
         	} else {
         		if (!$typChpNum) $gi="'";
-        		$cond="($NomChp = $gi$ValF$gi)";
+        		$op = strstr($ValF,"%,") ? "LIKE" : "="; // dans le cas des LD valeurs fixes multiple, ça peut merder... une cond  = "%,toto,%" ne ramène rien
+        		$cond="($NomChp $op $gi$ValF$gi)";
         	}
         }
         break;

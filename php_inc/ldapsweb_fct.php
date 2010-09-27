@@ -1,7 +1,9 @@
 <?
 // Adresse URL des services web ldap disponibles
-define("servldap_url_prod",'http://xinf-ldaplinux/ldapsweb/');
-define("servldap_url_test",'http://xinf-testlinux1/ldapsweb/');
+//define("servldap_url_prod",'http://xinf-ldaplinux/ldapsweb/');
+//define("servldap_url_test",'http://xinf-testlinux1/ldapsweb/');
+define("servldap_url_prod",'http://ldapsweb/');
+define("servldap_url_test",'http://ldapsweb/');
 
 require_once('nusoap_okphp5.php');
 
